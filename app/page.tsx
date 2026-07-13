@@ -15,7 +15,7 @@ export default async function Home() {
     <main className="max-w-5xl mx-auto px-6 py-10">
       <nav className="flex justify-between items-center mb-8">
         <div className="text-xl font-medium">
-          Mark<span className="text-accent">.dev</span>
+          markappscript<span className="text-accent">.dev</span>
         </div>
         <div className="flex gap-6 text-sm text-neutral-600">
           <span>Work</span>
@@ -26,10 +26,10 @@ export default async function Home() {
 
       <section className="rounded-2xl p-8 mb-8 bg-orange-100">
         <h1 className="text-3xl font-medium leading-tight text-orange-950">
-          {featured ? featured.title : "Building products that don't look like everyone else's"}
+          {featured ? featured.title : "WFM/RTA. Team Leader. I excel...wait, no. Building products that don't look like everyone else's"}
         </h1>
         <p className="text-orange-900/80 mt-2">
-          {featured?.description ?? "Full-stack developer — web, mobile, and everything between"}
+          {featured?.description ?? "AI-assisted developer — web, ads, and everything between"}
         </p>
       </section>
 
