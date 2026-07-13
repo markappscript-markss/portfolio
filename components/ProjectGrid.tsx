@@ -26,8 +26,8 @@ export default function ProjectGrid({
           onClick={() => setActiveCategory("all")}
           className={`px-4 py-1.5 rounded-full text-sm border ${
             activeCategory === "all"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "border-neutral-300 text-neutral-600"
+              ? "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 border-neutral-900 dark:border-neutral-100"
+              : "border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
           }`}
         >
           All
@@ -38,8 +38,8 @@ export default function ProjectGrid({
             onClick={() => setActiveCategory(cat.id)}
             className={`px-4 py-1.5 rounded-full text-sm border ${
               activeCategory === cat.id
-                ? "bg-neutral-900 text-white border-neutral-900"
-                : "border-neutral-300 text-neutral-600"
+                ? "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 border-neutral-900 dark:border-neutral-100"
+                : "border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
             }`}
           >
             {cat.name}
@@ -71,7 +71,7 @@ export default function ProjectGrid({
           );
         })}
         {filtered.length === 0 && (
-          <p className="text-neutral-500 text-sm">No projects in this category yet.</p>
+          <p className="text-neutral-500 dark:text-neutral-500 text-sm">No projects in this category yet.</p>
         )}
       </div>
     </div>
