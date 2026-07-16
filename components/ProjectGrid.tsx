@@ -65,7 +65,7 @@ export default function ProjectGrid({
                 href={project.live_url ?? project.repo_url ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between ${color.bg} ${color.text} transition-transform hover:-translate-y-1`}
+                className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between ${color.bg} ${color.text} transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0`}
               >
                 <div className="text-xs uppercase tracking-wide opacity-80">
                   {project.tech_stack?.join(" · ")}
