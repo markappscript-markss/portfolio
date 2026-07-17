@@ -1,84 +1,139 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import { useIntro } from "./IntroContext";
 
 export default function PageIntro() {
-  const [show, setShow] = useState(false);
-  const { setIntroComplete } = useIntro();
+  const ref = useRef<HTMLDivElement>(null);
+  const { introComplete, setIntroComplete } = useIntro();
+  const [animate, setAnimate] = useState(false);
+
+  const { scrollY } = useScroll();
+
+  // Logo Transformations
+  const nameScale = useTransform(scrollY, [0, 500], [1, 0.25]);
+  const nameY = useTransform(scrollY, [0, 500], ["0vh", "-42vh"]);
+  const nameX = useTransform(scrollY, [0, 500], ["0vw", "-35vw"]);
+
+  // Crossfade Opacities for the Text Color Fix
+  // centerText stays visible at the top, fades out as you scroll
+  const centerTextOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+  // navText is invisible at the top, fades in as you scroll
+  const navTextOpacity = useTransform(scrollY, [0, 300], [0, 1]);
+
+  // General element fades
+  const witOpacity = useTransform(scrollY, [0, 200], [1, 0]);
+  const scrollNudgeOpacity = useTransform(scrollY, [0, 100], [1, 0]);
+  const bgOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (latest > 50 && !introComplete) {
+      setIntroComplete(true);
+    }
+  });
 
   useEffect(() => {
     const seen = sessionStorage.getItem("intro_seen");
-    if (seen) {
-      // Already seen — mark intro as complete immediately
-      setIntroComplete(true);
-      return;
+
+    if (!seen) {
+      sessionStorage.setItem("intro_seen", "true");
+      setTimeout(() => {
+        setAnimate(true);
+        setTimeout(() => setIntroComplete(true), 2000);
+      }, 80);
+    } else {
+      setAnimate(true);
+      setTimeout(() => setIntroComplete(true), 500);
     }
-
-    setShow(true);
-    sessionStorage.setItem("intro_seen", "true");
-
-    const dismiss = () => setShow(false);
-
-    const timer = setTimeout(() => {
-      window.addEventListener("wheel", dismiss, { once: true });
-      window.addEventListener("touchstart", dismiss, { once: true });
-    }, 800);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("wheel", dismiss);
-      window.removeEventListener("touchstart", dismiss);
-    };
-  }, []);
+  }, [setIntroComplete]);
 
   return (
-    <AnimatePresence onExitComplete={() => setIntroComplete(true)}>
-      {show && (
-        <motion.div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+    <>
+      {/* LAYER 1: The Structure & Background (z-0) */}
+      <div ref={ref} className="relative h-screen sticky top-0 z-0 overflow-hidden">
+        <motion.div 
+          className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(135deg, #fde68a 0%, #f9a8d4 40%, #a78bfa 100%)",
+            background: "linear-gradient(135deg, #fde68a 0%, #f9a8d4 40%, #a78bfa 100%)",
+            opacity: bgOpacity
           }}
-          exit={{
-            y: "-100%",
-            opacity: 0,
-            transition: {
-              duration: 0.9,
-              ease: [0.76, 0, 0.24, 1],
-            },
-          }}
-        >
-          {/* Wit line */}
-          <motion.p
-            className="text-sm font-medium tracking-widest uppercase text-neutral-700 mb-4 select-none"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-          >
-            not another portfolio...
-          </motion.p>
+        />
+      </div>
 
-          {/* Big name */}
-          <div className="overflow-hidden">
-            <motion.h1
+      {/* LAYER 2: The Foreground Text (z-50) */}
+      <div className="fixed inset-0 z-50 pointer-events-none flex flex-col items-center justify-center">
+        <motion.p
+          // Removed dark mode text color here so it stays dark and readable on the gradient
+          className="text-sm font-medium tracking-widest uppercase text-neutral-700 mb-4 select-none"
+          style={{ opacity: witOpacity }}
+          initial={{ opacity: 0, filter: "blur(16px)", scale: 1.05 }}
+          animate={
+            animate
+              ? { filter: "blur(0px)", scale: 1 }
+              : { filter: "blur(16px)", scale: 1.05 }
+          }
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        >
+          not another portfolio...
+        </motion.p>
+
+        {/* 
+          Using CSS Grid to perfectly overlap the two text states. 
+          As you scroll, it crossfades from the "Always Dark" version to the "Theme Aware" version.
+        */}
+        <motion.div 
+          className="grid overflow-visible origin-center pointer-events-auto dark:drop-shadow-[0_0_25px_rgba(255,255,255,0.2)]"
+          style={{ scale: nameScale, y: nameY, x: nameX }}
+        >
+          {/* VERSION 1: Always Dark (For the center gradient) */}
+          <motion.div 
+            className="flex items-baseline gap-3 col-start-1 row-start-1"
+            style={{ opacity: centerTextOpacity }}
+          >
+            <motion.span
               className="text-5xl sm:text-7xl font-bold tracking-tight text-neutral-900 select-none"
-              initial={{ y: "110%" }}
-              animate={{ y: "0%" }}
-              transition={{
-                duration: 0.7,
-                delay: 0.55,
-                ease: [0.33, 1, 0.68, 1],
-              }}
+              initial={{ opacity: 0, filter: "blur(40px)" }}
+              animate={animate ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(40px)" }}
+              transition={{ duration: 1.0, delay: 0.45, ease: [0.33, 1, 0.68, 1] }}
             >
               markappscript
-              <span className="text-purple-600">.dev</span>
-            </motion.h1>
-          </div>
+            </motion.span>
+            <motion.span
+              className="text-5xl sm:text-7xl font-bold tracking-tight text-purple-700 select-none"
+              initial={{ opacity: 0, filter: "blur(40px)" }}
+              animate={animate ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(40px)" }}
+              transition={{ duration: 1.0, delay: 0.6, ease: [0.33, 1, 0.68, 1] }}
+            >
+              .dev
+            </motion.span>
+          </motion.div>
+
+          {/* VERSION 2: Theme Aware (For the scrolled top-left corner) */}
+          <motion.div 
+            className="flex items-baseline gap-3 col-start-1 row-start-1"
+            style={{ opacity: navTextOpacity }}
+          >
+            <span className="text-5xl sm:text-7xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 select-none">
+              markappscript
+            </span>
+            <span className="text-5xl sm:text-7xl font-bold tracking-tight text-purple-600 dark:text-purple-400 select-none">
+              .dev
+            </span>
+          </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+
+        <motion.p
+          // Removed dark mode text color here as well
+          className="absolute bottom-10 text-xs tracking-widest uppercase text-neutral-600 select-none"
+          style={{ opacity: scrollNudgeOpacity }}
+          initial={{ opacity: 0 }}
+          animate={animate ? {} : { opacity: 0 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
+        >
+          scroll
+        </motion.p>
+      </div>
+    </>
   );
 }

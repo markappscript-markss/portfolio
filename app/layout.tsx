@@ -1,4 +1,5 @@
 import { IntroProvider } from "@/components/animations/IntroContext";
+import SmoothScroll from "@/components/animations/SmoothScroll";
 import "./globals.css";
 
 export const metadata = {
@@ -25,9 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
-        <IntroProvider>
-          {children}
-        </IntroProvider>
+        <SmoothScroll>
+          <IntroProvider>
+            {children}
+          </IntroProvider>
+        </SmoothScroll>
       </body>
     </html>
   );
