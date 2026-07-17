@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Category, Project } from "@/lib/supabase";
 import { colorForCategory } from "@/lib/colors";
+import AnimatedProjectCard from "@/components/animations/AnimatedProjectCard";
 
 // Filters only show once there's enough content to justify sorting.
 // Below this, tabs are just UI for content that doesn't exist yet.
@@ -57,26 +58,27 @@ export default function ProjectGrid({
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((project) => {
+          {filtered.map((project, i) => {
             const color = colorForCategory(project.category_id, categoryIds);
             return (
-              <a
-                key={project.id}
-                href={project.live_url ?? project.repo_url ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between ${color.bg} ${color.text} transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0`}
-              >
-                <div className="text-xs uppercase tracking-wide opacity-80">
-                  {project.tech_stack?.join(" · ")}
-                </div>
-                <div>
-                  <div className="font-medium text-lg">{project.title}</div>
-                  {project.description && (
-                    <div className="text-sm opacity-90 mt-1">{project.description}</div>
-                  )}
-                </div>
-              </a>
+              <AnimatedProjectCard key={project.id} index={i}>
+                <a
+                  href={project.live_url ?? project.repo_url ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between ${color.bg} ${color.text} transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0`}
+                >
+                  <div className="text-xs uppercase tracking-wide opacity-80">
+                    {project.tech_stack?.join(" · ")}
+                  </div>
+                  <div>
+                    <div className="font-medium text-lg">{project.title}</div>
+                    {project.description && (
+                      <div className="text-sm opacity-90 mt-1">{project.description}</div>
+                    )}
+                  </div>
+                </a>
+              </AnimatedProjectCard>
             );
           })}
         </div>
