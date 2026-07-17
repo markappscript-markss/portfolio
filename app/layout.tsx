@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Mark — Portfolio",
-  description: "Full-stack developer — web, mobile, and everything between",
+  description: "AI-assisted developer — web, ads, and everything between",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
