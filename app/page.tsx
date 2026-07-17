@@ -4,8 +4,9 @@ import FadeInSection from "@/components/FadeInSection";
 import TextReveal from "@/components/animations/TextReveal";
 import PageIntro from "@/components/animations/PageIntro";
 import NavBar from "@/components/NavBar";
+import SpringButton from "@/components/animations/SpringButton";
 
-export const revalidate = 60; // re-fetch from Supabase every 60s
+export const revalidate = 60; 
 
 export default async function Home() {
   const [{ data: categories }, { data: projects }] = await Promise.all([
@@ -17,20 +18,14 @@ export default async function Home() {
 
   return (
     <>
-      {/* 1. FIXED NAVBAR - Now powered by Lenis smooth scrolling */}
       <NavBar />
-
-      {/* 2. STICKY BACKGROUND HERO */}
       <PageIntro />
 
-      {/* 3. FOREGROUND CONTENT OVERLAY */}
       <div className="relative z-10 bg-white dark:bg-neutral-950 w-full min-h-screen">
-        {/* Feathered edge that slides up over the gradient to soften the transition */}
         <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-white dark:to-neutral-950 pointer-events-none" />
         
         <main className="max-w-5xl mx-auto px-6 py-24">
           
-          {/* HERO — asymmetric, type-led */}
           <section className="mb-20 max-w-3xl">
             <TextReveal delay={0}>
               <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
@@ -63,18 +58,18 @@ export default async function Home() {
 
             <TextReveal delay={0.45}>
               <div className="flex gap-3">
-                <a
+                <SpringButton
                   href="#work"
-                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium"
                 >
                   See the work
-                </a>
-                <a
+                </SpringButton>
+                <SpringButton
                   href="#contact"
                   className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
                 >
                   Let's talk
-                </a>
+                </SpringButton>
               </div>
             </TextReveal>
           </section>
@@ -83,7 +78,6 @@ export default async function Home() {
             <ProjectGrid categories={categories ?? []} projects={projects ?? []} />
           </div>
 
-          {/* ABOUT — story-led */}
           <FadeInSection>
             <section id="about" className="mb-24 max-w-2xl scroll-mt-20">
               <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
@@ -113,7 +107,6 @@ export default async function Home() {
             </section>
           </FadeInSection>
 
-          {/* CONTACT */}
           <FadeInSection>
             <section id="contact" className="mb-10 max-w-2xl scroll-mt-20">
               <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
@@ -127,36 +120,36 @@ export default async function Home() {
                 Easiest ways to reach me below.
               </p>
               <div className="flex flex-wrap gap-3">
-                <a
+                <SpringButton
                   href="mailto:poticarmark@gmail.com"
-                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium"
                 >
                   Email me
-                </a>
-                <a
+                </SpringButton>
+                <SpringButton
                   href="https://ph.linkedin.com/in/mark-bryan-poticar-7954041b4"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
                 >
                   LinkedIn
-                </a>
-                <a
+                </SpringButton>
+                <SpringButton
                   href="https://github.com/markappscript-markss"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
                 >
                   GitHub
-                </a>
-                <a
+                </SpringButton>
+                <SpringButton
                   href="https://v2.onlinejobs.ph/jobseekers/info/4228954"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
                 >
                   OnlineJobsPH
-                </a>
+                </SpringButton>
               </div>
             </section>
           </FadeInSection>

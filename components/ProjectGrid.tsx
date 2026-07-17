@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import type { Category, Project } from "@/lib/supabase";
 import { colorForCategory } from "@/lib/colors";
 import AnimatedProjectCard from "@/components/animations/AnimatedProjectCard";
 
-// Filters only show once there's enough content to justify sorting.
-// Below this, tabs are just UI for content that doesn't exist yet.
 const MIN_PROJECTS_FOR_FILTERS = 6;
 
 export default function ProjectGrid({
@@ -30,7 +29,10 @@ export default function ProjectGrid({
     <div>
       {showFilters && (
         <div className="flex gap-2 flex-wrap mb-6">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             onClick={() => setActiveCategory("all")}
             className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
               activeCategory === "all"
@@ -39,10 +41,13 @@ export default function ProjectGrid({
             }`}
           >
             All
-          </button>
+          </motion.button>
           {categories.map((cat) => (
-            <button
+            <motion.button
               key={cat.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               onClick={() => setActiveCategory(cat.id)}
               className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
                 activeCategory === cat.id
@@ -51,7 +56,7 @@ export default function ProjectGrid({
               }`}
             >
               {cat.name}
-            </button>
+            </motion.button>
           ))}
         </div>
       )}
@@ -62,11 +67,14 @@ export default function ProjectGrid({
             const color = colorForCategory(project.category_id, categoryIds);
             return (
               <AnimatedProjectCard key={project.id} index={i}>
-                <a
+                <motion.a
                   href={project.live_url ?? project.repo_url ?? "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between ${color.bg} ${color.text} transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0`}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className={`rounded-2xl p-6 min-h-[160px] flex flex-col justify-between block ${color.bg} ${color.text} shadow-sm hover:shadow-xl transition-shadow duration-300`}
                 >
                   <div className="text-xs uppercase tracking-wide opacity-80">
                     {project.tech_stack?.join(" · ")}
@@ -77,14 +85,12 @@ export default function ProjectGrid({
                       <div className="text-sm opacity-90 mt-1">{project.description}</div>
                     )}
                   </div>
-                </a>
+                </motion.a>
               </AnimatedProjectCard>
             );
           })}
         </div>
       ) : (
-        // Real empty state instead of a bare filtered-list fallback —
-        // reads as intentional ("more coming") rather than broken.
         <div className="rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-700 py-16 text-center">
           <p className="text-neutral-500 dark:text-neutral-500 text-sm">
             First projects landing soon — check back shortly.
