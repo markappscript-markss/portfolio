@@ -57,7 +57,7 @@ export default async function Home() {
             <TextReveal delay={0.3}>
               <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mb-8">
                 {featured?.description ??
-                  "Web, mobile, and everything between — built to look intentional, not templated."}
+                  "Web, ads, and everything between — built to look intentional, not templated."}
               </p>
             </TextReveal>
 
