@@ -32,18 +32,24 @@ export default function PageIntro() {
   });
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("intro_seen");
-
-    if (!seen) {
-      sessionStorage.setItem("intro_seen", "true");
+    const startIntroAnimation = () => {
+      // Small 200ms window delay so the text reveals right as the zoom-in crossfade peaks
       setTimeout(() => {
         setAnimate(true);
         setTimeout(() => setIntroComplete(true), 2000);
-      }, 80);
+      }, 200);
+    };
+
+    // If the loading screen finished before this listener registered, run immediately
+    if ((window as any).__loadingComplete) {
+      startIntroAnimation();
     } else {
-      setAnimate(true);
-      setTimeout(() => setIntroComplete(true), 500);
+      window.addEventListener("loading-complete", startIntroAnimation);
     }
+
+    return () => {
+      window.removeEventListener("loading-complete", startIntroAnimation);
+    };
   }, [setIntroComplete]);
 
   return (
@@ -81,12 +87,10 @@ export default function PageIntro() {
         >
           {/* VERSION 1: Always Dark (For the center gradient) */}
           <motion.div 
-            // Swapped gap-3 for gap-1 on mobile, scaling up to gap-3 on sm screens
             className="flex items-baseline gap-1 sm:gap-3 col-start-1 row-start-1"
             style={{ opacity: centerTextOpacity }}
           >
             <motion.span
-              // Adjusted text sizes for responsive scaling
               className="text-[7.5vw] sm:text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 select-none"
               initial={{ opacity: 0, filter: "blur(40px)" }}
               animate={animate ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(40px)" }}
