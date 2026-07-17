@@ -17,9 +17,7 @@ export default function PageIntro() {
   const nameX = useTransform(scrollY, [0, 500], ["0vw", "-35vw"]);
 
   // Crossfade Opacities for the Text Color Fix
-  // centerText stays visible at the top, fades out as you scroll
   const centerTextOpacity = useTransform(scrollY, [0, 300], [1, 0]);
-  // navText is invisible at the top, fades in as you scroll
   const navTextOpacity = useTransform(scrollY, [0, 300], [0, 1]);
 
   // General element fades
@@ -64,7 +62,6 @@ export default function PageIntro() {
       {/* LAYER 2: The Foreground Text (z-50) */}
       <div className="fixed inset-0 z-50 pointer-events-none flex flex-col items-center justify-center">
         <motion.p
-          // Removed dark mode text color here so it stays dark and readable on the gradient
           className="text-sm font-medium tracking-widest uppercase text-neutral-700 mb-4 select-none"
           style={{ opacity: witOpacity }}
           initial={{ opacity: 0, filter: "blur(16px)", scale: 1.05 }}
@@ -78,21 +75,19 @@ export default function PageIntro() {
           not another portfolio...
         </motion.p>
 
-        {/* 
-          Using CSS Grid to perfectly overlap the two text states. 
-          As you scroll, it crossfades from the "Always Dark" version to the "Theme Aware" version.
-        */}
         <motion.div 
           className="grid overflow-visible origin-center pointer-events-auto dark:drop-shadow-[0_0_25px_rgba(255,255,255,0.2)]"
           style={{ scale: nameScale, y: nameY, x: nameX }}
         >
           {/* VERSION 1: Always Dark (For the center gradient) */}
           <motion.div 
-            className="flex items-baseline gap-3 col-start-1 row-start-1"
+            // Swapped gap-3 for gap-1 on mobile, scaling up to gap-3 on sm screens
+            className="flex items-baseline gap-1 sm:gap-3 col-start-1 row-start-1"
             style={{ opacity: centerTextOpacity }}
           >
             <motion.span
-              className="text-5xl sm:text-7xl font-bold tracking-tight text-neutral-900 select-none"
+              // Adjusted text sizes for responsive scaling
+              className="text-[7.5vw] sm:text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 select-none"
               initial={{ opacity: 0, filter: "blur(40px)" }}
               animate={animate ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(40px)" }}
               transition={{ duration: 1.0, delay: 0.45, ease: [0.33, 1, 0.68, 1] }}
@@ -100,7 +95,7 @@ export default function PageIntro() {
               markappscript
             </motion.span>
             <motion.span
-              className="text-5xl sm:text-7xl font-bold tracking-tight text-purple-700 select-none"
+              className="text-[7.5vw] sm:text-5xl md:text-7xl font-bold tracking-tight text-purple-700 select-none"
               initial={{ opacity: 0, filter: "blur(40px)" }}
               animate={animate ? { opacity: 1, filter: "blur(0px)" } : { opacity: 0, filter: "blur(40px)" }}
               transition={{ duration: 1.0, delay: 0.6, ease: [0.33, 1, 0.68, 1] }}
@@ -111,20 +106,19 @@ export default function PageIntro() {
 
           {/* VERSION 2: Theme Aware (For the scrolled top-left corner) */}
           <motion.div 
-            className="flex items-baseline gap-3 col-start-1 row-start-1"
+            className="flex items-baseline gap-1 sm:gap-3 col-start-1 row-start-1"
             style={{ opacity: navTextOpacity }}
           >
-            <span className="text-5xl sm:text-7xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 select-none">
+            <span className="text-[7.5vw] sm:text-5xl md:text-7xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 select-none">
               markappscript
             </span>
-            <span className="text-5xl sm:text-7xl font-bold tracking-tight text-purple-600 dark:text-purple-400 select-none">
+            <span className="text-[7.5vw] sm:text-5xl md:text-7xl font-bold tracking-tight text-purple-600 dark:text-purple-400 select-none">
               .dev
             </span>
           </motion.div>
         </motion.div>
 
         <motion.p
-          // Removed dark mode text color here as well
           className="absolute bottom-10 text-xs tracking-widest uppercase text-neutral-600 select-none"
           style={{ opacity: scrollNudgeOpacity }}
           initial={{ opacity: 0 }}
