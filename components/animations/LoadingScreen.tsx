@@ -7,9 +7,14 @@ export default function LoadingScreen() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Keeps the loading screen alive for exactly 3 seconds
     const timer = setTimeout(() => {
       setIsVisible(false);
+      
+      // 1. Tell the rest of the app the loader has finished
+      window.dispatchEvent(new Event("loading-complete"));
+      
+      // 2. Set a global flag in case another component mounts slightly later
+      (window as any).__loadingComplete = true;
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -20,13 +25,13 @@ export default function LoadingScreen() {
       {isVisible && (
         <motion.div
           initial={{ opacity: 1, scale: 1 }}
-          // Custom zoom out, fade, and camera blur transition
+          // Rushes toward the screen (zooming in) while dissolving away
           exit={{ 
             opacity: 0, 
-            scale: 1.08, 
-            filter: "blur(8px)" 
+            scale: 1.4, 
+            filter: "blur(16px)" 
           }}
-          transition={{ type: "spring", stiffness: 200, damping: 28 }}
+          transition={{ ease: [0.33, 1, 0.68, 1], duration: 0.8 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-950 select-none pointer-events-auto"
         >
           <div className="loader">
