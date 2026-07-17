@@ -15,7 +15,7 @@ export default function LoadingScreen() {
       
       // 2. Set a global flag in case another component mounts slightly later
       (window as any).__loadingComplete = true;
-    }, 3000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
