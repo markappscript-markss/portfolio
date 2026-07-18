@@ -15,13 +15,13 @@ export type Category = {
 export type Project = {
   id: string;
   title: string;
-  slug: string;
   description: string | null;
-  category_id: string | null;
-  tech_stack: string[];
-  cover_image_url: string | null;
+  tech_stack: string[] | null;
   live_url: string | null;
   repo_url: string | null;
-  featured: boolean;
+  category_id: string;
   sort_order: number;
+  featured: boolean;
+  thumbnail_url: string | null;  
+  video_url: string | null;      
 };
