@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import ProjectGrid from "@/components/ProjectGrid";
 import MarqueeShowcase from "@/components/MarqueeShowcase";
 import FadeInSection from "@/components/FadeInSection";
 import TextReveal from "@/components/animations/TextReveal";
@@ -8,7 +7,7 @@ import NavBar from "@/components/NavBar";
 import SpringButton from "@/components/animations/SpringButton";
 import LoadingScreen from "@/components/animations/LoadingScreen";
 
-export const revalidate = 60; 
+export const revalidate = 60; // re-fetch from Supabase every 60s
 
 export default async function Home() {
   const [{ data: categories }, { data: projects }] = await Promise.all([
@@ -16,7 +15,7 @@ export default async function Home() {
     supabase.from("projects").select("*").order("sort_order"),
   ]);
 
-  // We only need this for the Marquee now.
+  // Filter down to only the featured projects
   const featuredProjects = (projects ?? []).filter((p) => p.featured);
 
   return (
@@ -84,9 +83,6 @@ export default async function Home() {
             {featuredProjects.length > 0 && (
               <MarqueeShowcase projects={featuredProjects} />
             )}
-
-            {/* Full filterable grid — shows all projects */}
-            <ProjectGrid categories={categories ?? []} projects={projects ?? []} />
           </div>
 
           {/* ABOUT — story-led */}
