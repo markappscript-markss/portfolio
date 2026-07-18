@@ -5,20 +5,13 @@ import { useAnimationFrame } from "framer-motion";
 import Image from "next/image";
 import type { Project } from "@/lib/supabase";
 
-// ─── Constants ──────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 const CARD_WIDTH = 300;   // px — width of each card
 const CARD_GAP   = 16;    // px — gap between cards
 const SPEED      = 0.55;  // px per frame — lower = slower
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-interface MarqueeShowcaseProps {
-  projects: Project[];
-}
-
-// ─── Sub-component ───────────────────────────────────────────────────────────
+// ─── Sub-component ────────────────────────────────────────────────────────────
 function MarqueeCard({ project }: { project: Project }) {
-  const isVideo = Boolean(project.video_url);
-
   return (
     <a
       href={project.live_url ?? project.repo_url ?? "#"}
@@ -27,8 +20,17 @@ function MarqueeCard({ project }: { project: Project }) {
       className="group relative flex-shrink-0 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800"
       style={{ width: CARD_WIDTH, height: 200 }}
     >
-      {/* Thumbnail or video */}
-      {project.thumbnail_url ? (
+      {/* Video → Image → Gradient fallback */}
+      {project.video_url ? (
+        <video
+          src={project.video_url}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+        />
+      ) : project.thumbnail_url ? (
         <Image
           src={project.thumbnail_url}
           alt={project.title}
@@ -37,15 +39,14 @@ function MarqueeCard({ project }: { project: Project }) {
           sizes={`${CARD_WIDTH}px`}
         />
       ) : (
-        /* Fallback gradient when no thumbnail is set */
         <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900" />
       )}
 
-      {/* Dark overlay — slides up on hover */}
+      {/* Dark overlay — fades in on hover */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/55 transition-colors duration-300 rounded-2xl" />
 
-      {/* Play icon badge — visible only for video projects */}
-      {isVideo && (
+      {/* Video badge — visible when not hovered */}
+      {project.video_url && (
         <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm border border-white/15 opacity-100 group-hover:opacity-0 transition-opacity duration-200">
           <svg width="8" height="9" viewBox="0 0 8 9" fill="currentColor" aria-hidden="true">
             <path d="M0 0.5L8 4.5L0 8.5V0.5Z" />
@@ -54,7 +55,7 @@ function MarqueeCard({ project }: { project: Project }) {
         </div>
       )}
 
-      {/* Meta reveal — slides up from bottom on hover */}
+      {/* Meta reveal — slides up on hover */}
       <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out p-4">
         <p className="text-sm font-medium text-white leading-snug mb-1.5">
           {project.title}
@@ -77,15 +78,14 @@ function MarqueeCard({ project }: { project: Project }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function MarqueeShowcase({ projects }: MarqueeShowcaseProps) {
-  const isPausedRef  = useRef(false);
-  const xRef         = useRef(0);
-  const trackRef     = useRef<HTMLDivElement>(null);
+export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
+  const isPausedRef = useRef(false);
+  const xRef        = useRef(0);
+  const trackRef    = useRef<HTMLDivElement>(null);
 
-  // Total width of ONE set of items (we duplicate for the seamless loop)
   const loopWidth = projects.length * (CARD_WIDTH + CARD_GAP);
 
-  const [isPausedState, setIsPausedState] = useState(false); // for the hint dot only
+  const [isPausedState, setIsPausedState] = useState(false);
 
   const pause  = useCallback(() => { isPausedRef.current = true;  setIsPausedState(true);  }, []);
   const resume = useCallback(() => { isPausedRef.current = false; setIsPausedState(false); }, []);
@@ -93,24 +93,21 @@ export default function MarqueeShowcase({ projects }: MarqueeShowcaseProps) {
   useAnimationFrame(() => {
     if (isPausedRef.current || !trackRef.current || loopWidth === 0) return;
     xRef.current -= SPEED;
-    // Reset once we've scrolled through one full set to create the seamless loop
     if (Math.abs(xRef.current) >= loopWidth) xRef.current = 0;
     trackRef.current.style.transform = `translateX(${xRef.current}px)`;
   });
 
   if (projects.length === 0) return null;
 
-  // Duplicate items for a seamless infinite loop
   const items = [...projects, ...projects];
 
   return (
-    <section className="mb-24">
-      {/* Section label */}
+    <section className="mb-16">
       <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-6">
         Featured work
       </span>
 
-      {/* Mask fades the edges so cards don't hard-clip */}
+      {/* Edge fade mask */}
       <div
         className="overflow-hidden w-full"
         style={{
@@ -136,13 +133,11 @@ export default function MarqueeShowcase({ projects }: MarqueeShowcaseProps) {
         </div>
       </div>
 
-      {/* Hint */}
+      {/* Pause hint */}
       <p className="mt-3 flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-600">
         <span
           className="inline-block h-1.5 w-1.5 rounded-full transition-colors duration-200"
-          style={{
-            background: isPausedState ? "rgb(147 51 234)" : "currentColor",
-          }}
+          style={{ background: isPausedState ? "rgb(147 51 234)" : "currentColor" }}
         />
         {isPausedState ? "Paused" : "Hover to pause"}
       </p>
