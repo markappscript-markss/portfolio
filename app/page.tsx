@@ -8,7 +8,7 @@ import NavBar from "@/components/NavBar";
 import SpringButton from "@/components/animations/SpringButton";
 import LoadingScreen from "@/components/animations/LoadingScreen";
 
-export const revalidate = 60; // re-fetch from Supabase every 60s
+export const revalidate = 60; 
 
 export default async function Home() {
   const [{ data: categories }, { data: projects }] = await Promise.all([
@@ -16,7 +16,7 @@ export default async function Home() {
     supabase.from("projects").select("*").order("sort_order"),
   ]);
 
-  const featured = (projects ?? []).find((p) => p.featured);
+  // We only need this for the Marquee now.
   const featuredProjects = (projects ?? []).filter((p) => p.featured);
 
   return (
@@ -32,7 +32,6 @@ export default async function Home() {
 
       {/* 3. FOREGROUND CONTENT OVERLAY */}
       <div className="relative z-10 bg-white dark:bg-neutral-950 w-full min-h-screen">
-        {/* Feathered edge that slides up over the gradient to soften the transition */}
         <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-white dark:to-neutral-950 pointer-events-none" />
 
         <main className="max-w-5xl mx-auto px-6 py-24">
@@ -47,24 +46,17 @@ export default async function Home() {
 
             <TextReveal delay={0.15}>
               <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.1] tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                {featured ? (
-                  featured.title
-                ) : (
-                  <>
-                    WFM/RTA. Team Leader. I excel...wait, no.
-                    <br className="hidden sm:block" />{" "}
-                    <span className="text-purple-600 dark:text-purple-400">
-                      Building products that don't look like everyone else's.
-                    </span>
-                  </>
-                )}
+                WFM/RTA. Team Leader. I excel...wait, no.
+                <br className="hidden sm:block" />{" "}
+                <span className="text-purple-600 dark:text-purple-400">
+                  Building products that don't look like everyone else's.
+                </span>
               </h1>
             </TextReveal>
 
             <TextReveal delay={0.3}>
               <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mb-8">
-                {featured?.description ??
-                  "Web, ads, and everything between — built to look intentional, not templated."}
+                Web, ads, and everything between — built to look intentional, not templated.
               </p>
             </TextReveal>
 
