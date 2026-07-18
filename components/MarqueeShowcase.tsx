@@ -45,16 +45,6 @@ function MarqueeCard({ project }: { project: Project }) {
       {/* Dark overlay — fades in on hover */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/55 transition-colors duration-300 rounded-2xl" />
 
-      {/* Video badge — visible when not hovered */}
-      {project.video_url && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm border border-white/15 opacity-100 group-hover:opacity-0 transition-opacity duration-200">
-          <svg width="8" height="9" viewBox="0 0 8 9" fill="currentColor" aria-hidden="true">
-            <path d="M0 0.5L8 4.5L0 8.5V0.5Z" />
-          </svg>
-          Video
-        </div>
-      )}
-
       {/* Meta reveal — slides up on hover */}
       <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out p-4">
         <p className="text-sm font-medium text-white leading-snug mb-1.5">
@@ -132,15 +122,6 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
           ))}
         </div>
       </div>
-
-      {/* Pause hint */}
-      <p className="mt-3 flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-600">
-        <span
-          className="inline-block h-1.5 w-1.5 rounded-full transition-colors duration-200"
-          style={{ background: isPausedState ? "rgb(147 51 234)" : "currentColor" }}
-        />
-        {isPausedState ? "Paused" : "Hover to pause"}
-      </p>
     </section>
   );
 }
