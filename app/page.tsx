@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import ProjectGrid from "@/components/ProjectGrid";
+import MarqueeShowcase from "@/components/MarqueeShowcase";
 import FadeInSection from "@/components/FadeInSection";
 import TextReveal from "@/components/animations/TextReveal";
 import PageIntro from "@/components/animations/PageIntro";
@@ -16,13 +17,14 @@ export default async function Home() {
   ]);
 
   const featured = (projects ?? []).find((p) => p.featured);
+  const featuredProjects = (projects ?? []).filter((p) => p.featured);
 
   return (
     <>
-      {/* 0. SOLID BLACK GLITCH INTRO LOADER (Runs for 3s) */}
+      {/* 0. SOLID BLACK GLITCH INTRO LOADER */}
       <LoadingScreen />
 
-      {/* 1. FIXED NAVBAR - Now powered by Lenis smooth scrolling & spring hover pills */}
+      {/* 1. FIXED NAVBAR */}
       <NavBar />
 
       {/* 2. STICKY BACKGROUND HERO */}
@@ -32,9 +34,9 @@ export default async function Home() {
       <div className="relative z-10 bg-white dark:bg-neutral-950 w-full min-h-screen">
         {/* Feathered edge that slides up over the gradient to soften the transition */}
         <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-white dark:to-neutral-950 pointer-events-none" />
-        
+
         <main className="max-w-5xl mx-auto px-6 py-24">
-          
+
           {/* HERO — asymmetric, type-led */}
           <section className="mb-20 max-w-3xl">
             <TextReveal delay={0}>
@@ -84,7 +86,14 @@ export default async function Home() {
             </TextReveal>
           </section>
 
+          {/* WORK SECTION */}
           <div id="work" className="mb-24">
+            {/* Marquee — shows only featured projects (featured = true in Supabase) */}
+            {featuredProjects.length > 0 && (
+              <MarqueeShowcase projects={featuredProjects} />
+            )}
+
+            {/* Full filterable grid — shows all projects */}
             <ProjectGrid categories={categories ?? []} projects={projects ?? []} />
           </div>
 
@@ -165,6 +174,7 @@ export default async function Home() {
               </div>
             </section>
           </FadeInSection>
+
         </main>
       </div>
     </>
