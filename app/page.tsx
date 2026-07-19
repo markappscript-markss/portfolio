@@ -6,6 +6,7 @@ import PageIntro from "@/components/animations/PageIntro";
 import NavBar from "@/components/NavBar";
 import SpringButton from "@/components/animations/SpringButton";
 import LoadingScreen from "@/components/animations/LoadingScreen";
+import ContactGrid from "@/components/ContactGrid"; // Make sure to create this file!
 
 export const revalidate = 60; // re-fetch from Supabase every 60s
 
@@ -117,7 +118,7 @@ export default async function Home() {
 
           {/* CONTACT */}
           <FadeInSection>
-            <section id="contact" className="mb-10 max-w-2xl scroll-mt-20">
+            <section id="contact" className="mb-10 max-w-2xl scroll-mt-20 relative">
               <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
                 Contact
               </span>
@@ -128,38 +129,10 @@ export default async function Home() {
                 Open to hiring conversations, contract work, or just talking shop.
                 Easiest ways to reach me below.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <SpringButton
-                  href="mailto:poticarmark@gmail.com"
-                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium"
-                >
-                  Email me
-                </SpringButton>
-                <SpringButton
-                  href="https://ph.linkedin.com/in/mark-bryan-poticar-7954041b4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
-                >
-                  LinkedIn
-                </SpringButton>
-                <SpringButton
-                  href="https://github.com/markappscript-markss"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
-                >
-                  GitHub
-                </SpringButton>
-                <SpringButton
-                  href="https://v2.onlinejobs.ph/jobseekers/info/4228954"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
-                >
-                  OnlineJobsPH
-                </SpringButton>
-              </div>
+              
+              {/* INTERACTIVE 2x2 CONTACT GRID */}
+              <ContactGrid />
+
             </section>
           </FadeInSection>
 
