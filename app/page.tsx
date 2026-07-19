@@ -47,12 +47,6 @@ export default async function Home() {
               }
             `}</style>
 
-            <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
-              <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400">
-                AI-assisted developer
-              </span>
-            </div>
-
             <div className="animate-fade-up" style={{ animationDelay: "0.25s" }}>
               <h1 className="text-4xl sm:text-5xl font-black leading-[1.15] tracking-tight text-neutral-900 dark:text-neutral-50">
                 Hello, my name is MARK.
