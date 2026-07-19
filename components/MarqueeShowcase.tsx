@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { useAnimationFrame, motion, AnimatePresence } from "framer-motion";
+import { useAnimationFrame, motion, AnimatePresence, type Transition } from "framer-motion";
 import Image from "next/image";
 import type { Project } from "@/lib/supabase";
 import Magnetic from "./animations/Magnetic";
@@ -11,7 +11,7 @@ const CARD_GAP = 16;
 const SPEED = 0.55;
 
 // High-end layout morph transition
-const morphTransition = {
+const morphTransition: Transition = {
   type: "spring",
   bounce: 0,
   duration: 0.9,
