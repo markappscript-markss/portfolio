@@ -10,7 +10,7 @@ const CARD_WIDTH = 300;
 const CARD_GAP = 16;
 const SPEED = 0.55;
 
-// High-end layout morph transition
+// High-end layout morph transition for the media
 const morphTransition: Transition = {
   type: "spring",
   bounce: 0,
@@ -24,7 +24,7 @@ const staggerContainer: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.15,
-      delayChildren: 0.5,
+      delayChildren: 0.3,
     },
   },
 };
@@ -114,7 +114,6 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 <motion.div
                   key={uniqueId}
                   layoutId={`container-${uniqueId}`}
-                  transition={morphTransition}
                   className="group relative flex-shrink-0 overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-900 z-20"
                   style={{ width: CARD_WIDTH, height: 200 }}
                   whileHover={{ scale: 1.05, y: -5 }}
@@ -160,39 +159,37 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
         {selectedProject && (
           <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col md:flex-row">
             
-            {/* 1. The Cinematic Backdrop - ADAPTIVE */}
+            {/* 1. The Cinematic Backdrop (Fades over the background content) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              exit={{ opacity: 0, transition: { duration: 0.6, ease: "easeInOut", delay: 0.1 } }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
               className="absolute inset-0 bg-white dark:bg-neutral-950 pointer-events-auto"
             />
 
-            {/* 2. The Morphed Layout */}
-            <motion.div
-              layoutId={`container-${selectedProject.id}`}
-              transition={morphTransition}
-              className="absolute inset-0 w-full h-full flex flex-col md:flex-row overflow-hidden pointer-events-none bg-transparent"
-            >
-              {/* LEFT SIDE: Text and Details */}
+            {/* 2. The Content Wrapper (No layoutId here anymore) */}
+            <div className="absolute inset-0 w-full h-full flex flex-col md:flex-row overflow-hidden pointer-events-none bg-transparent">
+              
+              {/* LEFT SIDE: Text and Details (Slides up and fades in) */}
               <motion.div 
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20, transition: { duration: 0.4, ease: "easeInOut" } }}
+                transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                 className="modal-scroll-area flex-1 md:w-1/2 h-full flex flex-col p-8 md:p-16 lg:p-24 z-20 relative overflow-y-auto pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 data-lenis-prevent
               >
                 
-                {/* Fixed Back Button - WITH MOBILE CLEARANCE & STACKING FIX */}
+                {/* Fixed Back Button */}
                 <div className="sticky top-0 z-[999] pt-24 pb-6 md:pt-4 md:pb-8 -mx-8 px-8 md:mx-0 md:px-0 pointer-events-auto bg-gradient-to-b from-white via-white/90 to-transparent dark:from-neutral-950 dark:via-neutral-950/90 dark:to-transparent md:bg-none">
                   <style>{`
                     .uiverse-btn {
                       --border-color: linear-gradient(-45deg, #ffae00, #7e03aa, #00fffb);
                       --border-width: 0.125em;
                       --curve-size: 0.5em;
-                      
-                      /* Light Mode Defaults */
                       --bg: #ffffff;
                       --text-color: #171717;
-                      
                       color: var(--text-color);
                       cursor: pointer;
                       position: relative;
@@ -215,63 +212,24 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                       );
                       transition: color 250ms;
                     }
-
-                    /* Dark Mode Overrides */
                     .dark .uiverse-btn {
                       --bg: #080312;
                       --text-color: #afffff;
                       box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
                     }
-
-                    .uiverse-btn::after,
-                    .uiverse-btn::before {
-                      content: "";
-                      position: absolute;
-                      inset: 0;
-                    }
-
-                    .uiverse-btn::before {
-                      background: var(--border-color);
-                      background-size: 300% 300%;
-                      animation: move-bg7234 5s ease infinite;
-                      z-index: -2;
-                    }
-
-                    @keyframes move-bg7234 {
-                      0% { background-position: 31% 0%; }
-                      50% { background-position: 70% 100%; }
-                      100% { background-position: 31% 0%; }
-                    }
-
+                    .uiverse-btn::after, .uiverse-btn::before { content: ""; position: absolute; inset: 0; }
+                    .uiverse-btn::before { background: var(--border-color); background-size: 300% 300%; animation: move-bg7234 5s ease infinite; z-index: -2; }
+                    @keyframes move-bg7234 { 0% { background-position: 31% 0%; } 50% { background-position: 70% 100%; } 100% { background-position: 31% 0%; } }
                     .uiverse-btn::after {
-                      background: var(--bg);
-                      z-index: -1;
-                      clip-path: polygon(
-                        var(--border-width) calc(var(--curve-size) + var(--border-width) * 0.5),
-                        calc(var(--curve-size) + var(--border-width) * 0.5) var(--border-width),
-                        calc(100% - var(--border-width)) var(--border-width),
-                        calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
-                        calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
-                        var(--border-width) calc(100% - var(--border-width))
-                      );
+                      background: var(--bg); z-index: -1;
+                      clip-path: polygon(var(--border-width) calc(var(--curve-size) + var(--border-width) * 0.5), calc(var(--curve-size) + var(--border-width) * 0.5) var(--border-width), calc(100% - var(--border-width)) var(--border-width), calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)), calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)), var(--border-width) calc(100% - var(--border-width)));
                       transition: clip-path 500ms;
                     }
-
                     .uiverse-btn:where(:hover, :focus)::after {
-                      clip-path: polygon(
-                        calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
-                        calc(100% - var(--border-width)) var(--border-width),
-                        calc(100% - var(--border-width)) var(--border-width),
-                        calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
-                        calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
-                        calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width))
-                      );
+                      clip-path: polygon(calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)), calc(100% - var(--border-width)) var(--border-width), calc(100% - var(--border-width)) var(--border-width), calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)), calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)), calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)));
                       transition: 200ms;
                     }
-
-                    .uiverse-btn:where(:hover, :focus) {
-                      color: #fff;
-                    }
+                    .uiverse-btn:where(:hover, :focus) { color: #fff; }
                   `}</style>
                   
                   <button 
@@ -326,15 +284,21 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 </motion.div>
               </motion.div>
 
-              {/* RIGHT SIDE: The Morphed Media */}
+              {/* RIGHT SIDE: The Morphed Media (Independent of the text) */}
               <div className="w-full md:w-1/2 h-[50vh] md:h-full relative flex items-center justify-center p-8 md:p-16 z-10 pointer-events-auto">
                 {/* Purple subtle gradient adaptive opacity */}
-                <div className="absolute inset-0 bg-gradient-to-l from-purple-900/10 dark:from-purple-900/20 to-transparent opacity-50 pointer-events-none" />
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.5 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="absolute inset-0 bg-gradient-to-l from-purple-900/10 dark:from-purple-900/20 to-transparent pointer-events-none" 
+                />
                 
                 <motion.div 
                   layoutId={`media-${selectedProject.id}`} 
                   transition={morphTransition}
-                  className="relative w-full aspect-video md:aspect-[4/3] bg-neutral-100 dark:bg-black shadow-2xl overflow-hidden"
+                  className="relative w-full aspect-video md:aspect-[4/3] bg-neutral-100 dark:bg-black shadow-2xl overflow-hidden rounded-xl"
                 >
                   {selectedProject.project.video_url ? (
                     <video src={selectedProject.project.video_url} autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" />
@@ -343,7 +307,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                   ) : null}
                 </motion.div>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
       </AnimatePresence>
