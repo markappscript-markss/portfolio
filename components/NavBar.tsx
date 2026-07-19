@@ -15,6 +15,7 @@ export default function NavBar() {
   const lenis = useLenis();
   const [hovered, setHovered] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false); // Added for modal slide logic
 
   useEffect(() => {
     const onScroll = () => {
@@ -25,6 +26,20 @@ export default function NavBar() {
     onScroll(); 
     
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Listen for the custom events broadcasted by the Project Modal
+  useEffect(() => {
+    const handleHide = () => setIsHidden(true);
+    const handleShow = () => setIsHidden(false);
+
+    window.addEventListener("hide-navbar", handleHide);
+    window.addEventListener("show-navbar", handleShow);
+
+    return () => {
+      window.removeEventListener("hide-navbar", handleHide);
+      window.removeEventListener("show-navbar", handleShow);
+    };
   }, []);
 
   const handleScrollAction = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
@@ -38,10 +53,13 @@ export default function NavBar() {
   };
 
   return (
-    <nav 
+    <motion.nav 
+      initial={{ y: 0 }}
+      animate={{ y: isHidden ? "-100%" : "0%" }}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       // 1. z-40 ensures this background stays UNDER the z-50 PageIntro logo.
       // 2. p-6 sm:p-10 is locked in place so the menu never shifts.
-      className={`fixed top-0 right-0 left-0 pt-6 sm:pt-10 px-6 sm:px-10 pb-1 sm:pb-2 flex justify-end items-center z-40 transition-all duration-[300ms] ease-in-out ${
+      className={`fixed top-0 right-0 left-0 pt-6 sm:pt-10 px-6 sm:px-10 pb-6 sm:pb-4 flex justify-end items-center z-40 transition-all duration-[300ms] ease-in-out ${
         isScrolled 
           ? "opacity-100 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 pointer-events-auto" 
           : "opacity-0 bg-transparent pointer-events-none"
@@ -75,6 +93,6 @@ export default function NavBar() {
           <ThemeToggle />
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 }

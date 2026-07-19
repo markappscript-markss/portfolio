@@ -1,36 +1,43 @@
-import { IntroProvider } from "@/components/animations/IntroContext";
-import SmoothScroll from "@/components/animations/SmoothScroll";
-import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css"; 
 
-export const metadata = {
-  title: "Mark — Portfolio",
-  description: "AI-assisted developer — web, ads, and everything between",
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Mark | AI-Assisted Developer",
+  description: "Web, ads, and everything between — built to look intentional",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Runs before paint to avoid a flash of the wrong theme */}
+      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50`}>
+        
+        {/* Safe immediate theme setup injection */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var stored = localStorage.getItem('theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                var dark = stored ? stored === 'dark' : prefersDark;
-                if (dark) document.documentElement.classList.add('dark');
+                try {
+                  var isDark = window.localStorage.getItem('theme') === 'dark' || 
+                    (!('theme' in window.localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (_) {}
               })();
             `,
           }}
         />
-      </head>
-      <body className="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
-        <SmoothScroll>
-          <IntroProvider>
-            {children}
-          </IntroProvider>
-        </SmoothScroll>
+
+        {children}
       </body>
     </html>
   );

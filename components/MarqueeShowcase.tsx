@@ -157,9 +157,9 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
       {/* FULL PAGE MORPH & CINEMATIC FADE */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col md:flex-row">
+          <div className="fixed inset-0 z-[9999] pointer-events-none flex flex-col md:flex-row">
             
-            {/* 1. The Cinematic Backdrop (Fades over the background content) */}
+            {/* 1. The Cinematic Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -168,21 +168,21 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
               className="absolute inset-0 bg-white dark:bg-neutral-950 pointer-events-auto"
             />
 
-            {/* 2. The Content Wrapper (No layoutId here anymore) */}
-            <div className="absolute inset-0 w-full h-full flex flex-col md:flex-row overflow-hidden pointer-events-none bg-transparent">
+            {/* 2. The Content Wrapper */}
+            <div className="absolute inset-0 w-full h-full flex flex-col md:flex-row overflow-y-auto md:overflow-hidden pointer-events-none bg-transparent">
               
-              {/* LEFT SIDE: Text and Details (Slides up and fades in) */}
+              {/* LEFT SIDE: Text and Details */}
               <motion.div 
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20, transition: { duration: 0.4, ease: "easeInOut" } }}
                 transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="modal-scroll-area flex-1 md:w-1/2 h-full flex flex-col p-8 md:p-16 lg:p-24 z-20 relative overflow-y-auto pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                className="order-2 md:order-1 modal-scroll-area w-full md:w-1/2 h-auto md:h-full flex flex-col p-6 sm:p-8 md:p-16 lg:p-24 z-20 relative pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 data-lenis-prevent
               >
                 
                 {/* Fixed Back Button */}
-                <div className="sticky top-0 z-[999] pt-24 pb-6 md:pt-4 md:pb-8 -mx-8 px-8 md:mx-0 md:px-0 pointer-events-auto bg-gradient-to-b from-white via-white/90 to-transparent dark:from-neutral-950 dark:via-neutral-950/90 dark:to-transparent md:bg-none">
+                <div className="sticky top-0 z-[999] py-4 md:pt-4 md:pb-8 -mx-6 px-6 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 pointer-events-auto bg-gradient-to-b from-white via-white/95 to-transparent dark:from-neutral-950 dark:via-neutral-950/95 dark:to-transparent md:bg-none">
                   <style>{`
                     .uiverse-btn {
                       --border-color: linear-gradient(-45deg, #ffae00, #7e03aa, #00fffb);
@@ -246,11 +246,11 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                   initial="hidden"
                   animate="show"
                   exit="hidden"
-                  className="max-w-xl my-auto pb-12"
+                  className="max-w-xl my-auto pb-6 md:pb-12"
                 >
                   <motion.h2 
                     variants={textReveal}
-                    className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight uppercase transform tracking-tighter"
+                    className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight uppercase transform tracking-tighter mt-4 md:mt-0"
                   >
                     {selectedProject.project.title}
                   </motion.h2>
@@ -284,9 +284,8 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 </motion.div>
               </motion.div>
 
-              {/* RIGHT SIDE: The Morphed Media (Independent of the text) */}
-              <div className="w-full md:w-1/2 h-[50vh] md:h-full relative flex items-center justify-center p-8 md:p-16 z-10 pointer-events-auto">
-                {/* Purple subtle gradient adaptive opacity */}
+              {/* RIGHT SIDE: The Morphed Media */}
+              <div className="order-1 md:order-2 w-full md:w-1/2 h-auto min-h-[40vh] max-h-[50vh] md:max-h-full md:h-full relative flex items-center justify-center p-4 pt-10 md:p-16 z-10 pointer-events-auto mt-0 md:mt-0 pb-0 md:pb-16">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 0.5 }}
@@ -298,9 +297,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 <motion.div 
                   layoutId={`media-${selectedProject.id}`} 
                   transition={morphTransition}
-                  // 1. Removed the forced aspect-[4/3] constraint
-                  // 2. Swapped background to transparent so it blends perfectly
-                  className="relative w-full h-full max-h-[70vh] md:max-h-[85vh] bg-transparent flex items-center justify-center overflow-hidden rounded-xl"
+                  className="relative w-full h-full max-h-[45vh] md:max-h-[85vh] bg-transparent flex items-center justify-center overflow-hidden rounded-xl"
                 >
                   {selectedProject.project.video_url ? (
                     <video 
@@ -309,7 +306,6 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                       loop 
                       muted 
                       playsInline 
-                      // 3. Changed from object-cover to object-contain
                       className="w-full h-full object-contain rounded-xl shadow-2xl" 
                     />
                   ) : selectedProject.project.thumbnail_url ? (
@@ -317,7 +313,6 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                       src={selectedProject.project.thumbnail_url} 
                       alt={selectedProject.project.title} 
                       fill 
-                      // 3. Changed from object-cover to object-contain
                       className="object-contain rounded-xl drop-shadow-2xl" 
                     />
                   ) : null}

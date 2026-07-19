@@ -1,12 +1,11 @@
 import { supabase } from "@/lib/supabase";
-import MarqueeShowcase from "@/components/MarqueeShowcase";
+import ProjectList from "@/components/ProjectList"; 
 import FadeInSection from "@/components/FadeInSection";
-import TextReveal from "@/components/animations/TextReveal";
-import PageIntro from "@/components/animations/PageIntro";
 import NavBar from "@/components/NavBar";
-import SpringButton from "@/components/animations/SpringButton";
 import LoadingScreen from "@/components/animations/LoadingScreen";
-import ContactGrid from "@/components/ContactGrid"; // Make sure to create this file!
+import ContactGrid from "@/components/ContactGrid"; 
+import HeroTypewriter from "@/components/animations/HeroTypewriter"; 
+import PageIntro from "@/components/animations/PageIntro"; // Imported safely
 
 export const revalidate = 60; // re-fetch from Supabase every 60s
 
@@ -16,7 +15,6 @@ export default async function Home() {
     supabase.from("projects").select("*").order("sort_order"),
   ]);
 
-  // Filter down to only the featured projects
   const featuredProjects = (projects ?? []).filter((p) => p.featured);
 
   return (
@@ -27,7 +25,7 @@ export default async function Home() {
       {/* 1. FIXED NAVBAR */}
       <NavBar />
 
-      {/* 2. STICKY BACKGROUND HERO */}
+      {/* 2. STICKY BACKGROUND HERO BACKGROUND INTRO */}
       <PageIntro />
 
       {/* 3. FOREGROUND CONTENT OVERLAY */}
@@ -36,102 +34,97 @@ export default async function Home() {
 
         <main className="max-w-5xl mx-auto px-6 py-24">
 
-          {/* HERO — asymmetric, type-led */}
-          <section className="mb-20 max-w-3xl">
-            <TextReveal delay={0}>
-              <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
+          {/* 1. HERO — Asymmetric, non-clipping typography layout */}
+          <section className="mb-24 max-w-3xl space-y-4 dynamic-hero-fade">
+            <style>{`
+              @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              .animate-fade-up {
+                animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+              }
+            `}</style>
+
+            <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
+              <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400">
                 AI-assisted developer
               </span>
-            </TextReveal>
+            </div>
 
-            <TextReveal delay={0.15}>
-              <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.1] tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                WFM/RTA. Team Leader. I excel...wait, no.
-                <br className="hidden sm:block" />{" "}
-                <span className="text-purple-600 dark:text-purple-400">
-                  Building products that don't look like everyone else's.
+            <div className="animate-fade-up" style={{ animationDelay: "0.25s" }}>
+              <h1 className="text-4xl sm:text-5xl font-black leading-[1.15] tracking-tight text-neutral-900 dark:text-neutral-50">
+                Hello, my name is MARK.
+                <br />
+                <span className="flex flex-wrap items-center min-h-[1.2em]">
+                  I am a&nbsp;
+                  <span className="text-purple-600 dark:text-purple-400 inline-block">
+                    <HeroTypewriter />
+                  </span>
                 </span>
               </h1>
-            </TextReveal>
+            </div>
 
-            <TextReveal delay={0.3}>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mb-8">
-                Web, ads, and everything between — built to look intentional, not templated.
+            <div className="animate-fade-up" style={{ animationDelay: "0.4s" }}>
+              <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl">
+                Web, ads, and everything between — built to look intentional
               </p>
-            </TextReveal>
-
-            <TextReveal delay={0.45}>
-              <div className="flex gap-3">
-                <SpringButton
-                  href="#work"
-                  className="px-5 py-2.5 rounded-full bg-neutral-900 text-white dark:bg-purple-600 dark:text-white text-sm font-medium"
-                >
-                  See the work
-                </SpringButton>
-                <SpringButton
-                  href="#contact"
-                  className="px-5 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 transition-colors"
-                >
-                  Let's talk
-                </SpringButton>
-              </div>
-            </TextReveal>
+            </div>
           </section>
 
-          {/* WORK SECTION */}
-          <div id="work" className="mb-24">
-            {/* Marquee — shows only featured projects (featured = true in Supabase) */}
-            {featuredProjects.length > 0 && (
-              <MarqueeShowcase projects={featuredProjects} />
-            )}
-          </div>
-
-          {/* ABOUT — story-led */}
+          {/* 2. ABOUT — pushed to the right side */}
           <FadeInSection>
-            <section id="about" className="mb-24 max-w-2xl scroll-mt-20">
+            <section id="about" className="mb-32 max-w-2xl scroll-mt-20 ml-auto">
               <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
                 About
               </span>
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                From Team Leader to "wait, no."
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
+                From forecasting shifts to shipping products.
               </h2>
               <div className="space-y-4 text-neutral-600 dark:text-neutral-400 leading-relaxed">
                 <p>
-                  I started out as a Team Leader, then got moved into RTA/WFM when the business
-                  needed it — forecasting shifts, staring at real-time dashboards, living the
-                  "excel...wait, no" bit from the headline above. Then life happened, the kind that
-                  makes you reconsider things, and I figured I'd try coding to make ends meet.
+                  My background isn't your typical computer science story. I spent years in the trenches as a Team Leader and WFM/RTA analyst—forecasting schedules, obsessing over real-time metrics, and pushing operational spreadsheets to their absolute limits. I was great at optimizing the tools we had, but eventually, I realized I'd rather just build them myself.
                 </p>
                 <p>
-                  Turns out I actually like this. There've been plenty of hours lost with an
-                  AI pair-programmer, both of us equally stuck on the same bug — but there's
-                  nothing like the moment it finally clicks and the thing just <em>works</em>.
+                  Today, I operate as an AI-assisted developer. I don't just write code; I orchestrate it. By pairing a rigorous, data-driven operational mindset with advanced AI workflows, I architect and ship production-ready web products significantly faster than traditional development cycles. I don't get bogged down in boilerplate—I focus on logic, architecture, and the final user experience.
                 </p>
                 <p>
-                  Right now I'm AI-assisted and still learning how the code actually works under
-                  the hood, not just shipping what runs. Building with Supabase, GitHub, and
-                  Vercel, and leveling up in AI video ad production on the side.
+                  My current stack runs on modern, scalable tech like Supabase, GitHub, and Vercel. When I'm not architecting web platforms, I'm directing multi-model AI workflows to produce high-end, cinematic video ads. Everything I build is engineered to look intentional and perform flawlessly.
                 </p>
               </div>
             </section>
           </FadeInSection>
 
-          {/* CONTACT */}
+          {/* 3. WORK SECTION */}
+          <div id="work" className="mb-32">
+            {featuredProjects.length > 0 && (
+              <ProjectList projects={featuredProjects} />
+            )}
+          </div>
+
+          {/* 4. CONTACT */}
           <FadeInSection>
-            <section id="contact" className="mb-10 max-w-2xl scroll-mt-20 relative">
-              <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
-                Contact
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                Let's talk.
-              </h2>
-              <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-lg">
-                Open to hiring conversations, contract work, or just talking shop.
-                Easiest ways to reach me below.
-              </p>
+            <section id="contact" className="w-full mb-32 scroll-mt-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
               
-              {/* INTERACTIVE 2x2 CONTACT GRID */}
-              <ContactGrid />
+              {/* LEFT SIDE: Text Content */}
+              <div className="w-full md:w-1/2 flex flex-col">
+                <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-600 dark:text-purple-400 mb-4">
+                  Contact
+                </span>
+                <h2 className="text-5xl md:text-6xl font-black text-neutral-900 dark:text-white tracking-tight mb-6">
+                  Let's talk.
+                </h2>
+                <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
+                  Open to hiring conversations, contract work, or just talking shop. 
+                  Easiest ways to reach me below.
+                </p>
+              </div>
+
+              {/* RIGHT SIDE: The Interactive Grid */}
+              <div className="w-full md:w-1/2 flex justify-start md:justify-end">
+                <ContactGrid />
+              </div>
 
             </section>
           </FadeInSection>

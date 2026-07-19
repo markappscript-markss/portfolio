@@ -20,8 +20,23 @@ export default function ContactGrid() {
     };
   }, []);
 
-  // Prevent link from firing if the grid is closed
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  // BULLETPROOF MOBILE HANDLING: Intercept touch before it fires simulated clicks
+  const handleTileTouch = (e: React.TouchEvent<HTMLAnchorElement>, href: string, isBlank: boolean) => {
+    if (!isOpen) {
+      e.preventDefault(); // Stop mobile from firing the native link click immediately
+      setIsOpen(true);    // Expand the menu instead
+    } else {
+      // If already open, let it route normally on mobile
+      if (isBlank) {
+        window.open(href, "_blank", "noopener,noreferrer");
+      } else {
+        window.location.href = href;
+      }
+    }
+  };
+
+  // DESKTOP FALLBACK: Handles normal mouse clicks gracefully
+  const handleTileClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!isOpen) {
       e.preventDefault();
       setIsOpen(true);
@@ -31,7 +46,7 @@ export default function ContactGrid() {
   return (
     <div
       ref={containerRef}
-      className={`relative mt-10 transition-all duration-400 ease-in-out cursor-pointer outline-none ${
+      className={`relative mt-10 transition-all duration-400 ease-in-out cursor-pointer outline-none select-none ${
         isOpen ? "w-[150px] h-[150px]" : "w-[130px] h-[130px]"
       }`}
       onMouseEnter={() => setIsOpen(true)}
@@ -67,7 +82,8 @@ export default function ContactGrid() {
         {/* TILE 1: EMAIL */}
         <a
           href="mailto:poticarmark@gmail.com"
-          onClick={handleLinkClick}
+          onClick={handleTileClick}
+          onTouchEnd={(e) => handleTileTouch(e, "mailto:poticarmark@gmail.com", false)}
           className={`relative flex items-center justify-center bg-white/60 dark:bg-white/10 backdrop-blur-[5px] transition-all duration-300 hover:bg-[#ea4335] dark:hover:bg-[#ea4335] group/link border border-transparent hover:border-white/20 hover:shadow-lg ${
             isOpen ? "rounded-[10px]" : "rounded-tl-[12px]"
           }`}
@@ -93,7 +109,8 @@ export default function ContactGrid() {
           href="https://ph.linkedin.com/in/mark-bryan-poticar-7954041b4"
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleLinkClick}
+          onClick={handleTileClick}
+          onTouchEnd={(e) => handleTileTouch(e, "https://ph.linkedin.com/in/mark-bryan-poticar-7954041b4", true)}
           className={`relative flex items-center justify-center bg-white/60 dark:bg-white/10 backdrop-blur-[5px] transition-all duration-300 hover:bg-[#0A66C2] dark:hover:bg-[#0A66C2] group/link border border-transparent hover:border-white/20 hover:shadow-lg ${
             isOpen ? "rounded-[10px]" : "rounded-tr-[12px]"
           }`}
@@ -114,7 +131,8 @@ export default function ContactGrid() {
           href="https://github.com/markappscript-markss"
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleLinkClick}
+          onClick={handleTileClick}
+          onTouchEnd={(e) => handleTileTouch(e, "https://github.com/markappscript-markss", true)}
           className={`relative flex items-center justify-center bg-white/60 dark:bg-white/10 backdrop-blur-[5px] transition-all duration-300 hover:bg-neutral-900 dark:hover:bg-white group/link border border-transparent hover:border-white/20 hover:shadow-lg ${
             isOpen ? "rounded-[10px]" : "rounded-bl-[12px]"
           }`}
@@ -139,7 +157,8 @@ export default function ContactGrid() {
           href="https://v2.onlinejobs.ph/jobseekers/info/4228954"
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleLinkClick}
+          onClick={handleTileClick}
+          onTouchEnd={(e) => handleTileTouch(e, "https://v2.onlinejobs.ph/jobseekers/info/4228954", true)}
           className={`relative flex items-center justify-center bg-white/60 dark:bg-white/10 backdrop-blur-[5px] transition-all duration-300 hover:bg-[#10b981] dark:hover:bg-[#10b981] group/link border border-transparent hover:border-white/20 hover:shadow-lg ${
             isOpen ? "rounded-[10px]" : "rounded-br-[12px]"
           }`}
