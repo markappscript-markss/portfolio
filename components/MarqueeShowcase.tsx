@@ -250,14 +250,14 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 >
                   <motion.h2 
                     variants={textReveal}
-                    className="text-5xl md:text-7xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight uppercase transform tracking-tighter"
+                    className="text-4xl md:text-5xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight uppercase transform tracking-tighter"
                   >
                     {selectedProject.project.title}
                   </motion.h2>
                   
                   <motion.p 
                     variants={textReveal}
-                    className="text-neutral-600 dark:text-neutral-400 text-lg md:text-xl leading-relaxed mb-10 whitespace-pre-wrap"
+                    className="text-neutral-600 dark:text-neutral-400 text-base md:text-lg leading-relaxed mb-10 whitespace-pre-wrap"
                   >
                     {selectedProject.project.description || "A bespoke interactive experience."}
                   </motion.p>
@@ -298,12 +298,28 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 <motion.div 
                   layoutId={`media-${selectedProject.id}`} 
                   transition={morphTransition}
-                  className="relative w-full aspect-video md:aspect-[4/3] bg-neutral-100 dark:bg-black shadow-2xl overflow-hidden rounded-xl"
+                  // 1. Removed the forced aspect-[4/3] constraint
+                  // 2. Swapped background to transparent so it blends perfectly
+                  className="relative w-full h-full max-h-[70vh] md:max-h-[85vh] bg-transparent flex items-center justify-center overflow-hidden rounded-xl"
                 >
                   {selectedProject.project.video_url ? (
-                    <video src={selectedProject.project.video_url} autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover" />
+                    <video 
+                      src={selectedProject.project.video_url} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      // 3. Changed from object-cover to object-contain
+                      className="w-full h-full object-contain rounded-xl shadow-2xl" 
+                    />
                   ) : selectedProject.project.thumbnail_url ? (
-                    <Image src={selectedProject.project.thumbnail_url} alt={selectedProject.project.title} fill className="object-cover" />
+                    <Image 
+                      src={selectedProject.project.thumbnail_url} 
+                      alt={selectedProject.project.title} 
+                      fill 
+                      // 3. Changed from object-cover to object-contain
+                      className="object-contain rounded-xl drop-shadow-2xl" 
+                    />
                   ) : null}
                 </motion.div>
               </div>
