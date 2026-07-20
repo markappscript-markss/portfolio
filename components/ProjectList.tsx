@@ -131,6 +131,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
                 className="fixed inset-0 z-[999990] bg-neutral-950 pointer-events-auto overflow-hidden"
+                data-lenis-prevent
               >
                 {/* Wall Background Image */}
                 <img
@@ -143,7 +144,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
               </motion.div>
 
               {/* MODAL CONTENT */}
-              <div className="fixed inset-0 z-[999999] flex flex-col lg:flex-row overflow-hidden pointer-events-none">
+              <div className="fixed inset-0 z-[999999] flex flex-col lg:flex-row overflow-hidden pointer-events-none" data-lenis-prevent>
 
                 {/* LEFT VIEWPORT PANEL (Text Area) */}
                 <motion.div
@@ -152,6 +153,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   className="order-2 lg:order-1 modal-scroll-area w-full lg:w-[45%] h-full flex flex-col p-6 pt-10 sm:p-8 sm:pt-12 md:p-12 lg:pl-16 lg:pr-8 overflow-y-auto pointer-events-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                  data-lenis-prevent
                 >
                   {/* Back Button Container */}
                   <div className="sticky top-0 z-[999] pb-8 -mx-6 px-6 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 shrink-0 h-16 block">

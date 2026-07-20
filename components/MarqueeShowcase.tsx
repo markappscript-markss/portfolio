@@ -157,7 +157,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
       {/* FULL PAGE MORPH & CINEMATIC FADE */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-[9999] pointer-events-none flex flex-col md:flex-row">
+          <div className="fixed inset-0 z-[9999] pointer-events-none flex flex-col md:flex-row" data-lenis-prevent>
             
             {/* 1. The Cinematic Backdrop */}
             <motion.div
