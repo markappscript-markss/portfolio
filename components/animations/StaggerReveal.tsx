@@ -2,18 +2,18 @@
 
 import { motion } from "framer-motion";
 
-export function StaggerContainer({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function StaggerContainer({ children, className = "", viewportMargin = "-100px" }: { children: React.ReactNode; className?: string; viewportMargin?: string }) {
     return (
         <motion.div
             className={className}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: viewportMargin }}
             variants={{
                 hidden: {},
                 show: {
                     transition: {
-                        staggerChildren: 0.12, // Gap between each element's slide-in
+                        staggerChildren: 0.18, // Gap between each element's slide-in
                     },
                 },
             }}

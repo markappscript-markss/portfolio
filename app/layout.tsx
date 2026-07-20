@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css"; 
+import SmoothScroll from "@/components/animations/SmoothScroll";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,29 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50`}>
-        
-        {/* Safe immediate theme setup injection */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var isDark = window.localStorage.getItem('theme') === 'dark' || 
-                    (!('theme' in window.localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                  if (isDark) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (_) {}
-              })();
-            `,
-          }}
-        />
-
-        {children}
+    <html lang="en" className="dark" style={{ scrollBehavior: "smooth" }}>
+      <body className={`${inter.className} antialiased bg-neutral-950 text-neutral-50`}>
+        <SmoothScroll>
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );

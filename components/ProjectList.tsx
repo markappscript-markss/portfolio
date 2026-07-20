@@ -7,6 +7,9 @@ import type { Project } from "@/lib/supabase";
 
 import { StaggerContainer, StaggerItem } from "./animations/StaggerReveal";
 
+const BACKGROUND_WALL_URL =
+  "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/backgrounds/wall.jpg";
+
 const morphTransition: Transition = {
   type: "spring",
   stiffness: 200,
@@ -48,7 +51,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
     } else {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
-      
+
       // EVENT: Tell NavBar to show
       window.dispatchEvent(new Event("show-navbar"));
     }
@@ -57,23 +60,30 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   if (projects.length === 0) return null;
 
   return (
-    <>
-      {/* MAIN BRUTALIST GRID LIST */}
-      <StaggerContainer className="w-full relative z-10 flex flex-col gap-8 md:gap-12">
-        {projects.map((project, index) => {
-          const uniqueId = `${project.id}-${index}`;
-          const isEven = index % 2 === 0;
+    <div className="w-full relative z-10 flex flex-col gap-8 md:gap-12">
+      {/* 1. INDEPENDENT SECTION TITLE STAGGER */}
+      <StaggerContainer className="w-full">
+        <StaggerItem className="w-full mb-2 md:mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-neutral-900 dark:text-neutral-100">
+            My Work
+          </h2>
+        </StaggerItem>
+      </StaggerContainer>
 
-          return (
-            <StaggerItem key={uniqueId} className="w-full">
-              <div 
-                className={`flex flex-col md:flex-row items-center gap-6 md:gap-12 pb-6 border-b border-neutral-200 dark:border-neutral-900/50 last:border-0 w-full ${
-                  isEven ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
+      {/* 2. INDIVIDUAL PROJECT STAGGER ON SCROLL */}
+      {projects.map((project, index) => {
+        const uniqueId = `${project.id}-${index}`;
+        const isEven = index % 2 === 0;
+
+        return (
+          <StaggerContainer key={uniqueId} className="w-full">
+            <StaggerItem className="w-full">
+              <div
+                className={`flex flex-col md:flex-row items-center gap-6 md:gap-12 pb-6 border-b border-neutral-200 dark:border-neutral-900/50 last:border-0 w-full ${isEven ? "md:flex-row" : "md:flex-row-reverse"
+                  }`}
               >
-                <div className={`w-full md:w-[58%] flex flex-col justify-center select-none ${
-                  isEven ? "md:items-end md:text-right" : "md:items-start md:text-left"
-                }`}>
+                <div className={`w-full md:w-[58%] flex flex-col justify-center select-none ${isEven ? "md:items-end md:text-right" : "md:items-start md:text-left"
+                  }`}>
                   <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight uppercase text-neutral-900 dark:text-neutral-100">
                     {project.title}
                   </h3>
@@ -82,21 +92,21 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                   </span>
                 </div>
 
-                <div 
+                <div
                   className="w-full md:w-[42%] aspect-[16/8] relative cursor-pointer"
                   onClick={() => setSelectedProject({ project, id: uniqueId })}
                 >
-                  <motion.div 
+                  <motion.div
                     layoutId={`media-${uniqueId}`}
                     transition={morphTransition}
                     whileHover={{ scale: 0.96 }}
                     className="absolute inset-0 w-full h-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 z-10 group"
                   >
                     {project.thumbnail_url ? (
-                      <img 
-                        src={project.thumbnail_url} 
-                        alt={project.title} 
-                        className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-transform duration-700 ease-out scale-100 group-hover:scale-110" 
+                      <img
+                        src={project.thumbnail_url}
+                        alt={project.title}
+                        className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-transform duration-700 ease-out scale-100 group-hover:scale-110"
                       />
                     ) : (
                       <div className="w-full h-full bg-neutral-200 dark:bg-neutral-800" />
@@ -105,29 +115,38 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                 </div>
               </div>
             </StaggerItem>
-          );
-        })}
-      </StaggerContainer>
+          </StaggerContainer>
+        );
+      })}
 
       {/* DETACHED CINEMATIC THEATER STACK — Portaled to the document root */}
       {isMounted && createPortal(
         <AnimatePresence>
           {selectedProject && (
             <>
-              {/* BACKDROP */}
+              {/* BACKDROP WITH WALL IMAGE & DARK OVERLAY */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="fixed inset-0 z-[999990] bg-neutral-50 dark:bg-neutral-950 pointer-events-auto overflow-hidden"
-              />
+                className="fixed inset-0 z-[999990] bg-neutral-950 pointer-events-auto overflow-hidden"
+              >
+                {/* Wall Background Image */}
+                <img
+                  src={BACKGROUND_WALL_URL}
+                  alt="Modal Wall Background"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {/* Dark Overlay Fade */}
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]" />
+              </motion.div>
 
               {/* MODAL CONTENT */}
               <div className="fixed inset-0 z-[999999] flex flex-col lg:flex-row overflow-hidden pointer-events-none">
-                
+
                 {/* LEFT VIEWPORT PANEL (Text Area) */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -172,8 +191,8 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                         100% { background-position: 0% 50%; }
                       }
                     `}</style>
-                    
-                    <button 
+
+                    <button
                       onClick={() => setSelectedProject(null)}
                       className="brutalist-tech-btn"
                     >
@@ -182,11 +201,11 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                   </div>
 
                   <div className="w-full my-auto pb-6 md:pb-12 flex flex-col">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-neutral-900 dark:text-white mb-6 leading-tight uppercase transform tracking-tighter mt-4 md:mt-0">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6 leading-tight uppercase transform tracking-tighter mt-4 md:mt-0">
                       {selectedProject.project.title}
                     </h2>
-                    
-                    <p className="text-neutral-600 dark:text-neutral-400 text-base md:text-lg leading-relaxed mb-10 whitespace-pre-wrap">
+
+                    <p className="text-neutral-300 text-base md:text-lg leading-relaxed mb-10 whitespace-pre-wrap">
                       {selectedProject.project.description || "A bespoke interactive experience engineered to performance limits."}
                     </p>
 
@@ -194,7 +213,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                       <div className="mb-10">
                         <div className="flex flex-wrap gap-2 mt-2">
                           {selectedProject.project.tech_stack.map((tech) => (
-                            <span key={tech} className="px-4 py-2 bg-neutral-200 dark:bg-neutral-900/80 text-neutral-800 dark:text-neutral-200 rounded-full text-xs font-bold tracking-wider uppercase">
+                            <span key={tech} className="px-4 py-2 bg-neutral-900/80 text-neutral-200 border border-neutral-800 rounded-full text-xs font-bold tracking-wider uppercase">
                               {tech}
                             </span>
                           ))}
@@ -204,7 +223,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
 
                     <div className="flex gap-4">
                       {selectedProject.project.live_url && (
-                        <a href={selectedProject.project.live_url} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-neutral-900 dark:bg-white text-white dark:text-black text-sm font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform">
+                        <a href={selectedProject.project.live_url} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform">
                           See Case ↗
                         </a>
                       )}
@@ -213,21 +232,21 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                 </motion.div>
 
                 {/* RIGHT VIEWPORT PANEL (Media) */}
-<div className="order-1 lg:order-2 w-full lg:w-[55%] h-[40vh] md:h-[50vh] lg:h-full relative flex items-center justify-center p-4 pt-12 md:p-8 lg:p-16 lg:pl-0 pointer-events-auto">
-  <div className="w-full aspect-[16/8] relative rounded-xl">
-                    <motion.div 
-                      layoutId={`media-${selectedProject.id}`} 
+                <div className="order-1 lg:order-2 w-full lg:w-[55%] h-[40vh] md:h-[50vh] lg:h-full relative flex items-center justify-center p-4 pt-12 md:p-8 lg:p-16 lg:pl-0 pointer-events-auto">
+                  <div className="w-full aspect-[16/8] relative rounded-xl">
+                    <motion.div
+                      layoutId={`media-${selectedProject.id}`}
                       transition={morphTransition}
-                      className="absolute inset-0 w-full h-full bg-neutral-200 dark:bg-neutral-900 rounded-xl overflow-hidden z-10"
+                      className="absolute inset-0 w-full h-full bg-neutral-900 rounded-xl overflow-hidden z-10"
                     >
                       {selectedProject.project.thumbnail_url ? (
-                        <img 
-                          src={selectedProject.project.thumbnail_url} 
-                          alt={selectedProject.project.title} 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src={selectedProject.project.thumbnail_url}
+                          alt={selectedProject.project.title}
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-neutral-200 dark:bg-neutral-800" />
+                        <div className="w-full h-full bg-neutral-800" />
                       )}
                     </motion.div>
                   </div>
@@ -239,6 +258,6 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
         </AnimatePresence>,
         document.body
       )}
-    </>
+    </div>
   );
 }

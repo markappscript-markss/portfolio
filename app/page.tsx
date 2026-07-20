@@ -1,13 +1,16 @@
 import { supabase } from "@/lib/supabase";
-import ProjectList from "@/components/ProjectList"; 
+import ProjectList from "@/components/ProjectList";
 import { StaggerContainer, StaggerItem } from "@/components/animations/StaggerReveal";
 import NavBar from "@/components/NavBar";
 import LoadingScreen from "@/components/animations/LoadingScreen";
-import ContactGrid from "@/components/ContactGrid"; 
-import HeroTypewriter from "@/components/animations/HeroTypewriter"; 
-import PageIntro from "@/components/animations/PageIntro"; // Imported safely
+import ContactGrid from "@/components/ContactGrid";
+import HeroTypewriter from "@/components/animations/HeroTypewriter";
+import PageIntro from "@/components/animations/PageIntro";
+import MacbookShowcase from "@/components/MacbookShowcase";
+import AboutSection from "@/components/AboutSection"; // <-- NEW IMPORT
+import HeroPhoto from "@/components/HeroPhoto";
 
-export const revalidate = 60; // re-fetch from Supabase every 60s
+export const revalidate = 60;
 
 export default async function Home() {
   const [{ data: categories }, { data: projects }] = await Promise.all([
@@ -29,13 +32,12 @@ export default async function Home() {
       <PageIntro />
 
       {/* 3. FOREGROUND CONTENT OVERLAY */}
-      <div className="relative z-10 bg-white dark:bg-neutral-950 w-full min-h-screen">
-        <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-white dark:to-neutral-950 pointer-events-none" />
+      <div className="relative z-10 bg-neutral-950 w-full min-h-0 md:min-h-screen">
+        <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-neutral-950 pointer-events-none" />
 
-        <main className="max-w-5xl mx-auto px-6 py-24">
-
-          {/* 1. HERO — Asymmetric, non-clipping typography layout */}
-          <section className="mb-24 max-w-3xl space-y-4 dynamic-hero-fade">
+        {/* --- PART 1: HERO (Constrained Width) --- */}
+        <main id="home" className="max-w-5xl mx-auto px-6 pt-24 pb-4 md:pb-12 relative scroll-mt-[40vh]">
+          <section className="mb-6 md:mb-12 max-w-3xl space-y-4 dynamic-hero-fade">
             <style>{`
               @keyframes fadeInUp {
                 from { opacity: 0; transform: translateY(16px); }
@@ -48,12 +50,12 @@ export default async function Home() {
             `}</style>
 
             <div className="animate-fade-up" style={{ animationDelay: "0.25s" }}>
-              <h1 className="text-4xl sm:text-5xl font-black leading-[1.15] tracking-tight text-neutral-900 dark:text-neutral-50">
+              <h1 className="text-4xl sm:text-5xl font-black leading-[1.15] tracking-tight text-neutral-50">
                 Hello, my name is MARK.
                 <br />
                 <span className="flex flex-wrap items-center min-h-[1.2em]">
                   I am a&nbsp;
-                  <span className="text-purple-600 dark:text-purple-400 inline-block">
+                  <span className="text-purple-400 inline-block">
                     <HeroTypewriter />
                   </span>
                 </span>
@@ -61,71 +63,54 @@ export default async function Home() {
             </div>
 
             <div className="animate-fade-up" style={{ animationDelay: "0.4s" }}>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl">
+              <p className="text-lg text-neutral-400 max-w-xl">
                 Web, ads, and everything between — built to look intentional
               </p>
             </div>
           </section>
 
-          {/* 2. ABOUT — pushed to the right side */}
-          <section id="about" className="mb-32 max-w-2xl scroll-mt-20 ml-auto">
-            <StaggerContainer>
-              <StaggerItem>
-                <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
-                  About
-                </span>
-              </StaggerItem>
-              <StaggerItem>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                  From forecasting shifts to shipping products.
-                </h2>
-              </StaggerItem>
-              <div className="space-y-4 text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                <StaggerItem>
-                  <p>
-                    My background isn't your typical computer science story. I spent years in the trenches as a Team Leader and WFM/RTA analyst—forecasting schedules, obsessing over real-time metrics, and pushing operational spreadsheets to their absolute limits. I was great at optimizing the tools we had, but eventually, I realized I'd rather just build them myself.
-                  </p>
-                </StaggerItem>
-                <StaggerItem>
-                  <p>
-                    Today, I operate as an AI-assisted developer. I don't just write code; I orchestrate it. By pairing a rigorous, data-driven operational mindset with advanced AI workflows, I architect and ship production-ready web products significantly faster than traditional development cycles. I don't get bogged down in boilerplate—I focus on logic, architecture, and the final user experience.
-                  </p>
-                </StaggerItem>
-                <StaggerItem>
-                  <p>
-                    My current stack runs on modern, scalable tech like Supabase, GitHub, and Vercel. When I'm not architecting web platforms, I'm directing multi-model AI workflows to produce high-end, cinematic video ads. Everything I build is engineered to look intentional and perform flawlessly.
-                  </p>
-                </StaggerItem>
-              </div>
-            </StaggerContainer>
-          </section>
+          {/* Photo floats over the right side without affecting text layout */}
+          <div className="absolute right-0 bottom-0">
+            <HeroPhoto />
+          </div>
 
-          {/* 3. WORK SECTION */}
+        </main>
+
+        {/* --- PART 2: THE GSAP DIVE (Full Viewport Width) --- */}
+        <MacbookShowcase />
+
+        {/* --- PART 3: ABOUT SECTION WITH PHOTO & GRADIENT BLENDS (Full Viewport Width) --- */}
+        <AboutSection />
+
+        {/* --- PART 4: WORK & CONTACT (Constrained Width) --- */}
+        <main className="max-w-5xl mx-auto px-6 py-24 relative z-20 bg-neutral-950">
+
+          {/* WORK SECTION */}
           <div id="work" className="mb-32">
             {featuredProjects.length > 0 && (
               <ProjectList projects={featuredProjects} />
             )}
           </div>
 
-          {/* 4. CONTACT */}
+          {/* CONTACT SECTION */}
           <section id="contact" className="w-full mb-32 scroll-mt-20">
             <StaggerContainer className="flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
-              
+
               {/* LEFT SIDE: Text Content */}
               <div className="w-full md:w-1/2 flex flex-col">
                 <StaggerItem>
-                  <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-600 dark:text-purple-400 mb-4">
+                  <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-400 mb-4">
                     Contact
                   </span>
                 </StaggerItem>
                 <StaggerItem>
-                  <h2 className="text-5xl md:text-6xl font-black text-neutral-900 dark:text-white tracking-tight mb-6">
+                  <h2 className="text-5xl md:text-6xl font-black text-white tracking-tight mb-6">
                     Let's talk.
                   </h2>
                 </StaggerItem>
                 <StaggerItem>
-                  <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
-                    Open to hiring conversations, contract work, or just talking shop. 
+                  <p className="text-lg text-neutral-400 max-w-md">
+                    Open to hiring conversations, contract work, or just talking shop.
                     Easiest ways to reach me below.
                   </p>
                 </StaggerItem>
