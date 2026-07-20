@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence, type Transition } from "framer-motion";
 import type { Project } from "@/lib/supabase";
 
+import { StaggerContainer, StaggerItem } from "./animations/StaggerReveal";
+
 const morphTransition: Transition = {
   type: "spring",
   stiffness: 200,
@@ -57,52 +59,55 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   return (
     <>
       {/* MAIN BRUTALIST GRID LIST */}
-      <section className="w-full relative z-10 flex flex-col gap-8 md:gap-12">
+      <StaggerContainer className="w-full relative z-10 flex flex-col gap-8 md:gap-12">
         {projects.map((project, index) => {
           const uniqueId = `${project.id}-${index}`;
           const isEven = index % 2 === 0;
 
           return (
-            <div 
-              key={uniqueId} 
-              className={`flex flex-col md:flex-row items-center gap-6 md:gap-12 pb-6 border-b border-neutral-200 dark:border-neutral-900/50 last:border-0 w-full ${
-                isEven ? "md:flex-row" : "md:flex-row-reverse"
-              }`}
-            >
-              <div className="w-full md:w-2/5 flex flex-col justify-center select-none">
-                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight uppercase text-neutral-900 dark:text-neutral-100">
-                  {project.title}
-                </h3>
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500 dark:text-neutral-400 mt-3">
-                  {project.tech_stack?.slice(0, 3).join("  /  ") || "Design  /  Development"}
-                </span>
-              </div>
-
+            <StaggerItem key={uniqueId} className="w-full">
               <div 
-                className="w-full md:w-3/5 aspect-[16/8] relative cursor-pointer"
-                onClick={() => setSelectedProject({ project, id: uniqueId })}
+                className={`flex flex-col md:flex-row items-center gap-6 md:gap-12 pb-6 border-b border-neutral-200 dark:border-neutral-900/50 last:border-0 w-full ${
+                  isEven ? "md:flex-row" : "md:flex-row-reverse"
+                }`}
               >
-                <motion.div 
-                  layoutId={`media-${uniqueId}`}
-                  transition={morphTransition}
-                  whileHover={{ scale: 0.96 }}
-                  className="absolute inset-0 w-full h-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 z-10 group"
+                <div className={`w-full md:w-[58%] flex flex-col justify-center select-none ${
+                  isEven ? "md:items-end md:text-right" : "md:items-start md:text-left"
+                }`}>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight uppercase text-neutral-900 dark:text-neutral-100">
+                    {project.title}
+                  </h3>
+                  <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500 dark:text-neutral-400 mt-3">
+                    {project.tech_stack?.slice(0, 3).join("  /  ") || "Design  /  Development"}
+                  </span>
+                </div>
+
+                <div 
+                  className="w-full md:w-[42%] aspect-[16/8] relative cursor-pointer"
+                  onClick={() => setSelectedProject({ project, id: uniqueId })}
                 >
-                  {project.thumbnail_url ? (
-                    <img 
-                      src={project.thumbnail_url} 
-                      alt={project.title} 
-                      className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-transform duration-700 ease-out scale-100 group-hover:scale-110" 
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-neutral-200 dark:bg-neutral-800" />
-                  )}
-                </motion.div>
+                  <motion.div 
+                    layoutId={`media-${uniqueId}`}
+                    transition={morphTransition}
+                    whileHover={{ scale: 0.96 }}
+                    className="absolute inset-0 w-full h-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 z-10 group"
+                  >
+                    {project.thumbnail_url ? (
+                      <img 
+                        src={project.thumbnail_url} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-transform duration-700 ease-out scale-100 group-hover:scale-110" 
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-neutral-200 dark:bg-neutral-800" />
+                    )}
+                  </motion.div>
+                </div>
               </div>
-            </div>
+            </StaggerItem>
           );
         })}
-      </section>
+      </StaggerContainer>
 
       {/* DETACHED CINEMATIC THEATER STACK — Portaled to the document root */}
       {isMounted && createPortal(

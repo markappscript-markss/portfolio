@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import ProjectList from "@/components/ProjectList"; 
-import FadeInSection from "@/components/FadeInSection";
+import { StaggerContainer, StaggerItem } from "@/components/animations/StaggerReveal";
 import NavBar from "@/components/NavBar";
 import LoadingScreen from "@/components/animations/LoadingScreen";
 import ContactGrid from "@/components/ContactGrid"; 
@@ -68,27 +68,37 @@ export default async function Home() {
           </section>
 
           {/* 2. ABOUT — pushed to the right side */}
-          <FadeInSection>
-            <section id="about" className="mb-32 max-w-2xl scroll-mt-20 ml-auto">
-              <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
-                About
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
-                From forecasting shifts to shipping products.
-              </h2>
+          <section id="about" className="mb-32 max-w-2xl scroll-mt-20 ml-auto">
+            <StaggerContainer>
+              <StaggerItem>
+                <span className="inline-block text-xs font-medium tracking-wide uppercase text-purple-600 dark:text-purple-400 mb-4">
+                  About
+                </span>
+              </StaggerItem>
+              <StaggerItem>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mb-6">
+                  From forecasting shifts to shipping products.
+                </h2>
+              </StaggerItem>
               <div className="space-y-4 text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                <p>
-                  My background isn't your typical computer science story. I spent years in the trenches as a Team Leader and WFM/RTA analyst—forecasting schedules, obsessing over real-time metrics, and pushing operational spreadsheets to their absolute limits. I was great at optimizing the tools we had, but eventually, I realized I'd rather just build them myself.
-                </p>
-                <p>
-                  Today, I operate as an AI-assisted developer. I don't just write code; I orchestrate it. By pairing a rigorous, data-driven operational mindset with advanced AI workflows, I architect and ship production-ready web products significantly faster than traditional development cycles. I don't get bogged down in boilerplate—I focus on logic, architecture, and the final user experience.
-                </p>
-                <p>
-                  My current stack runs on modern, scalable tech like Supabase, GitHub, and Vercel. When I'm not architecting web platforms, I'm directing multi-model AI workflows to produce high-end, cinematic video ads. Everything I build is engineered to look intentional and perform flawlessly.
-                </p>
+                <StaggerItem>
+                  <p>
+                    My background isn't your typical computer science story. I spent years in the trenches as a Team Leader and WFM/RTA analyst—forecasting schedules, obsessing over real-time metrics, and pushing operational spreadsheets to their absolute limits. I was great at optimizing the tools we had, but eventually, I realized I'd rather just build them myself.
+                  </p>
+                </StaggerItem>
+                <StaggerItem>
+                  <p>
+                    Today, I operate as an AI-assisted developer. I don't just write code; I orchestrate it. By pairing a rigorous, data-driven operational mindset with advanced AI workflows, I architect and ship production-ready web products significantly faster than traditional development cycles. I don't get bogged down in boilerplate—I focus on logic, architecture, and the final user experience.
+                  </p>
+                </StaggerItem>
+                <StaggerItem>
+                  <p>
+                    My current stack runs on modern, scalable tech like Supabase, GitHub, and Vercel. When I'm not architecting web platforms, I'm directing multi-model AI workflows to produce high-end, cinematic video ads. Everything I build is engineered to look intentional and perform flawlessly.
+                  </p>
+                </StaggerItem>
               </div>
-            </section>
-          </FadeInSection>
+            </StaggerContainer>
+          </section>
 
           {/* 3. WORK SECTION */}
           <div id="work" className="mb-32">
@@ -98,30 +108,36 @@ export default async function Home() {
           </div>
 
           {/* 4. CONTACT */}
-          <FadeInSection>
-            <section id="contact" className="w-full mb-32 scroll-mt-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
+          <section id="contact" className="w-full mb-32 scroll-mt-20">
+            <StaggerContainer className="flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
               
               {/* LEFT SIDE: Text Content */}
               <div className="w-full md:w-1/2 flex flex-col">
-                <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-600 dark:text-purple-400 mb-4">
-                  Contact
-                </span>
-                <h2 className="text-5xl md:text-6xl font-black text-neutral-900 dark:text-white tracking-tight mb-6">
-                  Let's talk.
-                </h2>
-                <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
-                  Open to hiring conversations, contract work, or just talking shop. 
-                  Easiest ways to reach me below.
-                </p>
+                <StaggerItem>
+                  <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-600 dark:text-purple-400 mb-4">
+                    Contact
+                  </span>
+                </StaggerItem>
+                <StaggerItem>
+                  <h2 className="text-5xl md:text-6xl font-black text-neutral-900 dark:text-white tracking-tight mb-6">
+                    Let's talk.
+                  </h2>
+                </StaggerItem>
+                <StaggerItem>
+                  <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
+                    Open to hiring conversations, contract work, or just talking shop. 
+                    Easiest ways to reach me below.
+                  </p>
+                </StaggerItem>
               </div>
 
               {/* RIGHT SIDE: The Interactive Grid */}
-              <div className="w-full md:w-1/2 flex justify-start md:justify-end">
+              <StaggerItem className="w-full md:w-1/2 flex justify-start md:justify-end">
                 <ContactGrid />
-              </div>
+              </StaggerItem>
 
-            </section>
-          </FadeInSection>
+            </StaggerContainer>
+          </section>
 
         </main>
       </div>
