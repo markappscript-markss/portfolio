@@ -112,28 +112,31 @@ export default function MacbookShowcase() {
         >
             <div ref={topGradientRef} className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-transparent z-40 pointer-events-none" />
 
+            {/* RESPONSIVE MENU: Centered top on mobile, absolute left on desktop */}
             <div
                 ref={menuRef}
-                className="absolute left-[6%] md:left-[8%] lg:left-[10%] top-1/2 -translate-y-1/2 z-50 pointer-events-auto"
+                className="absolute left-1/2 -translate-x-1/2 top-[18%] sm:top-[20%] md:top-1/2 md:-translate-y-1/2 md:translate-x-0 md:left-[8%] lg:left-[10%] z-50 pointer-events-auto w-auto"
             >
-                <div className="flex flex-col gap-8 md:gap-10">
+                <div className="flex flex-row md:flex-col gap-6 sm:gap-8 md:gap-10 items-center md:items-start justify-center">
                     {(["Design", "Webapp", "AI ads"] as const).map((tab, i) => (
                         <StaggerContainer key={tab} viewportMargin="-80px">
                             <StaggerItem>
                                 <div
                                     className="relative flex items-center group cursor-pointer select-none"
                                     onMouseEnter={() => setActiveTab(tab)}
+                                    onClick={() => setActiveTab(tab)}
                                 >
+                                    {/* Indicator Line: Bottom border on mobile, Left bar on desktop */}
                                     <div
-                                        className={`absolute -left-4 w-1 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full transition-all duration-300 ease-out ${activeTab === tab
-                                            ? "h-full opacity-100 shadow-[0_0_12px_rgba(168,85,247,0.8)]"
-                                            : "h-0 opacity-0"
+                                        className={`absolute bg-gradient-to-r md:bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full transition-all duration-300 ease-out ${activeTab === tab
+                                            ? "opacity-100 shadow-[0_0_12px_rgba(168,85,247,0.8)] -bottom-2 left-0 w-full h-0.5 md:-left-4 md:top-0 md:w-1 md:h-full md:bottom-auto"
+                                            : "opacity-0 -bottom-2 left-1/2 w-0 h-0.5 md:-left-4 md:top-0 md:w-1 md:h-0"
                                             }`}
                                     />
                                     <h3
-                                        className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight transition-all duration-300 ease-out origin-left ${activeTab === tab
-                                            ? "text-white translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                                            : "text-neutral-600 group-hover:text-neutral-400 group-hover:translate-x-1"
+                                        className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight transition-all duration-300 ease-out origin-center md:origin-left ${activeTab === tab
+                                            ? "text-white scale-105 md:scale-100 md:translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                            : "text-neutral-600 group-hover:text-neutral-400"
                                             }`}
                                     >
                                         {tab}
@@ -172,14 +175,13 @@ export default function MacbookShowcase() {
                 </div>
             </div>
 
-            {/* LAYER 2: ROLL-UP TEXT — Changed to items-center so "45vh" starts it right at the bezel */}
+            {/* LAYER 2: ROLL-UP TEXT */}
             <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none overflow-hidden">
                 <div ref={textWrapperRef} className="w-full max-w-2xl mx-auto px-6 pb-0 text-center space-y-2 md:space-y-3">
                     <h2 className="text-[10px] sm:text-xs md:text-sm font-bold tracking-wider text-blue-950 uppercase">
                         From forecasting shifts to shipping products.
                     </h2>
 
-                    {/* Lowered md:text-5xl to md:text-4xl, and lg:text-6xl to lg:text-5xl */}
                     <h3 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-snug">
                         Automate the boring.<br />Elevate the big picture.
                     </h3>
