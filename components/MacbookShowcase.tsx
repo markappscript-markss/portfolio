@@ -64,44 +64,44 @@ export default function MacbookShowcase() {
         });
 
         // 1. Quick initial animations (take up very little scroll)
-        tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 1.5);
-        tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 1.5);
-        tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 6.0);
-        tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 1.5);
+        tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 4.0);
+        tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 4.0);
+        tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 20.0);
+        tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 4.0);
 
         // 2. Slowed down Macbook Zoom & Rotation (takes up massive amount of scroll)
         tl.to(scaleTargets, {
             rotation: -45,
-            duration: 24.0, // <-- Increased significantly to slow the rotation
+            duration: 28, // <-- Increased significantly to slow the rotation
             ease: "none",
             transformOrigin: "50% 45%"
-        }, 2.5)
+        }, 5.5)
             .to(scaleTargets, {
                 scale: 15,
-                duration: 24.0, // <-- Increased significantly to slow the zoom
+                duration: 28, // <-- Increased significantly to slow the zoom
                 ease: "none",
                 transformOrigin: "50% 45%"
-            }, 2.5)
+            }, 5.5)
 
             .to(gradientScreenRef.current, {
                 opacity: 1,
-                duration: 0.8,
+                duration: 3.0,
                 ease: "power2.inOut"
-            }, 1.2)
+            }, 2.9)
 
             // Text appears exactly when the side menu is gone (2.5) 
             .to(textWrapperRef.current, {
                 opacity: 1,
                 duration: 0.1,
                 ease: "power2.out"
-            }, 2.4)
+            }, 5.5)
             // 3. Text rolls up (matches the new 12.0 duration so it syncs perfectly with the screen zoom)
             .to(textWrapperRef.current, {
                 y: "-40vh", // <-- Our earlier fix to stop it from going too high!
                 scale: 1,
-                duration: 24.0, // <-- Syncs perfectly with the 12.0 screen zoom
+                duration: 28, // <-- Syncs perfectly with the 12.0 screen zoom
                 ease: "none"
-            }, 2);
+            }, 4.5);
 
     }, { scope: containerRef });
 
