@@ -55,7 +55,7 @@ export default function PageIntro() {
   return (
     <>
       {/* LAYER 1: The Structure & Background (z-0) */}
-      <div ref={ref} className="relative h-screen sticky top-0 z-0 overflow-hidden">
+      <div ref={ref} className="relative h-[calc(100vh+10rem)] sticky top-0 z-0 overflow-hidden">
         <motion.div 
           className="absolute inset-0"
           style={{

@@ -10,7 +10,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function MacbookShowcase() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const scaleWrapperRef = useRef<HTMLDivElement>(null);
+
+    // Split into two refs so we can sandwich the text between them
+    const screenScaleRef = useRef<HTMLDivElement>(null);
+    const laptopScaleRef = useRef<HTMLDivElement>(null);
+
     const blackScreenRef = useRef<HTMLDivElement>(null);
     const gradientScreenRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -26,8 +30,11 @@ export default function MacbookShowcase() {
     const clip3 = "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/videos/norda2.mp4";
 
     useGSAP(() => {
-        gsap.set(scaleWrapperRef.current, { scale: 1, rotation: 0, rotationX: 0 });
-        gsap.set(textWrapperRef.current, { opacity: 0, y: 0 });
+        const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];
+
+        gsap.set(scaleTargets, { scale: 1, rotation: 0, rotationX: 0 });
+        // Sets starting position securely behind the bottom bezel and base scale
+        gsap.set(textWrapperRef.current, { opacity: 0, y: "15vh", scale: 1 });
 
         gsap.fromTo(
             containerRef.current,
@@ -48,64 +55,61 @@ export default function MacbookShowcase() {
             scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top top",
-                end: "+=2300",
+                end: () => (window.innerWidth < 768 ? "+=800" : "+=1000"),
+                invalidateOnRefresh: true,
                 scrub: 1,
                 pin: true,
             },
         });
 
-        // 1. Delay the fade outs (keeps things static for the first part of scroll)
         tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 1.5);
         tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 1.5);
         tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 6.0);
         tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 1.5);
 
-        // 2. THE ZOOM & ROTATE (Delayed to start at 2.5s, slower and more premium)
-        tl.to(scaleWrapperRef.current, {
+        // Animate BOTH the screen layer and the laptop layer simultaneously
+        tl.to(scaleTargets, {
             rotation: -45,
-            duration: 3.0,
+            duration: 4.0,
             ease: "none",
             transformOrigin: "50% 45%"
         }, 2.5)
-            .to(scaleWrapperRef.current, {
-                scale: 14,
-                duration: 3.0,
+            .to(scaleTargets, {
+                scale: 30,
+                duration: 4.0,
                 ease: "none",
                 transformOrigin: "50% 45%"
             }, 2.5)
 
-            // 3. FADE IN BLUE GRADIENT SCREEN
             .to(gradientScreenRef.current, {
                 opacity: 1,
                 duration: 0.8,
                 ease: "power2.inOut"
-            }, 2.4)
+            }, 1.2)
 
-            // 4. TEXT APPEARS INSTANTLY AT 100% OPACITY
+            // Text appears exactly when the side menu is gone (2.5) 
             .to(textWrapperRef.current, {
                 opacity: 1,
-                duration: 0.6,
-                ease: "power1.in"
+                duration: 0.1,
+                ease: "power2.out"
             }, 2.4)
-
-            // 5. ROLL TEXT UPWARD AS YOU CONTINUE SCROLLING
+            // Text rolls up AND zooms synchronously with the laptop screen (matches 4.0 duration)
             .to(textWrapperRef.current, {
-                y: "-150%",
+                y: "-40vh",
+                scale: 1,
                 duration: 4.0,
                 ease: "none"
-            }, 2.4);
+            }, 2);
 
     }, { scope: containerRef });
 
     return (
         <section
             ref={containerRef}
-            className="relative h-[80vh] md:h-screen w-full bg-neutral-950 flex items-center justify-center overflow-hidden z-0"
+            className="relative h-screen w-full bg-neutral-950 flex items-center justify-center overflow-hidden z-0"
         >
-            {/* TOP SEAM BRIDGE — fades from page.tsx bg into this section, removed by GSAP when menu disappears */}
             <div ref={topGradientRef} className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-transparent z-40 pointer-events-none" />
 
-            {/* HOVER MENU — each tab has its own StaggerContainer so they reveal independently */}
             <div
                 ref={menuRef}
                 className="absolute left-[6%] md:left-[8%] lg:left-[10%] top-1/2 -translate-y-1/2 z-50 pointer-events-auto"
@@ -139,66 +143,70 @@ export default function MacbookShowcase() {
                 </div>
             </div>
 
-            {/* SCALING CANVAS */}
-            <div
-                ref={scaleWrapperRef}
-                className="relative w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
-            >
-                <div className="absolute z-10 top-[18%] left-[23.5%] w-[53%] h-[40%] bg-black overflow-hidden rounded-sm flex items-center justify-center">
+            {/* LAYER 1: BACK SCREEN & BLUE GRADIENT (z-10) */}
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div
+                    ref={screenScaleRef}
+                    className="relative w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
+                >
+                    <div className="absolute z-10 top-[18%] left-[23.5%] w-[53%] h-[42%] bg-black overflow-hidden rounded-sm flex items-center justify-center">
+                        <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Design" ? "opacity-100" : "opacity-0"}`}>
+                            <video src={clip1} autoPlay loop muted playsInline className="w-full h-full object-contain" />
+                        </div>
+                        <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Webapp" ? "opacity-100" : "opacity-0"}`}>
+                            <video src={clip2} autoPlay loop muted playsInline className="w-full h-full object-contain" />
+                        </div>
+                        <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "AI ads" ? "opacity-100" : "opacity-0"}`}>
+                            <video src={clip3} autoPlay loop muted playsInline className="w-full h-full object-contain" />
+                        </div>
 
-                    {/* VIDEOS */}
-                    <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Design" ? "opacity-100" : "opacity-0"}`}>
-                        <video src={clip1} autoPlay loop muted playsInline className="w-full h-full object-contain" />
+                        <div ref={blackScreenRef} className="absolute inset-0 bg-black opacity-0 z-20 pointer-events-none" />
+                        <div
+                            ref={gradientScreenRef}
+                            className="absolute w-[400vw] h-[400vh] -left-[150vw] -top-[150vh] opacity-0 z-30 pointer-events-none"
+                            style={{ background: "linear-gradient(to bottom, #dbeafe 0%, #93c5fd 45%, #8ab8d2 100%)" }}
+                        />
                     </div>
-
-                    <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Webapp" ? "opacity-100" : "opacity-0"}`}>
-                        <video src={clip2} autoPlay loop muted playsInline className="w-full h-full object-contain" />
-                    </div>
-
-                    <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "AI ads" ? "opacity-100" : "opacity-0"}`}>
-                        <video src={clip3} autoPlay loop muted playsInline className="w-full h-full object-contain" />
-                    </div>
-
-                    {/* Black overlay inside laptop screen */}
-                    <div ref={blackScreenRef} className="absolute inset-0 bg-black opacity-0 z-20 pointer-events-none" />
-
-                    {/* MASSIVE BLUE GRADIENT CANVAS */}
-                    <div
-                        ref={gradientScreenRef}
-                        className="absolute w-[400vw] h-[400vh] -left-[150vw] -top-[150vh] opacity-0 z-30 pointer-events-none"
-                        style={{ background: "linear-gradient(to bottom, #dbeafe 0%, #93c5fd 45%, #8ab8d2 100%)" }}
-                    />
                 </div>
-
-                <img
-                    src={macbookImage}
-                    alt="Room with MacBook"
-                    className="relative z-20 w-full h-full object-cover pointer-events-none"
-                />
-                {/* Edge Blends to match neutral-950 background */}
-                <div className="absolute inset-y-0 left-0 w-16 md:w-24 z-20 pointer-events-none"
-                    style={{ background: "linear-gradient(to right, #0a0a0a, transparent)" }} />
-                <div className="absolute inset-y-0 right-0 w-16 md:w-24 z-20 pointer-events-none"
-                    style={{ background: "linear-gradient(to left, #0a0a0a, transparent)" }} />
-                <div className="absolute inset-x-0 top-0 h-16 md:h-24 z-20 pointer-events-none"
-                    style={{ background: "linear-gradient(to bottom, #0a0a0a, transparent)" }} />
-                <div className="absolute inset-x-0 bottom-0 h-16 md:h-24 z-20 pointer-events-none"
-                    style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }} />
             </div>
 
-            {/* MOVIE CREDITS OVERLAY */}
-            <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none p-6 text-center overflow-hidden">
-                <div ref={textWrapperRef} className="max-w-2xl space-y-3 md:space-y-4">
-                    <h2 className="text-[10px] sm:text-xs md:text-lg font-bold tracking-wider text-blue-950 uppercase">
+            {/* LAYER 2: ROLL-UP TEXT — Changed to items-center so "45vh" starts it right at the bezel */}
+            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none overflow-hidden">
+                <div ref={textWrapperRef} className="w-full max-w-2xl mx-auto px-6 pb-0 text-center space-y-2 md:space-y-3">
+                    <h2 className="text-[10px] sm:text-xs md:text-sm font-bold tracking-wider text-blue-950 uppercase">
                         From forecasting shifts to shipping products.
                     </h2>
-                    <h3 className="text-base sm:text-lg md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-snug">
-                        Automate the boring. <br /> Elevate the big picture.
+
+                    {/* Lowered md:text-5xl to md:text-4xl, and lg:text-6xl to lg:text-5xl */}
+                    <h3 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-snug">
+                        Automate the boring.<br />Elevate the big picture.
                     </h3>
                 </div>
             </div>
 
-            {/* SCROLL INDICATOR */}
+            {/* LAYER 3: LAPTOP FRAME & BEZEL CUTOUT (z-30) */}
+            <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                <div
+                    ref={laptopScaleRef}
+                    className="relative w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
+                >
+                    <img
+                        src={macbookImage}
+                        alt="Room with MacBook"
+                        className="relative z-20 w-full h-full object-cover pointer-events-none"
+                    />
+                    <div className="absolute inset-y-0 left-0 w-16 md:w-24 z-20 pointer-events-none"
+                        style={{ background: "linear-gradient(to right, #0a0a0a, transparent)" }} />
+                    <div className="absolute inset-y-0 right-0 w-16 md:w-24 z-20 pointer-events-none"
+                        style={{ background: "linear-gradient(to left, #0a0a0a, transparent)" }} />
+                    <div className="absolute inset-x-0 top-0 h-16 md:h-24 z-20 pointer-events-none"
+                        style={{ background: "linear-gradient(to bottom, #0a0a0a, transparent)" }} />
+                    <div className="absolute inset-x-0 bottom-0 h-16 md:h-24 z-20 pointer-events-none"
+                        style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }} />
+                </div>
+            </div>
+            {/* ========================================== */}
+
             <div
                 ref={scrollIndicatorRef}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-0.5 pointer-events-none"

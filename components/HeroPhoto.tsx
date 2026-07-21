@@ -10,11 +10,7 @@ const EDGE = "#0a0a0a"; // neutral-950
 export default function HeroPhoto() {
     const { scrollY } = useScroll();
 
-    // 4th: Starts fading in around 250px scroll
-    // 5th: Fully shown by 450px scroll
-    // 6th: Starts fading out at 600px scroll
-    // End: Completely gone by 850px scroll
-    const opacity = useTransform(scrollY, [250, 450, 600, 850], [0, 1, 1, 0]);
+    const opacity = useTransform(scrollY, [400, 550, 800, 950], [0, 1, 1, 0]);
 
     return (
         <motion.div

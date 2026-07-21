@@ -88,7 +88,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                     {project.title}
                   </h3>
                   <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500 dark:text-neutral-400 mt-3">
-                    {project.tech_stack?.slice(0, 3).join("  /  ") || "Design  /  Development"}
+                    {project.tech_stack?.slice(0, 5).join("  /  ") || "Design  /  Development"}
                   </span>
                 </div>
 

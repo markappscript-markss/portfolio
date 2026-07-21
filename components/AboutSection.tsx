@@ -10,7 +10,7 @@ export default function AboutSection() {
     };
 
     return (
-        <section id="about" className="relative w-full bg-neutral-950 text-white overflow-hidden z-10 scroll-mt-20 -mt-32 md:-mt-24">
+        <section id="about" className="relative w-full bg-neutral-950 text-white overflow-hidden z-10 scroll-mt-20 -mt-[200px] md:-mt-80">
 
             {/* 1. CONTAINER FOR PHOTO & CONTENT */}
             <div className="relative w-full">
@@ -33,10 +33,19 @@ export default function AboutSection() {
                 />
 
                 {/* Bottom Ground Fade (Fades into black for the next section) */}
-                <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-[400px] bg-gradient-to-t from-neutral-950 from-10% via-neutral-950/40 via-80% to-transparent to-100% pointer-events-none" />
 
                 {/* 2. FOREGROUND CONTENT - relative layout so paragraphs stack and scroll naturally */}
-                <div className="relative z-10 w-full max-w-6xl mx-auto px-6 flex flex-col justify-between gap-16 pt-36 pb-36 md:pt-48 md:pb-48">
+                <div className="relative z-10 w-full max-w-6xl mx-auto px-6 flex flex-col justify-between gap-16 md:gap-[300px] pt-32 md:pt-[600px] pb-36 md:pb-[900px]">
+
+                    {/* BLOCK 0: INDEPENDENT INTRO STAGGER (Sits cleanly over the light blue sky) */}
+                    <StaggerContainer className="w-full max-w-2xl mx-auto text-center mb-8 md:mb-16" viewportMargin="-50px">
+                        <StaggerItem>
+                            <h2 className="font-sans text-base sm:text-lg md:text-2xl lg:text-3xl font-black text-slate-900 uppercase leading-snug tracking-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]">
+                                HI! I'M MARK. I AM AN AI-POWERED DEVELOPER. THAT MEANS I DON'T SPEND THREE DAYS DEBUGGING A TYPO—I ORCHESTRATE ADVANCED AI WORKFLOWS TO BUILD DANGEROUSLY FAST, HIGH-END PRODUCTS THAT ACTUALLY SHIP.
+                            </h2>
+                        </StaggerItem>
+                    </StaggerContainer>
 
                     {/* BLOCK 1: Top Right */}
                     <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right mt-16 md:mt-24" viewportMargin="-150px">
