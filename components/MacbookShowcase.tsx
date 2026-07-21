@@ -94,7 +94,7 @@ export default function MacbookShowcase() {
                 opacity: 1,
                 duration: 0.1,
                 ease: "power2.out"
-            }, 5.5)
+            }, 5.6)
             // 3. Text rolls up (matches the new 12.0 duration so it syncs perfectly with the screen zoom)
             .to(textWrapperRef.current, {
                 y: "-40vh", // <-- Our earlier fix to stop it from going too high!
