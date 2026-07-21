@@ -117,7 +117,7 @@ export default function MacbookShowcase() {
                 ref={menuRef}
                 className="absolute left-1/2 -translate-x-1/2 top-[18%] sm:top-[20%] md:top-1/2 md:-translate-y-1/2 md:translate-x-0 md:left-[8%] lg:left-[10%] z-50 pointer-events-auto w-auto"
             >
-                <div className="flex flex-row md:flex-col gap-6 sm:gap-8 md:gap-10 items-center md:items-start justify-center">
+                <div className="flex flex-row md:flex-col gap-3 sm:gap-8 md:gap-10 items-center md:items-start justify-center">
                     {(["Design", "Webapp", "AI ads"] as const).map((tab, i) => (
                         <StaggerContainer key={tab} viewportMargin="-80px">
                             <StaggerItem>
@@ -133,14 +133,15 @@ export default function MacbookShowcase() {
                                             : "opacity-0 -bottom-2 left-1/2 w-0 h-0.5 md:-left-4 md:top-0 md:w-1 md:h-0"
                                             }`}
                                     />
-                                    <h3
-                                        className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight transition-all duration-300 ease-out origin-center md:origin-left ${activeTab === tab
-                                            ? "text-white scale-105 md:scale-100 md:translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                                            : "text-neutral-600 group-hover:text-neutral-400"
-                                            }`}
-                                    >
-                                        {tab}
-                                    </h3>
+                                   <h3
+    className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-nowrap transition-all duration-300 ease-out origin-center md:origin-left ${
+        activeTab === tab
+            ? "text-white scale-105 md:scale-100 md:translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+            : "text-neutral-600 group-hover:text-neutral-400"
+    }`}
+>
+    {tab}
+</h3>
                                 </div>
                             </StaggerItem>
                         </StaggerContainer>
