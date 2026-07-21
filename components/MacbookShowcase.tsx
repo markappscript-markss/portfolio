@@ -55,6 +55,7 @@ export default function MacbookShowcase() {
             scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top top",
+                // Gives a balanced overall runway for the whole section
                 end: () => (window.innerWidth < 768 ? "+=800" : "+=1000"),
                 invalidateOnRefresh: true,
                 scrub: 1,
@@ -62,21 +63,22 @@ export default function MacbookShowcase() {
             },
         });
 
+        // 1. Quick initial animations (take up very little scroll)
         tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 1.5);
         tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 1.5);
         tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 6.0);
         tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 1.5);
 
-        // Animate BOTH the screen layer and the laptop layer simultaneously
+        // 2. Slowed down Macbook Zoom & Rotation (takes up massive amount of scroll)
         tl.to(scaleTargets, {
             rotation: -45,
-            duration: 4.0,
+            duration: 24.0, // <-- Increased significantly to slow the rotation
             ease: "none",
             transformOrigin: "50% 45%"
         }, 2.5)
             .to(scaleTargets, {
-                scale: 30,
-                duration: 4.0,
+                scale: 15,
+                duration: 24.0, // <-- Increased significantly to slow the zoom
                 ease: "none",
                 transformOrigin: "50% 45%"
             }, 2.5)
@@ -93,11 +95,11 @@ export default function MacbookShowcase() {
                 duration: 0.1,
                 ease: "power2.out"
             }, 2.4)
-            // Text rolls up AND zooms synchronously with the laptop screen (matches 4.0 duration)
+            // 3. Text rolls up (matches the new 12.0 duration so it syncs perfectly with the screen zoom)
             .to(textWrapperRef.current, {
-                y: "-40vh",
+                y: "-40vh", // <-- Our earlier fix to stop it from going too high!
                 scale: 1,
-                duration: 4.0,
+                duration: 24.0, // <-- Syncs perfectly with the 12.0 screen zoom
                 ease: "none"
             }, 2);
 

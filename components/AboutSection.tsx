@@ -41,17 +41,20 @@ export default function AboutSection() {
                     {/* BLOCK 0: INDEPENDENT INTRO STAGGER (Sits cleanly over the light blue sky) */}
                     <StaggerContainer className="w-full max-w-2xl mx-auto text-center mb-8 md:mb-16" viewportMargin="-50px">
                         <StaggerItem>
-                            <h2 className="font-sans text-base sm:text-lg md:text-2xl lg:text-3xl font-black text-slate-900 uppercase leading-snug tracking-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]">
+                            {/* Font reduced from md:text-2xl/lg:text-3xl to md:text-xl/lg:text-2xl */}
+                            <h2 className="font-sans text-sm sm:text-base md:text-xl lg:text-2xl font-black text-slate-900 uppercase leading-snug tracking-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]">
                                 HI! I'M MARK. I AM AN AI-POWERED DEVELOPER. THAT MEANS I DON'T SPEND THREE DAYS DEBUGGING A TYPO—I ORCHESTRATE ADVANCED AI WORKFLOWS TO BUILD DANGEROUSLY FAST, HIGH-END PRODUCTS THAT ACTUALLY SHIP.
                             </h2>
                         </StaggerItem>
                     </StaggerContainer>
 
                     {/* BLOCK 1: Top Right */}
-                    <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right mt-16 md:mt-24" viewportMargin="-150px">
+                    {/* Changed viewportMargin from -150px to -50px to fix mobile hiding */}
+                    <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right mt-16 md:mt-24" viewportMargin="-50px">
                         <StaggerItem>
+                            {/* Font reduced from text-xl/md:text-3xl to text-lg/md:text-2xl */}
                             <p
-                                className="font-sans text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight"
+                                className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
                             >
                                 My background isn't your typical computer science story. I spent years as a Team Leader and WFM/RTA analyst—forecasting schedules, obsessing over real-time metrics, and eventually realizing I'd rather just build the tools myself.
@@ -60,10 +63,12 @@ export default function AboutSection() {
                     </StaggerContainer>
 
                     {/* BLOCK 2: Middle Left */}
-                    <StaggerContainer className="w-full md:w-4/12 self-start text-left" viewportMargin="-200px">
+                    {/* Changed viewportMargin from -200px to -50px */}
+                    <StaggerContainer className="w-full md:w-4/12 self-start text-left" viewportMargin="-50px">
                         <StaggerItem>
+                            {/* Font reduced */}
                             <p
-                                className="font-sans text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight"
+                                className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
                             >
                                 Today, I operate as an AI-assisted developer. I don't just write code — I orchestrate it. Rigorous, data-driven mindset paired with advanced AI workflows.
@@ -72,10 +77,12 @@ export default function AboutSection() {
                     </StaggerContainer>
 
                     {/* BLOCK 3: Bottom Right */}
-                    <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right" viewportMargin="-200px">
+                    {/* Changed viewportMargin from -200px to -50px */}
+                    <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right" viewportMargin="-50px">
                         <StaggerItem>
+                            {/* Font reduced */}
                             <p
-                                className="font-sans text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight"
+                                className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
                             >
                                 My stack: Supabase, GitHub, Vercel. When I'm not shipping web products, I'm directing multi-model AI workflows for high-end cinematic video ads.
