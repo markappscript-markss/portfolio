@@ -15,16 +15,16 @@ export default function HeroTypewriter() {
         <Typewriter
           onInit={(typewriter) => {
             typewriter
-              .typeString("team leader")
-              .pauseFor(1200)
+              .typeString("Team Leader")
+              .pauseFor(900)
               .deleteAll()
-              .typeString("real-time analyst")
-              .pauseFor(1200)
+              .typeString("Real-time Analyst")
+              .pauseFor(900)
               .deleteAll()
-              .typeString("workforc")
+              .typeString("Workforc")
               .pauseFor(10)
               .deleteAll()
-              .typeString("AI assisted developer.")
+              .typeString("AI-assisted Developer.")
               // NEW: Hold on the final phrase for 15 seconds
               .pauseFor(15000)
               // NEW: Delete it so the loop can start fresh
