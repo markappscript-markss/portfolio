@@ -54,7 +54,6 @@ export default async function Home() {
                 Hello, my name is MARK.
                 <br />
                 <span className="flex flex-wrap items-center min-h-[1.2em]">
-                  I am a&nbsp;
                   <span className="text-purple-400 inline-block">
                     <HeroTypewriter />
                   </span>
