@@ -32,7 +32,10 @@ export default function MacbookShowcase() {
     useGSAP(() => {
         const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];
 
-        gsap.set(scaleTargets, { scale: 1, rotation: 0, rotationX: 0 });
+        // 1. Starts 45% larger on mobile screens so it fills the dark space nicely
+        const initialScale = window.innerWidth < 768 ? 1.45 : 1;
+        gsap.set(scaleTargets, { scale: initialScale, rotation: 0, rotationX: 0 });
+
         // Sets starting position securely behind the bottom bezel and base scale
         gsap.set(textWrapperRef.current, { opacity: 0, y: "15vh", scale: 1 });
 
@@ -133,15 +136,14 @@ export default function MacbookShowcase() {
                                             : "opacity-0 -bottom-2 left-1/2 w-0 h-0.5 md:-left-4 md:top-0 md:w-1 md:h-0"
                                             }`}
                                     />
-                                   <h3
-    className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-nowrap transition-all duration-300 ease-out origin-center md:origin-left ${
-        activeTab === tab
-            ? "text-white scale-105 md:scale-100 md:translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-            : "text-neutral-600 group-hover:text-neutral-400"
-    }`}
->
-    {tab}
-</h3>
+                                    <h3
+                                        className={`text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight whitespace-nowrap transition-all duration-300 ease-out origin-center md:origin-left ${activeTab === tab
+                                            ? "text-white scale-105 md:scale-100 md:translate-x-3 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                            : "text-neutral-600 group-hover:text-neutral-400"
+                                            }`}
+                                    >
+                                        {tab}
+                                    </h3>
                                 </div>
                             </StaggerItem>
                         </StaggerContainer>
@@ -151,9 +153,10 @@ export default function MacbookShowcase() {
 
             {/* LAYER 1: BACK SCREEN & BLUE GRADIENT (z-10) */}
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                {/* 2. Changed w-full to w-[130%] md:w-full for bigger mobile presence */}
                 <div
                     ref={screenScaleRef}
-                    className="relative w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
+                    className="relative w-[130%] md:w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
                 >
                     <div className="absolute z-10 top-[18%] left-[23.5%] w-[53%] h-[42%] bg-black overflow-hidden rounded-sm flex items-center justify-center">
                         <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Design" ? "opacity-100" : "opacity-0"}`}>
@@ -191,9 +194,10 @@ export default function MacbookShowcase() {
 
             {/* LAYER 3: LAPTOP FRAME & BEZEL CUTOUT (z-30) */}
             <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                {/* 3. Changed w-full to w-[130%] md:w-full for bigger mobile presence */}
                 <div
                     ref={laptopScaleRef}
-                    className="relative w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
+                    className="relative w-[130%] md:w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
                 >
                     <img
                         src={macbookImage}
