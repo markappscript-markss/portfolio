@@ -59,7 +59,7 @@ export default function MacbookShowcase() {
                 trigger: containerRef.current,
                 start: "top top",
                 
-                end: () => (window.innerWidth < 768 ? "+=1600" : "+=1100"),
+                end: () => (window.innerWidth < 768 ? "+=1800" : "+=1100"),
                 invalidateOnRefresh: true,
                 scrub: 1,
                 pin: true,
