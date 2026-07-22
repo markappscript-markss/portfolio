@@ -58,7 +58,7 @@ export default function MacbookShowcase() {
         // 1. Quick initial animations
         tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 4.0);
         tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 4.0);
-        tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 20.0);
+        tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 30.0);
         tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 4.0);
 
         // 2. Slowed down Macbook Zoom & Rotation
