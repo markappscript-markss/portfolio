@@ -10,10 +10,10 @@ export default function LoadingScreen() {
     const timer = setTimeout(() => {
       setIsVisible(false);
       
-      // 1. Tell the rest of the app the loader has finished
+
       window.dispatchEvent(new Event("loading-complete"));
       
-      // 2. Set a global flag in case another component mounts slightly later
+    
       (window as any).__loadingComplete = true;
     }, 1500);
 
@@ -25,7 +25,7 @@ export default function LoadingScreen() {
       {isVisible && (
         <motion.div
           initial={{ opacity: 1, scale: 1 }}
-          // Rushes toward the screen (zooming in) while dissolving away
+     
           exit={{ 
             opacity: 0, 
             scale: 1.4, 
