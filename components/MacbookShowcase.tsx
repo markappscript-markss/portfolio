@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function MacbookShowcase() {
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Split into two refs so we can sandwich the text between them
+    
     const screenScaleRef = useRef<HTMLDivElement>(null);
     const laptopScaleRef = useRef<HTMLDivElement>(null);
 
@@ -32,11 +32,11 @@ export default function MacbookShowcase() {
     useGSAP(() => {
         const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];
 
-        // 1. Starts 45% larger on mobile screens so it fills the dark space nicely
+        
         const initialScale = window.innerWidth < 768 ? 1.45 : 1;
         gsap.set(scaleTargets, { scale: initialScale, rotation: 0, rotationX: 0 });
 
-        // Sets starting position securely behind the bottom bezel and base scale
+        
         gsap.set(textWrapperRef.current, { opacity: 0, y: "15vh", scale: 1 });
 
         gsap.fromTo(
@@ -58,30 +58,30 @@ export default function MacbookShowcase() {
             scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top top",
-                // Gives a balanced overall runway for the whole section
-                end: () => (window.innerWidth < 768 ? "+=800" : "+=1000"),
+                
+                end: () => (window.innerWidth < 768 ? "+=1000" : "+=1000"),
                 invalidateOnRefresh: true,
                 scrub: 1,
                 pin: true,
             },
         });
 
-        // 1. Quick initial animations (take up very little scroll)
+        // 1. Quick initial animations
         tl.to(menuRef.current, { opacity: 0, duration: 1.0 }, 4.0);
         tl.to(topGradientRef.current, { opacity: 0, duration: 1.0 }, 4.0);
         tl.to(scrollIndicatorRef.current, { opacity: 0, duration: 0.4 }, 20.0);
         tl.to(blackScreenRef.current, { opacity: 1, duration: 1.0 }, 4.0);
 
-        // 2. Slowed down Macbook Zoom & Rotation (takes up massive amount of scroll)
+        // 2. Slowed down Macbook Zoom & Rotation
         tl.to(scaleTargets, {
             rotation: -45,
-            duration: 28, // <-- Increased significantly to slow the rotation
+            duration: 28,
             ease: "none",
             transformOrigin: "50% 45%"
         }, 5.5)
             .to(scaleTargets, {
                 scale: 15,
-                duration: 28, // <-- Increased significantly to slow the zoom
+                duration: 28,
                 ease: "none",
                 transformOrigin: "50% 45%"
             }, 5.5)
@@ -92,17 +92,17 @@ export default function MacbookShowcase() {
                 ease: "power2.inOut"
             }, 2.9)
 
-            // Text appears exactly when the side menu is gone (2.5) 
+           
             .to(textWrapperRef.current, {
                 opacity: 1,
                 duration: 0.1,
                 ease: "power2.out"
             }, 5.6)
-            // 3. Text rolls up (matches the new 12.0 duration so it syncs perfectly with the screen zoom)
+            // 3. Text rolls up
             .to(textWrapperRef.current, {
-                y: "-40vh", // <-- Our earlier fix to stop it from going too high!
+                y: "-40vh", 
                 scale: 1,
-                duration: 28, // <-- Syncs perfectly with the 12.0 screen zoom
+                duration: 28, 
                 ease: "none"
             }, 4.5);
 
