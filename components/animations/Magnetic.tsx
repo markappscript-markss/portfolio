@@ -16,7 +16,7 @@ export default function Magnetic({ children }: { children: React.ReactNode }) {
     const centerX = left + width / 2;
     const centerY = top + height / 2;
     
-    // 0.25 multiplier keeps the pull tight and subtle
+
     const x = (clientX - centerX) * 0.25;
     const y = (clientY - centerY) * 0.25;
     
