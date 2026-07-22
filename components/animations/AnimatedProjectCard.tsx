@@ -17,15 +17,13 @@ export default function AnimatedProjectCard({
   const { introComplete } = useIntro();
   const { scrollY } = useScroll();
 
-  // Each card starts at a slightly different offset so they rise at their own pace.
-  // As scroll goes 0 → 700px, this card travels from its offset down to 0.
   const startOffset = 60 + index * 20;
   const y = useTransform(scrollY, [0, 700], [startOffset, 0]);
 
   return (
-    // Outer: scroll-driven parallax
+  
     <motion.div style={{ y }}>
-      {/* Inner: whileInView reveal (opacity + slight lift) */}
+      
       <motion.div
         className={className}
         initial={{ opacity: 0, y: 30 }}
