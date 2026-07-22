@@ -146,7 +146,7 @@ export default function MacbookShowcase() {
                     ref={screenScaleRef}
                     className="relative w-[130%] md:w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
                 >
-                    <div className="absolute z-10 top-[18%] left-[23.5%] w-[53%] h-[42%] bg-black overflow-hidden rounded-sm flex items-center justify-center">
+                    <div className="absolute z-10 top-[18%] left-[23.5%] w-[53%] h-[42%] bg-black overflow-hidden rounded-sm flex items-center justify-center transform-gpu [mask-image:linear-gradient(white,white)]">
                         <div className={`absolute inset-0 bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out ${activeTab === "Design" ? "opacity-100" : "opacity-0"}`}>
                             <video src={clip1} autoPlay loop muted playsInline className="w-full h-full object-contain" />
                         </div>
