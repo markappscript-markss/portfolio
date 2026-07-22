@@ -14,17 +14,17 @@ export default function AboutSection() {
 
             {/* 1. CONTAINER FOR PHOTO & CONTENT */}
             <div className="relative w-full">
-                {/* Background Photo - covers the dynamic height of the content with a 1px bleed at the top */}
+              
                 <img
                     src={bgPhoto}
                     alt="About Background"
                     className="absolute -top-1 inset-x-0 bottom-0 w-full h-[calc(100%+1px)] object-cover object-center pointer-events-none opacity-100"
                 />
 
-                {/* Subtle dark overlay for contrast - darker on mobile for better readability */}
+             
                 <div className="absolute inset-0 bg-black/30 md:bg-black/15 pointer-events-none" />
 
-                {/* Top Blend — overlaps MacbookShowcase blue and dissolves into the photo (shorter on mobile, with a 1px bleed at the top) */}
+              
                 <div
                     className="absolute -top-1 left-0 right-0 pointer-events-none z-10 h-[181px] md:h-[401px]"
                     style={{
@@ -32,16 +32,16 @@ export default function AboutSection() {
                     }}
                 />
 
-                {/* Bottom Ground Fade (Fades into black for the next section) */}
+              
                 <div className="absolute bottom-0 left-0 right-0 h-[400px] bg-gradient-to-t from-neutral-950 from-10% via-neutral-950/40 via-80% to-transparent to-100% pointer-events-none" />
 
-                {/* 2. FOREGROUND CONTENT - relative layout so paragraphs stack and scroll naturally */}
+                {/* 2. FOREGROUND CONTENT */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto px-6 flex flex-col justify-between gap-16 md:gap-[300px] pt-32 md:pt-[600px] pb-36 md:pb-[900px]">
 
-                    {/* BLOCK 0: INDEPENDENT INTRO STAGGER (Sits cleanly over the light blue sky) */}
+                    {/* BLOCK 0: INDEPENDENT INTRO STAGGER */}
                     <StaggerContainer className="w-full max-w-2xl mx-auto text-center mb-8 md:mb-16" viewportMargin="-50px">
                         <StaggerItem>
-                            {/* Font reduced from md:text-2xl/lg:text-3xl to md:text-xl/lg:text-2xl */}
+                          
                             <h2 className="font-sans text-sm sm:text-base md:text-xl lg:text-2xl font-black text-slate-900 uppercase leading-snug tracking-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]">
                                 HI! I'M MARK. I AM AN AI-POWERED DEVELOPER. THAT MEANS I DON'T SPEND THREE DAYS DEBUGGING A TYPO—I ORCHESTRATE ADVANCED AI WORKFLOWS TO BUILD DANGEROUSLY FAST, HIGH-END PRODUCTS THAT ACTUALLY SHIP.
                             </h2>
@@ -49,10 +49,10 @@ export default function AboutSection() {
                     </StaggerContainer>
 
                     {/* BLOCK 1: Top Right */}
-                    {/* Changed viewportMargin from -150px to -50px to fix mobile hiding */}
+                   
                     <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right mt-16 md:mt-24" viewportMargin="-50px">
                         <StaggerItem>
-                            {/* Font reduced from text-xl/md:text-3xl to text-lg/md:text-2xl */}
+                          
                             <p
                                 className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
@@ -63,10 +63,10 @@ export default function AboutSection() {
                     </StaggerContainer>
 
                     {/* BLOCK 2: Middle Left */}
-                    {/* Changed viewportMargin from -200px to -50px */}
+                  
                     <StaggerContainer className="w-full md:w-4/12 self-start text-left" viewportMargin="-50px">
                         <StaggerItem>
-                            {/* Font reduced */}
+                        
                             <p
                                 className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
@@ -77,10 +77,10 @@ export default function AboutSection() {
                     </StaggerContainer>
 
                     {/* BLOCK 3: Bottom Right */}
-                    {/* Changed viewportMargin from -200px to -50px */}
+                 
                     <StaggerContainer className="w-full md:w-4/12 self-end ml-auto text-right" viewportMargin="-50px">
                         <StaggerItem>
-                            {/* Font reduced */}
+                           
                             <p
                                 className="font-sans text-lg sm:text-xl md:text-2xl font-black text-white leading-snug tracking-tight"
                                 style={textShadowStyle}
