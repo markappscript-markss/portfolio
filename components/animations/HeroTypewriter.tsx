@@ -7,8 +7,6 @@ import { useInView } from "framer-motion";
 export default function HeroTypewriter() {
   const ref = useRef<HTMLSpanElement>(null);
   
-  // amount: 0.5 means it fires when half the element crosses into the screen
-  // No buggy negative margins!
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 
   return (
