@@ -9,36 +9,26 @@ import { StaggerContainer, StaggerItem } from "./animations/StaggerReveal";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function MacbookShowcase() {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    
+    const containerRef = useRef<HTMLDivElement>(null);    
     const screenScaleRef = useRef<HTMLDivElement>(null);
     const laptopScaleRef = useRef<HTMLDivElement>(null);
-
     const blackScreenRef = useRef<HTMLDivElement>(null);
     const gradientScreenRef = useRef<HTMLDivElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const textWrapperRef = useRef<HTMLDivElement>(null);
     const scrollIndicatorRef = useRef<HTMLDivElement>(null);
     const topGradientRef = useRef<HTMLDivElement>(null);
-
     const [activeTab, setActiveTab] = useState<"Design" | "Webapp" | "AI ads">("Design");
-
     const macbookImage = "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/backgrounds/macbook-cutout.png";
     const clip1 = "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/videos/markfolio.mp4";
     const clip2 = "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/videos/manihub.mp4";
     const clip3 = "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/videos/norda2.mp4";
 
     useGSAP(() => {
-        const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];
-
-        
+        const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];     
         const initialScale = window.innerWidth < 768 ? 1.45 : 1;
-        gsap.set(scaleTargets, { scale: initialScale, rotation: 0, rotationX: 0 });
-
-        
+        gsap.set(scaleTargets, { scale: initialScale, rotation: 0, rotationX: 0 });      
         gsap.set(textWrapperRef.current, { opacity: 0, y: "15vh", scale: 1 });
-
         gsap.fromTo(
             containerRef.current,
             { opacity: 0 },
@@ -57,9 +47,8 @@ export default function MacbookShowcase() {
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: containerRef.current,
-                start: "top top",
-                
-                end: () => (window.innerWidth < 768 ? "+=1000" : "+=1100"),
+                start: "top top", 
+                end: () => (window.innerWidth < 768 ? "+=1400" : "+=1100"),
                 invalidateOnRefresh: true,
                 scrub: 1,
                 pin: true,
@@ -114,8 +103,7 @@ export default function MacbookShowcase() {
             className="relative h-screen w-full bg-neutral-950 flex items-center justify-center overflow-hidden z-0"
         >
             <div ref={topGradientRef} className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-transparent z-40 pointer-events-none" />
-
-            
+     
             <div
                 ref={menuRef}
                 className="absolute left-1/2 -translate-x-1/2 top-[18%] sm:top-[20%] md:top-1/2 md:-translate-y-1/2 md:translate-x-0 md:left-[8%] lg:left-[10%] z-50 pointer-events-auto w-auto"
