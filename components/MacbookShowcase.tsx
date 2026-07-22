@@ -63,7 +63,7 @@ export default function MacbookShowcase() {
 
         // 2. Slowed down Macbook Zoom & Rotation
         tl.to(scaleTargets, {
-            rotation: -45,
+            rotation: -60,
             duration: 28,
             ease: "none",
             transformOrigin: "50% 45%"
