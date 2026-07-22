@@ -7,7 +7,7 @@ import ContactGrid from "@/components/ContactGrid";
 import HeroTypewriter from "@/components/animations/HeroTypewriter";
 import PageIntro from "@/components/animations/PageIntro";
 import MacbookShowcase from "@/components/MacbookShowcase";
-import AboutSection from "@/components/AboutSection"; // <-- NEW IMPORT
+import AboutSection from "@/components/AboutSection";
 import HeroPhoto from "@/components/HeroPhoto";
 
 export const revalidate = 60;
@@ -35,7 +35,7 @@ export default async function Home() {
       <div className="relative z-10 bg-neutral-950 w-full min-h-0 md:min-h-screen">
         <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-neutral-950 pointer-events-none" />
 
-        {/* --- PART 1: HERO (Constrained Width) --- */}
+        {/* --- PART 1: HERO */}
         <main id="home" className="max-w-5xl mx-auto px-6 pt-24 pb-4 md:pb-12 relative scroll-mt-[40vh]">
           <section className="mb-6 md:mb-12 max-w-3xl space-y-4 dynamic-hero-fade">
             <style>{`
@@ -68,20 +68,20 @@ export default async function Home() {
             </div>
           </section>
 
-          {/* Photo floats over the right side without affecting text layout */}
+         
           <div className="absolute right-0 bottom-0">
             <HeroPhoto />
           </div>
 
         </main>
 
-        {/* --- PART 2: THE GSAP DIVE (Full Viewport Width) --- */}
+        {/* --- PART 2: THE GSAP DIVE */}
         <MacbookShowcase />
 
-        {/* --- PART 3: ABOUT SECTION WITH PHOTO & GRADIENT BLENDS (Full Viewport Width) --- */}
+        {/* --- PART 3: ABOUT SECTION WITH PHOTO & GRADIENT BLENDS */}
         <AboutSection />
 
-        {/* --- PART 4: WORK & CONTACT (Constrained Width) --- */}
+        {/* --- PART 4: WORK & CONTACT */}
         <main className="max-w-5xl mx-auto px-6 py-24 relative z-20 bg-neutral-950">
 
           {/* WORK SECTION */}
