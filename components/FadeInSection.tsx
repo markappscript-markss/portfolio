@@ -17,7 +17,7 @@ export default function FadeInSection({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect(); // fire once, don't re-trigger on scroll-back
+          observer.disconnect(); 
         }
       },
       { threshold: 0.15 }

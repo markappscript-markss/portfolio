@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 const PHOTO_URL =
     "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/Extra%20files/mememe.jpg";
 
-const EDGE = "#0a0a0a"; // neutral-950
+const EDGE = "#0a0a0a"; 
 
 export default function HeroPhoto() {
     const { scrollY } = useScroll();

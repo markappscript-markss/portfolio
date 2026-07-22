@@ -115,7 +115,7 @@ export default function MacbookShowcase() {
         >
             <div ref={topGradientRef} className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-transparent z-40 pointer-events-none" />
 
-            {/* RESPONSIVE MENU: Centered top on mobile, absolute left on desktop */}
+            
             <div
                 ref={menuRef}
                 className="absolute left-1/2 -translate-x-1/2 top-[18%] sm:top-[20%] md:top-1/2 md:-translate-y-1/2 md:translate-x-0 md:left-[8%] lg:left-[10%] z-50 pointer-events-auto w-auto"
@@ -129,7 +129,7 @@ export default function MacbookShowcase() {
                                     onMouseEnter={() => setActiveTab(tab)}
                                     onClick={() => setActiveTab(tab)}
                                 >
-                                    {/* Indicator Line: Bottom border on mobile, Left bar on desktop */}
+                                    
                                     <div
                                         className={`absolute bg-gradient-to-r md:bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full transition-all duration-300 ease-out ${activeTab === tab
                                             ? "opacity-100 shadow-[0_0_12px_rgba(168,85,247,0.8)] -bottom-2 left-0 w-full h-0.5 md:-left-4 md:top-0 md:w-1 md:h-full md:bottom-auto"
@@ -151,9 +151,9 @@ export default function MacbookShowcase() {
                 </div>
             </div>
 
-            {/* LAYER 1: BACK SCREEN & BLUE GRADIENT (z-10) */}
+            {/* LAYER 1: BACK SCREEN & BLUE GRADIENT */}
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                {/* 2. Changed w-full to w-[130%] md:w-full for bigger mobile presence */}
+                
                 <div
                     ref={screenScaleRef}
                     className="relative w-[130%] md:w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
@@ -192,9 +192,9 @@ export default function MacbookShowcase() {
                 </div>
             </div>
 
-            {/* LAYER 3: LAPTOP FRAME & BEZEL CUTOUT (z-30) */}
+            {/* LAYER 3: LAPTOP FRAME & BEZEL CUTOUT */}
             <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                {/* 3. Changed w-full to w-[130%] md:w-full for bigger mobile presence */}
+                
                 <div
                     ref={laptopScaleRef}
                     className="relative w-[130%] md:w-full aspect-[16/10] md:h-full md:aspect-auto flex items-center justify-center"
@@ -214,7 +214,7 @@ export default function MacbookShowcase() {
                         style={{ background: "linear-gradient(to top, #0a0a0a, transparent)" }} />
                 </div>
             </div>
-            {/* ========================================== */}
+           
 
             <div
                 ref={scrollIndicatorRef}

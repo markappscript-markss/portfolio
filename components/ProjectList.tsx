@@ -21,7 +21,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   const [selectedProject, setSelectedProject] = useState<{ project: Project; id: string } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Safely check if we are on the client so createPortal doesn't throw hydration errors
+  
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -31,7 +31,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
 
-      // EVENT: Tell NavBar to hide
+      
       window.dispatchEvent(new Event("hide-navbar"));
 
       const preventScroll = (e: Event) => {
@@ -52,7 +52,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
 
-      // EVENT: Tell NavBar to show
+      
       window.dispatchEvent(new Event("show-navbar"));
     }
   }, [selectedProject]);
@@ -119,7 +119,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
         );
       })}
 
-      {/* DETACHED CINEMATIC THEATER STACK — Portaled to the document root */}
+      {/* DETACHED CINEMATIC THEATER STACK */}
       {isMounted && createPortal(
         <AnimatePresence>
           {selectedProject && (
@@ -146,7 +146,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
               {/* MODAL CONTENT */}
               <div className="fixed inset-0 z-[999999] flex flex-col lg:flex-row overflow-hidden pointer-events-none" data-lenis-prevent>
 
-                {/* LEFT VIEWPORT PANEL (Text Area) */}
+                {/* LEFT VIEWPORT PANEL */}
                 <motion.div
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -233,7 +233,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                   </div>
                 </motion.div>
 
-                {/* RIGHT VIEWPORT PANEL (Media) */}
+                {/* RIGHT VIEWPORT PANEL */}
                 <div className="order-1 lg:order-2 w-full lg:w-[55%] h-[40vh] md:h-[50vh] lg:h-full relative flex items-center justify-center p-4 pt-12 md:p-8 lg:p-16 lg:pl-0 pointer-events-auto">
                   <div className="w-full aspect-[16/8] relative rounded-xl">
                     <motion.div

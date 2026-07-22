@@ -11,16 +11,16 @@ export default function PageIntro() {
 
   const { scrollY } = useScroll();
 
-  // Logo Transformations
+  
   const nameScale = useTransform(scrollY, [0, 500], [1, 0.25]);
   const nameY = useTransform(scrollY, [0, 500], ["0vh", "-42vh"]);
   const nameX = useTransform(scrollY, [0, 500], ["0vw", "-35vw"]);
 
-  // Crossfade Opacities for the Text Color Fix
+  
   const centerTextOpacity = useTransform(scrollY, [0, 300], [1, 0]);
   const navTextOpacity = useTransform(scrollY, [0, 300], [0, 1]);
 
-  // General element fades
+  
   const witOpacity = useTransform(scrollY, [0, 200], [1, 0]);
   const scrollNudgeOpacity = useTransform(scrollY, [0, 100], [1, 0]);
   const bgOpacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -33,14 +33,14 @@ export default function PageIntro() {
 
   useEffect(() => {
     const startIntroAnimation = () => {
-      // Small 200ms window delay so the text reveals right as the zoom-in crossfade peaks
+      
       setTimeout(() => {
         setAnimate(true);
         setTimeout(() => setIntroComplete(true), 2000);
       }, 200);
     };
 
-    // If the loading screen finished before this listener registered, run immediately
+    
     if ((window as any).__loadingComplete) {
       startIntroAnimation();
     } else {
@@ -54,7 +54,7 @@ export default function PageIntro() {
 
   return (
     <>
-      {/* LAYER 1: The Structure & Background (z-0) */}
+      {/* LAYER 1: The Structure & Background */}
       <div ref={ref} className="relative h-[calc(100vh+10rem)] sticky top-0 z-0 overflow-hidden">
         <motion.div 
           className="absolute inset-0"
@@ -65,7 +65,7 @@ export default function PageIntro() {
         />
       </div>
 
-      {/* LAYER 2: The Foreground Text (z-50) */}
+      {/* LAYER 2: The Foreground Text */}
       <div className="fixed inset-0 z-50 pointer-events-none flex flex-col items-center justify-center">
         <motion.p
           className="text-sm font-medium tracking-widest uppercase text-neutral-700 mb-4 select-none"
@@ -85,7 +85,7 @@ export default function PageIntro() {
           className="grid overflow-visible origin-center pointer-events-auto dark:drop-shadow-[0_0_25px_rgba(255,255,255,0.2)]"
           style={{ scale: nameScale, y: nameY, x: nameX }}
         >
-          {/* VERSION 1: Always Dark (For the center gradient) */}
+          
           <motion.div 
             className="flex items-baseline gap-1 sm:gap-3 col-start-1 row-start-1"
             style={{ opacity: centerTextOpacity }}
@@ -108,7 +108,7 @@ export default function PageIntro() {
             </motion.span>
           </motion.div>
 
-          {/* VERSION 2: Theme Aware (For the scrolled top-left corner) */}
+          
           <motion.div 
             className="flex items-baseline gap-1 sm:gap-3 col-start-1 row-start-1"
             style={{ opacity: navTextOpacity }}

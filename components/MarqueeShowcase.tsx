@@ -10,14 +10,14 @@ const CARD_WIDTH = 300;
 const CARD_GAP = 16;
 const SPEED = 0.55;
 
-// High-end layout morph transition for the media
+
 const morphTransition: Transition = {
   type: "spring",
   bounce: 0,
   duration: 0.9,
 };
 
-// Slower staggered text animations
+
 const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -46,7 +46,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
   const pause = useCallback(() => { isPausedRef.current = true; }, []);
   const resume = useCallback(() => { if (!selectedProject) isPausedRef.current = false; }, [selectedProject]);
 
-  // Strict Event-Level Scroll Lock
+  
   useEffect(() => {
     if (selectedProject) {
       document.documentElement.style.overflow = "hidden";
@@ -181,7 +181,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                 data-lenis-prevent
               >
                 
-                {/* Fixed Back Button */}
+               
                 <div className="sticky top-0 z-[999] py-4 md:pt-4 md:pb-8 -mx-6 px-6 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 pointer-events-auto bg-gradient-to-b from-white via-white/95 to-transparent dark:from-neutral-950 dark:via-neutral-950/95 dark:to-transparent md:bg-none">
                   <style>{`
                     .uiverse-btn {
@@ -240,7 +240,7 @@ export default function MarqueeShowcase({ projects }: { projects: Project[] }) {
                   </button>
                 </div>
 
-                {/* Staggered Text Animations */}
+                
                 <motion.div 
                   variants={staggerContainer}
                   initial="hidden"

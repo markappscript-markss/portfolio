@@ -49,11 +49,11 @@ export default function NavBar() {
       initial={{ y: 0 }}
       animate={{ y: isHidden ? "-100%" : "0%" }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      // Changed to justify-end to keep the pill on the right side
+      
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-6 sm:px-10 py-6 bg-transparent pointer-events-none"
     >
 
-      {/* NAV LINKS & THEME TOGGLE - Right Side */}
+      {/* NAV LINKS & THEME TOGGLE */}
       <div
         onMouseLeave={() => setHovered(null)}
         className="flex gap-2 text-sm text-neutral-900 dark:text-neutral-100 items-center pointer-events-auto bg-white/60 dark:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm"

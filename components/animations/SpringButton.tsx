@@ -3,7 +3,7 @@
 import { motion, HTMLMotionProps } from "framer-motion";
 import React from "react";
 
-// Swap out React.AnchorHTMLAttributes for HTMLMotionProps<"a">
+
 interface Props extends HTMLMotionProps<"a"> {
   children: React.ReactNode;
 }

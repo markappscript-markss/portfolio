@@ -13,7 +13,7 @@ export function StaggerContainer({ children, className = "", viewportMargin = "-
                 hidden: {},
                 show: {
                     transition: {
-                        staggerChildren: 0.18, // Gap between each element's slide-in
+                        staggerChildren: 0.18, 
                     },
                 },
             }}

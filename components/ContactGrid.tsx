@@ -5,7 +5,7 @@ export default function ContactGrid() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close the grid if the user taps anywhere outside of it
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -20,13 +20,13 @@ export default function ContactGrid() {
     };
   }, []);
 
-  // BULLETPROOF MOBILE HANDLING: Intercept touch before it fires simulated clicks
+  
   const handleTileTouch = (e: React.TouchEvent<HTMLAnchorElement>, href: string, isBlank: boolean) => {
     if (!isOpen) {
-      e.preventDefault(); // Stop mobile from firing the native link click immediately
-      setIsOpen(true);    // Expand the menu instead
+      e.preventDefault(); 
+      setIsOpen(true);   
     } else {
-      // If already open, let it route normally on mobile
+      
       if (isBlank) {
         window.open(href, "_blank", "noopener,noreferrer");
       } else {
@@ -35,7 +35,7 @@ export default function ContactGrid() {
     }
   };
 
-  // DESKTOP FALLBACK: Handles normal mouse clicks gracefully
+  
   const handleTileClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!isOpen) {
       e.preventDefault();
