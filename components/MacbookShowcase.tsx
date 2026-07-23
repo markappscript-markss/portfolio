@@ -28,7 +28,7 @@ export default function MacbookShowcase() {
         const scaleTargets = [screenScaleRef.current, laptopScaleRef.current];     
         const initialScale = window.innerWidth < 768 ? 1.45 : 1;
         gsap.set(scaleTargets, { scale: initialScale, rotation: 0, rotationX: 0 });      
-        gsap.set(textWrapperRef.current, { opacity: 0, y: "15vh", scale: 1 });
+        gsap.set(textWrapperRef.current, { opacity: 0, y: "10vh", scale: 1 });
         gsap.fromTo(
             containerRef.current,
             { opacity: 0 },
