@@ -86,7 +86,7 @@ export default function MacbookShowcase() {
                 opacity: 1,
                 duration: 0.1,
                 ease: "power2.out"
-            }, 5.6)
+            }, 5.5)
             // 3. Text rolls up
             .to(textWrapperRef.current, {
                 y: "-40vh", 
