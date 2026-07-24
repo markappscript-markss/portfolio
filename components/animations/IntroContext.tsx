@@ -12,15 +12,6 @@ const IntroContext = createContext<IntroContextType>({
   setIntroComplete: () => {},
 });
 
-export function IntroProvider({ children }: { children: ReactNode }) {
-  const [introComplete, setIntroComplete] = useState(false);
-  return (
-    <IntroContext.Provider value={{ introComplete, setIntroComplete }}>
-      {children}
-    </IntroContext.Provider>
-  );
-}
-
 export function useIntro() {
   return useContext(IntroContext);
 }

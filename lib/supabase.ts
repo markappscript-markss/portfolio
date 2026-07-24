@@ -5,13 +5,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export type Category = {
-  id: string;
-  name: string;
-  slug: string;
-  sort_order: number;
-};
-
 export type Project = {
   id: string;
   title: string;
