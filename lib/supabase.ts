@@ -15,6 +15,6 @@ export type Project = {
   category_id: string;
   sort_order: number;
   featured: boolean;
-  thumbnail_url: string | null;  
-  video_url: string | null;      
+  thumbnail_url: string | null;
+  video_url: string | null;
 };
