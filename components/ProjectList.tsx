@@ -240,13 +240,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
                         </div>
                       )}
 
-                      <div className="flex gap-4">
-                        {selectedProject.project.live_url && (
-                          <a href={selectedProject.project.live_url} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-transform">
-                            See Case ↗
-                          </a>
-                        )}
-                      </div>
+
                     </div>
                   </motion.div>
 
