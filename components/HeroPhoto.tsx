@@ -23,9 +23,9 @@ export default function HeroPhoto() {
                 className="w-full h-auto object-cover object-top block"
                 draggable={false}
             />
-            <div className="absolute inset-y-0 left-0 w-16 pointer-events-none"
+            <div className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
                 style={{ background: `linear-gradient(to right, ${EDGE}, transparent)` }} />
-            <div className="absolute inset-y-0 right-0 w-16 pointer-events-none"
+            <div className="absolute inset-y-0 right-0 w-1/3 pointer-events-none"
                 style={{ background: `linear-gradient(to left, ${EDGE}, transparent)` }} />
             <div className="absolute inset-x-0 top-0 h-20 pointer-events-none"
                 style={{ background: `linear-gradient(to bottom, ${EDGE}, transparent)` }} />
