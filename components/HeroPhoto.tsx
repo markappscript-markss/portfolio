@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const PHOTO_URL =
-    "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/Extra%20files/mememe.jpg";
+    "https://dvjprjyzyjekefsiujrq.supabase.co/storage/v1/object/public/Extra%20files/mememe.png";
 
 const EDGE = "#0a0a0a"; 
 
