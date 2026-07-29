@@ -9,6 +9,7 @@ import PageIntro from "@/components/animations/PageIntro";
 import MacbookShowcase from "@/components/MacbookShowcase";
 import AboutSection from "@/components/AboutSection";
 import HeroPhoto from "@/components/HeroPhoto";
+import ParallaxWrapper from "@/components/animations/ParallaxWrapper";
 
 export const revalidate = 60;
 
@@ -22,22 +23,18 @@ export default async function Home() {
 
   return (
     <>
-      {/* 0. SOLID BLACK GLITCH INTRO LOADER */}
       <LoadingScreen />
 
-      {/* 1. FIXED NAVBAR */}
       <NavBar />
 
-      {/* 2. STICKY BACKGROUND HERO BACKGROUND INTRO */}
       <PageIntro />
 
-      {/* 3. FOREGROUND CONTENT OVERLAY */}
       <div className="relative z-10 bg-neutral-950 w-full min-h-0 md:min-h-screen">
         <div className="absolute left-0 right-0 h-40 -top-40 bg-gradient-to-b from-transparent to-neutral-950 pointer-events-none" />
 
-        {/* --- PART 1: HERO */}
         <main id="home" className="max-w-5xl mx-auto px-6 pt-24 pb-4 md:pb-12 relative scroll-mt-[40vh]">
-          <section className="mb-6 md:mb-12 max-w-3xl space-y-4 dynamic-hero-fade">
+          
+          <ParallaxWrapper yRange={["0%", "-10%"]} className="relative z-10 mb-6 md:mb-12 max-w-3xl space-y-4 dynamic-hero-fade">
             <style>{`
               @keyframes fadeInUp {
                 from { opacity: 0; transform: translateY(16px); }
@@ -66,36 +63,29 @@ export default async function Home() {
                 Web, ads, and everything between — built to look intentional
               </p>
             </div>
-          </section>
+          </ParallaxWrapper>
 
-         
-          <div className="absolute right-0 bottom-0">
+          <ParallaxWrapper yRange={["0%", "-20%"]} className="absolute right-0 bottom-0 z-0 pointer-events-none">
             <HeroPhoto />
-          </div>
+          </ParallaxWrapper>
 
         </main>
 
-        {/* --- PART 2: THE GSAP DIVE */}
         <MacbookShowcase />
 
-        {/* --- PART 3: ABOUT SECTION WITH PHOTO & GRADIENT BLENDS */}
         <AboutSection />
 
-        {/* --- PART 4: WORK & CONTACT */}
         <main className="max-w-5xl mx-auto px-6 py-24 relative z-20 bg-neutral-950">
 
-          {/* WORK SECTION */}
           <div id="work" className="mb-32">
             {featuredProjects.length > 0 && (
               <ProjectList projects={featuredProjects} />
             )}
           </div>
 
-          {/* CONTACT SECTION */}
           <section id="contact" className="w-full mb-32 scroll-mt-20">
             <StaggerContainer className="flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
 
-              {/* LEFT SIDE: Text Content */}
               <div className="w-full md:w-1/2 flex flex-col">
                 <StaggerItem>
                   <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-purple-400 mb-4">
@@ -115,7 +105,6 @@ export default async function Home() {
                 </StaggerItem>
               </div>
 
-              {/* RIGHT SIDE: The Interactive Grid */}
               <StaggerItem className="w-full md:w-1/2 flex justify-start md:justify-end">
                 <ContactGrid />
               </StaggerItem>
