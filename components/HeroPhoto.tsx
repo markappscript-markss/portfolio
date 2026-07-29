@@ -10,7 +10,7 @@ const EDGE = "#0a0a0a";
 export default function HeroPhoto() {
     const { scrollY } = useScroll();
 
-    const opacity = useTransform(scrollY, [400, 550, 800, 950], [0, 1, 1, 0]);
+    const opacity = useTransform(scrollY, [300, 550, 800, 950], [0, 1, 1, 0]);
 
     return (
         <motion.div
