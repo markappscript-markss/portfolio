@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 interface ParallaxWrapperProps {
   children: ReactNode;
   className?: string;
-  yRange?: string[] | number[];
+  yRange?: string[];
 }
 
 export default function ParallaxWrapper({
