@@ -849,13 +849,19 @@ export default function HeroScene3D() {
     };
 
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let isTouching = false;
 
     const onMouseMove = (e: MouseEvent) => {
       mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
+    const onTouchStart = () => {
+      isTouching = true;
+    };
+
     const onTouchMove = (e: TouchEvent) => {
+      isTouching = true;
       if (e.touches.length > 0) {
         const touch = e.touches[0];
         mouse.targetX = (touch.clientX / window.innerWidth) * 2 - 1;
@@ -863,8 +869,46 @@ export default function HeroScene3D() {
       }
     };
 
+    const onTouchEnd = () => {
+      isTouching = false;
+      mouse.targetX = 0;
+      mouse.targetY = 0;
+    };
+
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      if (isTouching) return;
+      if (e.gamma !== null && e.beta !== null) {
+        const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
+        const clampedBeta = Math.max(15, Math.min(75, e.beta));
+        mouse.targetX = clampedGamma / 30;
+        mouse.targetY = (clampedBeta - 45) / 30;
+      }
+    };
+
+    const requestGyroPermission = async () => {
+      try {
+        if (typeof (DeviceOrientationEvent as any)?.requestPermission === "function") {
+          const res = await (DeviceOrientationEvent as any).requestPermission();
+          if (res === "granted") {
+            window.addEventListener("deviceorientation", onOrientation, { passive: true });
+          }
+        }
+      } catch {
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      if (typeof (DeviceOrientationEvent as any)?.requestPermission === "function") {
+        window.addEventListener("touchstart", requestGyroPermission, { once: true, passive: true });
+      } else {
+        window.addEventListener("deviceorientation", onOrientation, { passive: true });
+      }
+    }
+
     window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
 
     const onResize = () => {
       if (!container) return;
@@ -872,10 +916,18 @@ export default function HeroScene3D() {
       const h = container.clientHeight;
       camera.aspect = w / h;
 
-      if (w < 768) {
-        camera.position.z = 10.5;
+      const isMobile = w < 768;
+      if (isMobile) {
+        camera.position.z = 11.2;
+        const mobileScale = Math.min(1.0, Math.max(0.68, (w / 768) * 0.90 + 0.10));
+        backgroundGroup.scale.set(mobileScale, mobileScale, mobileScale);
+        sceneryGroup.scale.set(mobileScale, mobileScale, 1.0);
+        avatarGroup.scale.set(0.88, 0.88, 1.0);
       } else {
         camera.position.z = 8.8;
+        backgroundGroup.scale.set(1.0, 1.0, 1.0);
+        sceneryGroup.scale.set(1.0, 1.0, 1.0);
+        avatarGroup.scale.set(1.0, 1.0, 1.0);
       }
 
       camera.updateProjectionMatrix();
@@ -1047,9 +1099,11 @@ export default function HeroScene3D() {
         duration: 0.8,
         ease: "power2.out",
       });
+      const isMobile = container ? container.clientWidth < 768 : false;
+      const baseAvatarScale = isMobile ? 0.88 : 1.0;
       gsap.to(avatarGroup.scale, {
-        x: 1.0,
-        y: 1.0,
+        x: baseAvatarScale,
+        y: baseAvatarScale,
         z: 1.0,
         duration: 0.85,
         ease: "power3.out",
@@ -1237,7 +1291,11 @@ export default function HeroScene3D() {
 
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("deviceorientation", onOrientation);
+      window.removeEventListener("touchstart", requestGyroPermission);
       window.removeEventListener("resize", onResize);
 
       if (container && renderer.domElement.parentNode === container) {
@@ -1286,36 +1344,36 @@ export default function HeroScene3D() {
 
       <div
         id="work-status"
-        className="fixed left-6 sm:left-12 top-24 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col"
+        className="fixed left-4 sm:left-12 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col"
       >
-        <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.24em] uppercase text-neutral-600">
+        <span className="font-mono text-[10px] sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.24em] uppercase text-neutral-600">
           AVAILABLE FOR WORK
         </span>
-        <span className="text-base sm:text-xl font-black italic tracking-tight text-neutral-900 mt-1">
+        <span className="text-xs sm:text-xl font-black italic tracking-tight text-neutral-900 mt-0.5 sm:mt-1">
           Freelance & Collab
         </span>
       </div>
 
       <div
         id="location-status"
-        className="fixed right-6 sm:right-12 top-24 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col items-end text-right"
+        className="fixed right-4 sm:right-12 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col items-end text-right"
       >
         <span
           suppressHydrationWarning
-          className="font-mono tabular-nums text-xs sm:text-sm font-bold tracking-[0.24em] uppercase text-neutral-600"
+          className="font-mono tabular-nums text-[10px] sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.24em] uppercase text-neutral-600"
         >
           {philippineTime || "12:00:00 AM GMT+8"}
         </span>
-        <span className="text-base sm:text-xl font-black italic tracking-tight text-neutral-900 mt-1">
+        <span className="text-xs sm:text-xl font-black italic tracking-tight text-neutral-900 mt-0.5 sm:mt-1">
           Philippines
         </span>
       </div>
 
       <nav
         id="hero-nav"
-        className="fixed z-20 left-6 right-6 sm:left-12 sm:right-12 bottom-6 sm:bottom-8 select-none pointer-events-auto opacity-0"
+        className="fixed z-20 left-4 right-4 sm:left-12 sm:right-12 bottom-4 sm:bottom-8 select-none pointer-events-auto opacity-0"
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-3 sm:gap-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-1.5 sm:gap-8">
           {THEMES.map((t, i) => {
             const isActive = activeAvatar === t.id;
             return (
@@ -1323,19 +1381,19 @@ export default function HeroScene3D() {
                 <button
                   id={`btn-nav-${t.id}`}
                   onClick={() => switchAvatarRef.current?.(t.id)}
-                  className={`w-full group text-left transition-all duration-300 pt-3 sm:pt-4 border-t flex items-center font-mono text-xs sm:text-sm tracking-widest uppercase cursor-pointer ${isActive
+                  className={`w-full group text-left transition-all duration-300 pt-2 sm:pt-4 border-t flex items-center font-mono text-[10px] sm:text-sm tracking-tight sm:tracking-widest uppercase cursor-pointer ${isActive
                     ? "border-neutral-900 text-neutral-900 border-t-2 sm:border-t-4 font-bold opacity-100"
                     : "border-neutral-900/30 text-neutral-600 hover:text-neutral-900 hover:border-neutral-900/60 opacity-60 hover:opacity-90"
                     }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isActive
+                      className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full shrink-0 transition-all duration-300 ${isActive
                         ? "bg-purple-600 animate-pulse"
                         : "bg-neutral-300 group-hover:bg-neutral-400"
                         }`}
                     />
-                    <span>
+                    <span className="truncate">
                       0{i + 1} {t.label}
                     </span>
                   </div>

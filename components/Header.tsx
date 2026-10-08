@@ -25,7 +25,7 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
   return (
     <header
       id="header-nav"
-      className="fixed top-0 left-0 right-0 z-40 w-full h-20 bg-transparent px-6 sm:px-12 flex items-center justify-between pointer-events-none opacity-0"
+      className="fixed top-0 left-0 right-0 z-40 w-full h-16 sm:h-20 bg-transparent px-4 sm:px-12 flex items-center justify-between pointer-events-none opacity-0"
     >
       <div className="pointer-events-auto">
         <Magnetic strength={0.2}>
@@ -34,17 +34,17 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
             onClick={handleMainClick}
             className="flex items-baseline select-none cursor-pointer text-left"
           >
-            <span className="font-bold tracking-tight text-sm sm:text-base text-black">
+            <span className="font-bold tracking-tight text-xs sm:text-base text-black">
               markappscript
             </span>
-            <span className="font-bold tracking-tight text-sm sm:text-base text-purple-600">
+            <span className="font-bold tracking-tight text-xs sm:text-base text-purple-600">
               .dev
             </span>
           </button>
         </Magnetic>
       </div>
 
-      <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-6 sm:gap-8 select-none">
+      <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-8 select-none">
         <button
           id="nav-btn-main"
           type="button"
