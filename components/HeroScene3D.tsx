@@ -7,8 +7,8 @@ import gsap from "gsap";
 export default function HeroScene3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [activeAvatar, setActiveAvatar] = useState<"dark" | "urban" | "summer">("dark");
-  const switchAvatarRef = useRef<((target: "dark" | "urban" | "summer") => void) | null>(null);
+  const [activeAvatar, setActiveAvatar] = useState<"dark" | "urban" | "summer" | "retro">("dark");
+  const switchAvatarRef = useRef<((target: "dark" | "urban" | "summer" | "retro") => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -358,6 +358,7 @@ export default function HeroScene3D() {
 
     let textureUrban: THREE.Texture | null = null;
     let textureSummer: THREE.Texture | null = null;
+    let textureRetro: THREE.Texture | null = null;
 
     const textureDark = textureLoader.load("/images/Hero-avatar1.webp", () => {
       setIsLoaded(true);
@@ -371,6 +372,11 @@ export default function HeroScene3D() {
         textureSummer.colorSpace = THREE.SRGBColorSpace;
         textureSummer.minFilter = THREE.LinearFilter;
         textureSummer.generateMipmaps = true;
+
+        textureRetro = textureLoader.load("/images/Hero-avatar4.webp");
+        textureRetro.colorSpace = THREE.SRGBColorSpace;
+        textureRetro.minFilter = THREE.LinearFilter;
+        textureRetro.generateMipmaps = true;
       }, 1000);
     });
     textureDark.colorSpace = THREE.SRGBColorSpace;
@@ -461,11 +467,12 @@ export default function HeroScene3D() {
 
     const urbanScale = 0.95;
     const summerScale = 0.94;
+    const retroScale = 0.95;
 
     let isTransitioning = false;
-    let currentAvatar: "dark" | "urban" | "summer" = "dark";
+    let currentAvatar: "dark" | "urban" | "summer" | "retro" = "dark";
 
-    switchAvatarRef.current = (target: "dark" | "urban" | "summer") => {
+    switchAvatarRef.current = (target: "dark" | "urban" | "summer" | "retro") => {
       if (isTransitioning || target === currentAvatar) return;
       isTransitioning = true;
       currentAvatar = target;
@@ -479,6 +486,9 @@ export default function HeroScene3D() {
       } else if (target === "summer") {
         targetTexture = textureSummer || textureDark;
         targetScale = summerScale;
+      } else if (target === "retro") {
+        targetTexture = textureRetro || textureDark;
+        targetScale = retroScale;
       }
 
       const tl = gsap.timeline({
@@ -692,6 +702,7 @@ export default function HeroScene3D() {
       textureDark.dispose();
       textureUrban?.dispose();
       textureSummer?.dispose();
+      textureRetro?.dispose();
       bgCylinderGeo.dispose();
       bgCylinderMat.dispose();
       textCurvedGeo.dispose();
@@ -792,6 +803,30 @@ export default function HeroScene3D() {
             <span>SUMMER</span>
           </div>
           {activeAvatar === "summer" && (
+            <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
+              [ACTIVE]
+            </span>
+          )}
+        </button>
+
+        <button
+          id="btn-avatar-retro"
+          onClick={() => switchAvatarRef.current?.("retro")}
+          className={`group relative flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-mono tracking-widest uppercase transition-all duration-300 ${activeAvatar === "retro"
+            ? "bg-black text-white shadow-lg shadow-black/15 font-bold scale-[1.03]"
+            : "bg-white/80 backdrop-blur-md text-neutral-600 hover:text-black border border-neutral-200/90 hover:border-black/40 hover:bg-white"
+            }`}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeAvatar === "retro"
+                ? "bg-purple-400 animate-pulse"
+                : "bg-neutral-300 group-hover:bg-neutral-400"
+                }`}
+            />
+            <span>RETRO</span>
+          </div>
+          {activeAvatar === "retro" && (
             <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
               [ACTIVE]
             </span>

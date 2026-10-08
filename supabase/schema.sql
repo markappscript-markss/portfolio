@@ -1,5 +1,3 @@
--- Run this in the Supabase SQL editor after creating your project
-
 create table categories (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -23,14 +21,12 @@ create table projects (
   created_at timestamptz not null default now()
 );
 
--- Public read access (portfolio is public-facing)
 alter table categories enable row level security;
 alter table projects enable row level security;
 
 create policy "Public read categories" on categories for select using (true);
 create policy "Public read projects" on projects for select using (true);
 
--- Seed a few categories to start
 insert into categories (name, slug, sort_order) values
   ('Web apps', 'web', 1),
   ('Mobile', 'mobile', 2),
