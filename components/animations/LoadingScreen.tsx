@@ -142,20 +142,31 @@ export default function LoadingScreen() {
 
     video.addEventListener("timeupdate", handleTimeUpdate);
 
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        startTear();
-      });
+    const tryPlay = () => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          startTear();
+        });
+      }
+    };
+
+    if (video.readyState >= 2) {
+      tryPlay();
+    } else {
+      video.addEventListener("canplay", tryPlay, { once: true });
+      video.addEventListener("loadeddata", tryPlay, { once: true });
     }
 
     const fallbackTimer = setTimeout(() => {
       startTear();
-    }, 2800);
+    }, 4000);
 
     return () => {
       clearTimeout(fallbackTimer);
       video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("loadeddata", tryPlay);
     };
   }, [startTear]);
 
@@ -278,7 +289,6 @@ export default function LoadingScreen() {
         ) : (
           <video
             ref={videoRef}
-            autoPlay
             muted
             playsInline
             preload="auto"

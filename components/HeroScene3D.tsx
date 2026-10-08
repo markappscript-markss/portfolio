@@ -244,28 +244,38 @@ export default function HeroScene3D() {
     let lastStepTime = 0;
     let lastCursorBlink = 0;
     let cursorVisible = true;
+    let currentStartX = -1;
+    let lastDrawnKey = "";
 
     let canStartTypewriter = false;
 
     const renderTypewriter = (now: number) => {
       if (!textCtx) return;
 
+      const staticText = "AI-ASSISTED";
+      textCtx.font = 'bold 155px "Bebas Neue", Anton, Impact, Oswald, "Arial Narrow", sans-serif-condensed, sans-serif';
+      textCtx.textBaseline = "middle";
+
+      const staticWidth = textCtx.measureText(staticText).width;
+      const spaceWidth = textCtx.measureText(" ").width;
+      const centerX = textCanvas.width / 2;
+      const centerY = textCanvas.height / 2;
+      const defaultStartX = centerX - staticWidth;
+
       if (!canStartTypewriter) {
-        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        const staticText = "AI-ASSISTED ";
-        textCtx.font = 'bold 155px "Bebas Neue", Anton, Impact, Oswald, "Arial Narrow", sans-serif-condensed, sans-serif';
-        textCtx.textBaseline = "middle";
-        const staticWidth = textCtx.measureText(staticText).width;
-        const maxDynamicWidth = Math.max(
-          ...words.map((w) => textCtx.measureText(w).width)
-        );
-        const totalMaxWidth = staticWidth + maxDynamicWidth;
-        const fixedStartX = (textCanvas.width - totalMaxWidth) / 2;
-        const centerY = textCanvas.height / 2;
-        textCtx.fillStyle = "#000000";
-        textCtx.fillText(staticText, fixedStartX, centerY);
-        textTexture.needsUpdate = true;
+        if (currentStartX < 0) {
+          textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+          textCtx.textAlign = "left";
+          textCtx.fillStyle = "#000000";
+          textCtx.fillText(staticText, defaultStartX, centerY);
+          textTexture.needsUpdate = true;
+          currentStartX = defaultStartX;
+        }
         return;
+      }
+
+      if (currentStartX < 0) {
+        currentStartX = defaultStartX;
       }
 
       if (now - lastCursorBlink > 500) {
@@ -285,7 +295,7 @@ export default function HeroScene3D() {
             if (charIdx >= currentWord.length) {
               charIdx = currentWord.length;
               isDeleting = true;
-              pauseUntil = now + 2200;
+              pauseUntil = now + 4000;
             }
           } else {
             charIdx--;
@@ -293,41 +303,47 @@ export default function HeroScene3D() {
               charIdx = 0;
               isDeleting = false;
               wordIdx = (wordIdx + 1) % words.length;
-              pauseUntil = now + 350;
+              pauseUntil = now + 500;
             }
           }
         }
       }
 
+      const currentWord = words[wordIdx];
+      const isLongWord = currentWord.length > 11;
+      let targetStartX = defaultStartX;
+
+      if (isLongWord && (charIdx > 0 || isDeleting)) {
+        const fullWordWidth = textCtx.measureText(currentWord).width;
+        const totalLineWidth = staticWidth + spaceWidth + fullWordWidth;
+        targetStartX = (textCanvas.width - totalLineWidth) / 2;
+      }
+
+      currentStartX += (targetStartX - currentStartX) * 0.08;
+
+      const dynamicText = currentWord.substring(0, charIdx);
+      const cursorChar = cursorVisible ? "|" : " ";
+      const roundedX = Math.round(currentStartX * 2) / 2;
+      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
+
+      if (drawKey === lastDrawnKey) {
+        return;
+      }
+      lastDrawnKey = drawKey;
+
       textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
-      const staticText = "AI-ASSISTED ";
-      const dynamicText = words[wordIdx].substring(0, charIdx);
-      const cursorChar = cursorVisible ? "|" : " ";
-
-      textCtx.font = 'bold 155px "Bebas Neue", Anton, Impact, Oswald, "Arial Narrow", sans-serif-condensed, sans-serif';
-      textCtx.textBaseline = "middle";
-
-      const staticWidth = textCtx.measureText(staticText).width;
-
-      const maxDynamicWidth = Math.max(
-        ...words.map((w) => textCtx.measureText(w).width)
-      );
-      const totalMaxWidth = staticWidth + maxDynamicWidth;
-
-      const fixedStartX = (textCanvas.width - totalMaxWidth) / 2;
-      const centerY = textCanvas.height / 2;
-
+      textCtx.textAlign = "left";
       textCtx.fillStyle = "#000000";
-      textCtx.fillText(staticText, fixedStartX, centerY);
+      textCtx.fillText(staticText, currentStartX, centerY);
 
       textCtx.fillStyle = "#581c87";
-      textCtx.fillText(dynamicText, fixedStartX + staticWidth, centerY);
+      textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
 
       textCtx.fillStyle = "#6b21a8";
       textCtx.fillText(
         cursorChar,
-        fixedStartX + staticWidth + textCtx.measureText(dynamicText).width + 8,
+        currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
         centerY
       );
 
@@ -340,25 +356,29 @@ export default function HeroScene3D() {
     const planeHeight = 6.6;
     const planeWidth = planeHeight * avatarAspect;
 
+    let textureUrban: THREE.Texture | null = null;
+    let textureSummer: THREE.Texture | null = null;
+
     const textureDark = textureLoader.load("/images/Hero-avatar1.webp", () => {
       setIsLoaded(true);
+      setTimeout(() => {
+        textureUrban = textureLoader.load("/images/Hero-avatar2.webp");
+        textureUrban.colorSpace = THREE.SRGBColorSpace;
+        textureUrban.minFilter = THREE.LinearFilter;
+        textureUrban.generateMipmaps = true;
+
+        textureSummer = textureLoader.load("/images/Hero-avatar3.webp");
+        textureSummer.colorSpace = THREE.SRGBColorSpace;
+        textureSummer.minFilter = THREE.LinearFilter;
+        textureSummer.generateMipmaps = true;
+      }, 1000);
     });
     textureDark.colorSpace = THREE.SRGBColorSpace;
     textureDark.minFilter = THREE.LinearFilter;
     textureDark.generateMipmaps = true;
 
-    const textureUrban = textureLoader.load("/images/Hero-avatar2.webp");
-    textureUrban.colorSpace = THREE.SRGBColorSpace;
-    textureUrban.minFilter = THREE.LinearFilter;
-    textureUrban.generateMipmaps = true;
-
-    const textureSummer = textureLoader.load("/images/Hero-avatar3.webp");
-    textureSummer.colorSpace = THREE.SRGBColorSpace;
-    textureSummer.minFilter = THREE.LinearFilter;
-    textureSummer.generateMipmaps = true;
-
     const glitchUniforms = {
-      map: { value: textureDark },
+      map: { value: textureDark as THREE.Texture },
       uGlitch: { value: 0.0 },
       uTime: { value: 0.0 },
       uOpacity: { value: 0.0 },
@@ -451,13 +471,13 @@ export default function HeroScene3D() {
       currentAvatar = target;
       setActiveAvatar(target);
 
-      let targetTexture = textureDark;
+      let targetTexture: THREE.Texture = textureDark;
       let targetScale = 1.0;
       if (target === "urban") {
-        targetTexture = textureUrban;
+        targetTexture = textureUrban || textureDark;
         targetScale = urbanScale;
       } else if (target === "summer") {
-        targetTexture = textureSummer;
+        targetTexture = textureSummer || textureDark;
         targetScale = summerScale;
       }
 
@@ -600,24 +620,11 @@ export default function HeroScene3D() {
         ease: "power2.out",
       }, 0.38);
 
-    let hasRevealed = false;
-    const playReveal = () => {
-      if (hasRevealed) return;
-      hasRevealed = true;
-      revealTimeline.play();
-    };
-
-    if (typeof window !== "undefined" && ((window as any).__paperTearComplete || (window as any).__paperTearReveal)) {
-      playReveal();
-    } else {
-      window.addEventListener("paper-tear-complete", playReveal);
-      window.addEventListener("paper-tear-reveal", playReveal);
-    }
-    const fallbackTimer = setTimeout(playReveal, 3500);
-
+    let isRunning = false;
     let animationFrameId: number;
 
     const animate = () => {
+      if (!isRunning) return;
       animationFrameId = requestAnimationFrame(animate);
 
       const now = performance.now();
@@ -642,9 +649,29 @@ export default function HeroScene3D() {
       renderer.render(scene, camera);
     };
 
-    animate();
+    let hasRevealed = false;
+    const playReveal = () => {
+      if (hasRevealed) return;
+      hasRevealed = true;
+      if (!isRunning) {
+        isRunning = true;
+        animate();
+      }
+      revealTimeline.play();
+    };
+
+    if (typeof window !== "undefined" && ((window as any).__paperTearComplete || (window as any).__paperTearReveal)) {
+      playReveal();
+    } else {
+      window.addEventListener("paper-tear-complete", playReveal);
+      window.addEventListener("paper-tear-reveal", playReveal);
+    }
+    const fallbackTimer = setTimeout(playReveal, 3500);
+
+    renderer.render(scene, camera);
 
     return () => {
+      isRunning = false;
       clearTimeout(fallbackTimer);
       window.removeEventListener("paper-tear-complete", playReveal);
       window.removeEventListener("paper-tear-reveal", playReveal);
@@ -663,8 +690,8 @@ export default function HeroScene3D() {
       geometry?.dispose();
       material.dispose();
       textureDark.dispose();
-      textureUrban.dispose();
-      textureSummer.dispose();
+      textureUrban?.dispose();
+      textureSummer?.dispose();
       bgCylinderGeo.dispose();
       bgCylinderMat.dispose();
       textCurvedGeo.dispose();
