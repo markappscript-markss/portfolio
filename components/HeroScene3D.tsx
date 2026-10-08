@@ -192,6 +192,24 @@ export default function HeroScene3D() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeAvatar, setActiveAvatar] = useState<"dark" | "urban" | "summer" | "retro">("dark");
   const switchAvatarRef = useRef<((target: "dark" | "urban" | "summer" | "retro") => void) | null>(null);
+  const [philippineTime, setPhilippineTime] = useState("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const formatted = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Manila",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      }).format(new Date());
+      setPhilippineTime(`${formatted} GMT+8`);
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -252,13 +270,13 @@ export default function HeroScene3D() {
       t.layers.forEach((l) => {
         const layerGroup = new THREE.Group();
         layerGroup.position.z = l.z;
-        layerGroup.position.y = i === 0 ? 0 : -18;
+        layerGroup.position.y = -18;
         grp.add(layerGroup);
 
         const bl: BuiltLayer = {
           z: l.z,
-          off: i === 0 ? 0 : -18,
-          target: i === 0 ? 0 : -18,
+          off: -18,
+          target: -18,
           group: layerGroup,
         };
 
@@ -527,7 +545,7 @@ export default function HeroScene3D() {
 
     let canStartTypewriter = false;
 
-    const renderTypewriter = (now: number) => {
+    const renderTypewriter = (now: number, delta: number = 0.016) => {
       if (!textCtx) return;
 
       const staticText = "AI-ASSISTED";
@@ -588,15 +606,25 @@ export default function HeroScene3D() {
       }
 
       const currentWord = words[wordIdx];
-      let startX = defaultStartX;
-      if (currentWord.length > 11) {
+      const isLongWord = currentWord.length > 11;
+      let targetStartX = defaultStartX;
+
+      if (isLongWord && (charIdx > 0 || isDeleting)) {
         const fullWordWidth = textCtx.measureText(currentWord).width;
-        startX = (textCanvas.width - (staticWidth + spaceWidth + fullWordWidth)) / 2;
+        const totalLineWidth = staticWidth + spaceWidth + fullWordWidth;
+        targetStartX = (textCanvas.width - totalLineWidth) / 2;
+      }
+
+      const slideLerp = 1 - Math.exp(-7.0 * delta);
+      currentStartX += (targetStartX - currentStartX) * slideLerp;
+      if (Math.abs(targetStartX - currentStartX) < 0.25) {
+        currentStartX = targetStartX;
       }
 
       const dynamicText = currentWord.substring(0, charIdx);
       const cursorChar = cursorVisible ? "|" : " ";
-      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}`;
+      const roundedX = Math.round(currentStartX * 2) / 2;
+      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
 
       if (drawKey === lastDrawnKey) {
         return;
@@ -607,15 +635,15 @@ export default function HeroScene3D() {
 
       textCtx.textAlign = "left";
       textCtx.fillStyle = "#000000";
-      textCtx.fillText(staticText, startX, centerY);
+      textCtx.fillText(staticText, currentStartX, centerY);
 
       textCtx.fillStyle = "#581c87";
-      textCtx.fillText(dynamicText, startX + staticWidth + spaceWidth, centerY);
+      textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
 
       textCtx.fillStyle = "#6b21a8";
       textCtx.fillText(
         cursorChar,
-        startX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
+        currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
         centerY
       );
 
@@ -856,74 +884,80 @@ export default function HeroScene3D() {
     window.addEventListener("resize", onResize);
     onResize();
 
-    const revealTimeline = gsap.timeline({
+    const revealTimeouts: NodeJS.Timeout[] = [];
+
+    const staggerTimeline = gsap.timeline({
       paused: true,
-      onStart: () => {
-        canStartTypewriter = true;
-      },
     });
 
-    revealTimeline
-      .to(textMesh.position, {
-        y: 3 - cylinderCenterY,
-        duration: 0.75,
-        ease: "power3.out",
-      }, 0.0)
-      .to(textMat, {
-        opacity: 1,
-        duration: 0.6,
-        ease: "power2.out",
-      }, 0.0)
-      .to(glitchUniforms.uOpacity, {
-        value: 1.0,
-        duration: 0.75,
-        ease: "power2.out",
-      }, 0.1)
-      .to(avatarGroup.scale, {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
-        duration: 0.85,
-        ease: "power3.out",
-      }, 0.1)
-      .to(webAppsMesh.position, {
-        x: 0,
-        duration: 0.75,
-        ease: "power3.out",
-      }, 0.2)
-      .to(webAppsMat, {
-        opacity: 1,
-        duration: 0.55,
-        ease: "power2.out",
-      }, 0.2)
-      .to(aiVideoAdsMesh.position, {
-        x: 0,
-        duration: 0.75,
-        ease: "power3.out",
-      }, 0.28)
-      .to(aiVideoMat, {
-        opacity: 1,
-        duration: 0.55,
-        ease: "power2.out",
-      }, 0.28)
-      .fromTo("#hero-nav", {
-        opacity: 0,
-        y: 20,
-      }, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out",
-      }, 0.35)
+    staggerTimeline
+      .call(() => {
+        const themeIdx = THEMES.findIndex((th) => th.id === currentAvatar);
+        const activeTheme = builtThemes[themeIdx >= 0 ? themeIdx : 0];
+        if (activeTheme && activeTheme.layers) {
+          activeTheme.layers.forEach((l, n) => {
+            const timer = setTimeout(() => {
+              l.target = 0;
+            }, n * 70);
+            revealTimeouts.push(timer);
+          });
+        }
+      }, [], 0.0)
       .fromTo("#header-nav", {
         opacity: 0,
-        y: -20,
+        y: -16,
       }, {
         opacity: 1,
         y: 0,
-        duration: 0.6,
+        duration: 0.42,
         ease: "power2.out",
-      }, 0.38);
+      }, 0.04)
+      .to(textMesh.position, {
+        y: 3 - cylinderCenterY,
+        duration: 0.52,
+        ease: "power3.out",
+        onStart: () => {
+          canStartTypewriter = true;
+        },
+      }, 0.12)
+      .to(textMat, {
+        opacity: 1,
+        duration: 0.42,
+        ease: "power2.out",
+      }, 0.12)
+      .to(webAppsMesh.position, {
+        x: 0,
+        duration: 0.48,
+        ease: "power3.out",
+      }, 0.18)
+      .to(webAppsMat, {
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+      }, 0.18)
+      .to(aiVideoAdsMesh.position, {
+        x: 0,
+        duration: 0.48,
+        ease: "power3.out",
+      }, 0.24)
+      .to(aiVideoMat, {
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+      }, 0.24)
+      .set("#hero-nav", {
+        opacity: 1,
+      }, 0.28)
+      .fromTo(".hero-nav-item", {
+        opacity: 0,
+        y: 16,
+      }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.38,
+        ease: "power2.out",
+        stagger: 0.06,
+      }, 0.30);
 
     let isRunning = false;
     let animationFrameId: number;
@@ -935,7 +969,7 @@ export default function HeroScene3D() {
 
       const delta = Math.min(clock.getDelta(), 0.05);
       const now = performance.now();
-      renderTypewriter(now);
+      renderTypewriter(now, delta);
       glitchUniforms.uTime.value = now * 0.001;
 
       if (scene.background instanceof THREE.Color) {
@@ -951,7 +985,7 @@ export default function HeroScene3D() {
         let any = false;
         th.layers.forEach((l) => {
           if (Math.abs(l.target - l.off) > 0.005) {
-            l.off += (l.target - l.off) * 0.075;
+            l.off += (l.target - l.off) * 0.092;
           }
           if (l.off > -17.5) {
             any = true;
@@ -981,33 +1015,193 @@ export default function HeroScene3D() {
       renderer.render(scene, camera);
     };
 
-    let hasRevealed = false;
-    const playReveal = () => {
-      if (hasRevealed) return;
-      hasRevealed = true;
+    let hasStarted3D = false;
+    const start3D = () => {
+      if (hasStarted3D) return;
+      hasStarted3D = true;
       if (!isRunning) {
         isRunning = true;
         animate();
       }
-      revealTimeline.play();
+      gsap.to(glitchUniforms.uOpacity, {
+        value: 1.0,
+        duration: 0.8,
+        ease: "power2.out",
+      });
+      gsap.to(avatarGroup.scale, {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        duration: 0.85,
+        ease: "power3.out",
+      });
+    };
+
+    let hasRevealedElements = false;
+    const playStaggerReveal = () => {
+      start3D();
+      if (hasRevealedElements) return;
+      hasRevealedElements = true;
+      staggerTimeline.play();
+    };
+
+    const resetToDarkWithStagger = () => {
+      start3D();
+      hasRevealedElements = true;
+      isTransitioning = false;
+      revealTimeouts.forEach(clearTimeout);
+      revealTimeouts.length = 0;
+
+      builtThemes.forEach((th, idx) => {
+        if (idx !== 0) {
+          th.layers.forEach((l) => {
+            l.target = -18;
+            l.off = -18;
+            l.group.position.y = -18;
+          });
+          th.group.visible = false;
+        }
+      });
+
+      builtThemes[0].group.visible = true;
+      builtThemes[0].layers.forEach((l) => {
+        l.off = -18;
+        l.target = -18;
+        l.group.position.y = -18;
+      });
+
+      currentAvatar = "dark";
+      setActiveAvatar("dark");
+
+      targetBg.set(THEMES[0].bg);
+      targetFloor.set(THEMES[0].floor);
+      if (scene.background instanceof THREE.Color) {
+        scene.background.set(THEMES[0].bg);
+      }
+      floorMat.color.set(THEMES[0].floor);
+
+      glitchUniforms.map.value = textureDark;
+      avatarMesh.scale.set(1.0, 1.0, 1.0);
+
+      builtThemes[0].layers.forEach((l, n) => {
+        const timer = setTimeout(() => {
+          l.target = 0;
+        }, n * 70);
+        revealTimeouts.push(timer);
+      });
+
+      gsap.killTweensOf([
+        textMesh.position,
+        textMat,
+        webAppsMesh.position,
+        webAppsMat,
+        aiVideoAdsMesh.position,
+        aiVideoMat,
+        ".hero-nav-item",
+      ]);
+
+      textMesh.position.y = 3 - cylinderCenterY - 1.2;
+      textMat.opacity = 0;
+      webAppsMesh.position.x = 1.8;
+      webAppsMat.opacity = 0;
+      aiVideoAdsMesh.position.x = -1.8;
+      aiVideoMat.opacity = 0;
+
+      gsap.to(textMesh.position, {
+        y: 3 - cylinderCenterY,
+        duration: 0.52,
+        ease: "power3.out",
+        delay: 0.08,
+        onStart: () => {
+          canStartTypewriter = true;
+        },
+      });
+      gsap.to(textMat, {
+        opacity: 1,
+        duration: 0.42,
+        ease: "power2.out",
+        delay: 0.08,
+      });
+      gsap.to(webAppsMesh.position, {
+        x: 0,
+        duration: 0.48,
+        ease: "power3.out",
+        delay: 0.14,
+      });
+      gsap.to(webAppsMat, {
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+        delay: 0.14,
+      });
+      gsap.to(aiVideoAdsMesh.position, {
+        x: 0,
+        duration: 0.48,
+        ease: "power3.out",
+        delay: 0.20,
+      });
+      gsap.to(aiVideoMat, {
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+        delay: 0.20,
+      });
+      gsap.fromTo(".hero-nav-item", {
+        opacity: 0,
+        y: 16,
+      }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.38,
+        ease: "power2.out",
+        stagger: 0.06,
+        delay: 0.24,
+      });
+
+      gsap.fromTo(glitchUniforms.uGlitch, { value: 0.85 }, {
+        value: 0,
+        duration: 0.35,
+        ease: "power2.out",
+      });
+
+      wordIdx = 0;
+      charIdx = 0;
+      isDeleting = false;
+      pauseUntil = 0;
+      lastStepTime = 0;
+      currentStartX = -1;
+      lastDrawnKey = "";
+      canStartTypewriter = true;
+    };
+
+    const onPaperTearReveal = () => {
+      start3D();
+      setTimeout(playStaggerReveal, 80);
+    };
+
+    const onPortfolioTriggerMain = () => {
+      resetToDarkWithStagger();
     };
 
     if (typeof window !== "undefined" && ((window as any).__paperTearComplete || (window as any).__paperTearReveal)) {
-      playReveal();
+      playStaggerReveal();
     } else {
-      window.addEventListener("paper-tear-complete", playReveal);
-      window.addEventListener("paper-tear-reveal", playReveal);
+      window.addEventListener("paper-tear-reveal", onPaperTearReveal);
+      window.addEventListener("paper-tear-complete", playStaggerReveal);
     }
-    const fallbackTimer = setTimeout(playReveal, 3500);
+    window.addEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
+    const fallbackTimer = setTimeout(playStaggerReveal, 2500);
 
     renderer.render(scene, camera);
 
     return () => {
       isRunning = false;
       clearTimeout(fallbackTimer);
-      window.removeEventListener("paper-tear-complete", playReveal);
-      window.removeEventListener("paper-tear-reveal", playReveal);
-      revealTimeline.kill();
+      revealTimeouts.forEach(clearTimeout);
+      window.removeEventListener("paper-tear-reveal", onPaperTearReveal);
+      window.removeEventListener("paper-tear-complete", playStaggerReveal);
+      window.removeEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
+      staggerTimeline.kill();
 
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", onMouseMove);
@@ -1058,6 +1252,33 @@ export default function HeroScene3D() {
         }}
       />
 
+      <div
+        id="work-status"
+        className="fixed left-6 sm:left-12 top-24 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col"
+      >
+        <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.24em] uppercase text-neutral-600">
+          AVAILABLE FOR WORK
+        </span>
+        <span className="text-base sm:text-xl font-black italic tracking-tight text-neutral-900 mt-1">
+          Freelance & Collab
+        </span>
+      </div>
+
+      <div
+        id="location-status"
+        className="fixed right-6 sm:right-12 top-24 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col items-end text-right"
+      >
+        <span
+          suppressHydrationWarning
+          className="font-mono tabular-nums text-xs sm:text-sm font-bold tracking-[0.24em] uppercase text-neutral-600"
+        >
+          {philippineTime || "12:00:00 AM GMT+8"}
+        </span>
+        <span className="text-base sm:text-xl font-black italic tracking-tight text-neutral-900 mt-1">
+          Philippines
+        </span>
+      </div>
+
       <nav
         id="hero-nav"
         className="fixed z-20 left-6 right-6 sm:left-12 sm:right-12 bottom-6 sm:bottom-8 select-none pointer-events-auto opacity-0"
@@ -1066,27 +1287,28 @@ export default function HeroScene3D() {
           {THEMES.map((t, i) => {
             const isActive = activeAvatar === t.id;
             return (
-              <button
-                key={t.id}
-                id={`btn-nav-${t.id}`}
-                onClick={() => switchAvatarRef.current?.(t.id)}
-                className={`group text-left transition-all duration-300 pt-3 sm:pt-4 border-t flex items-center font-mono text-xs sm:text-sm tracking-widest uppercase cursor-pointer ${isActive
-                  ? "border-neutral-900 text-neutral-900 border-t-2 sm:border-t-4 font-bold opacity-100"
-                  : "border-neutral-900/30 text-neutral-600 hover:text-neutral-900 hover:border-neutral-900/60 opacity-60 hover:opacity-90"
-                  }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isActive
-                      ? "bg-purple-600 animate-pulse"
-                      : "bg-neutral-300 group-hover:bg-neutral-400"
-                      }`}
-                  />
-                  <span>
-                    0{i + 1} {t.label}
-                  </span>
-                </div>
-              </button>
+              <div key={t.id} className="hero-nav-item">
+                <button
+                  id={`btn-nav-${t.id}`}
+                  onClick={() => switchAvatarRef.current?.(t.id)}
+                  className={`w-full group text-left transition-all duration-300 pt-3 sm:pt-4 border-t flex items-center font-mono text-xs sm:text-sm tracking-widest uppercase cursor-pointer ${isActive
+                    ? "border-neutral-900 text-neutral-900 border-t-2 sm:border-t-4 font-bold opacity-100"
+                    : "border-neutral-900/30 text-neutral-600 hover:text-neutral-900 hover:border-neutral-900/60 opacity-60 hover:opacity-90"
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isActive
+                        ? "bg-purple-600 animate-pulse"
+                        : "bg-neutral-300 group-hover:bg-neutral-400"
+                        }`}
+                    />
+                    <span>
+                      0{i + 1} {t.label}
+                    </span>
+                  </div>
+                </button>
+              </div>
             );
           })}
         </div>
