@@ -133,9 +133,10 @@ export default function LoadingScreen() {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
+    video.currentTime = 0;
 
     const handleTimeUpdate = () => {
-      if (video.duration && video.currentTime >= video.duration - 0.15) {
+      if (video.duration && video.currentTime > 0.5 && video.currentTime >= video.duration - 0.15) {
         startTear();
       }
     };
@@ -145,7 +146,10 @@ export default function LoadingScreen() {
     const tryPlay = () => {
       const playPromise = video.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
+        playPromise.catch((err) => {
+          if (err && err.name === "AbortError") {
+            return;
+          }
           startTear();
         });
       }
@@ -289,6 +293,7 @@ export default function LoadingScreen() {
         ) : (
           <video
             ref={videoRef}
+            autoPlay
             muted
             playsInline
             preload="auto"
