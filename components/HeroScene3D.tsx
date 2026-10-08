@@ -4,6 +4,189 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 
+const rng = (s: number) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+const S = THREE.Shape;
+const rectS = (x: number, y: number, w: number, h: number) => {
+  const s = new S();
+  s.moveTo(x, y);
+  s.lineTo(x + w, y);
+  s.lineTo(x + w, y + h);
+  s.lineTo(x, y + h);
+  s.closePath();
+  return s;
+};
+const circS = (x: number, y: number, r: number) => {
+  const s = new S();
+  s.absarc(x, y, r, 0, Math.PI * 2, false);
+  return s;
+};
+const semiS = (x: number, y: number, r: number) => {
+  const s = new S();
+  s.absarc(x, y, r, 0, Math.PI, false);
+  s.closePath();
+  return s;
+};
+const archS = (x: number, y: number, w: number, h: number) => {
+  const s = new S(), r = w / 2;
+  s.moveTo(x - r, y);
+  s.lineTo(x + r, y);
+  s.lineTo(x + r, y + h - r);
+  s.absarc(x, y + h - r, r, 0, Math.PI, false);
+  s.closePath();
+  return s;
+};
+const geo = (shapes: THREE.Shape | THREE.Shape[]) => new THREE.ShapeGeometry(shapes);
+const cloud = (x: number, y: number, scale: number = 1.0) => {
+  const s = new S();
+  const r = scale;
+  s.moveTo(x - 2.4 * r, y);
+  s.lineTo(x + 2.4 * r, y);
+  s.absarc(x + 1.3 * r, y + 0.6 * r, 0.8 * r, -0.3, Math.PI * 0.45, false);
+  s.absarc(x + 0.0 * r, y + 1.1 * r, 1.2 * r, 0.25, Math.PI * 0.78, false);
+  s.absarc(x - 1.3 * r, y + 0.6 * r, 0.8 * r, Math.PI * 0.55, Math.PI * 1.15, false);
+  s.closePath();
+  return geo(s);
+};
+const palmLeaf = (originX: number, originY: number, length: number, angle: number) => {
+  const geos: THREE.BufferGeometry[] = [];
+  const count = 7;
+  for (let i = 0; i < count; i++) {
+    const t = (i + 1) / (count + 1);
+    const dist = t * length;
+    const leafLen = Math.sin(t * Math.PI) * (length * 0.38);
+    const leafWidth = leafLen * 0.22;
+
+    const sl = new S();
+    sl.moveTo(0, 0);
+    sl.quadraticCurveTo(-leafLen * 0.5, leafWidth * 0.8, -leafLen, leafWidth * 0.2);
+    sl.quadraticCurveTo(-leafLen * 0.5, -leafWidth * 0.3, 0, 0);
+    const gl = geo(sl);
+    gl.rotateZ(angle + 0.55 - t * 0.2);
+    gl.translate(originX + Math.cos(angle) * dist, originY + Math.sin(angle) * dist, 0);
+    geos.push(gl);
+
+    const sr = new S();
+    sr.moveTo(0, 0);
+    sr.quadraticCurveTo(leafLen * 0.5, leafWidth * 0.8, leafLen, leafWidth * 0.2);
+    sr.quadraticCurveTo(leafLen * 0.5, -leafWidth * 0.3, 0, 0);
+    const gr = geo(sr);
+    gr.rotateZ(angle - 0.55 + t * 0.2);
+    gr.translate(originX + Math.cos(angle) * dist, originY + Math.sin(angle) * dist, 0);
+    geos.push(gr);
+  }
+  return geos;
+};
+function sky(
+  seed: number,
+  minH: number,
+  maxH: number,
+  minW: number,
+  maxW: number,
+  valleyCenter = false
+) {
+  const r = rng(seed);
+  const out: THREE.Shape[] = [];
+  let x = -28;
+  while (x < 28) {
+    const w = minW + r() * (maxW - minW);
+    let h = 1.0 + minH + r() * (maxH - minH);
+    const mid = x + w * 0.5;
+    if (valleyCenter && Math.abs(mid) < 9.5) {
+      h = 3.2 + r() * 2.1;
+      if (mid > -5.0 && mid < -1.5) {
+        h = 3.0;
+      }
+    }
+    out.push(rectS(x, -4.5, w, h));
+    x += w * (0.92 + r() * 0.12);
+  }
+  return out;
+}
+const tower = (x: number) => [
+  rectS(x - 0.8, 2, 1.6, 1.3),
+  rectS(x - 0.6, -4.5, 0.16, 6.6),
+  rectS(x + 0.44, -4.5, 0.16, 6.6),
+];
+
+const THEMES = [
+  {
+    id: "dark" as const,
+    label: "DARK",
+    bg: "#e9e3d6",
+    floor: "#d6cdb8",
+    word: "DARK",
+    line: "rgba(20,20,20,0.45)",
+    layers: [
+      { z: -10, color: "#d9a441", geos: () => [geo(circS(5, 2.2, 3.4))] },
+      { z: -8.5, color: "#d3cab5", geos: () => [geo(sky(11, 1.5, 4.2, 1.2, 2.6))] },
+      { z: -6.8, text: true },
+      { z: -5, color: "#bbb199", geos: () => [geo(sky(23, 1, 2.8, 1.5, 3))] },
+      { z: -3.5, color: "#9f9680", geos: () => [geo(sky(37, 0.4, 1.1, 2, 4))] },
+    ],
+  },
+  {
+    id: "urban" as const,
+    label: "URBAN",
+    bg: "#d6d3cc",
+    floor: "#bdb9b0",
+    word: "URBAN",
+    line: "rgba(20,20,20,0.6)",
+    layers: [
+      { z: -9, color: "#c2beb5", geos: () => [geo(sky(5, 2.5, 5.5, 1.5, 3.2))] },
+      { z: -7.5, text: true },
+      { z: -5.5, color: "#3e9c97", geos: () => [geo([...sky(17, 2.2, 5.0, 1.8, 3.4, true), ...tower(-10.2)])] },
+      { z: -3.5, color: "#2b7773", geos: () => [geo(sky(29, 0.8, 1.8, 2, 3.5))] },
+    ],
+  },
+  {
+    id: "summer" as const,
+    label: "SUMMER",
+    bg: "#a9d6ea",
+    floor: "#f1deb0",
+    word: "SUMMER",
+    line: "rgba(20,20,20,0.55)",
+    layers: [
+      { z: -10, color: "#f08a5d", geos: () => [geo(circS(-4.5, 2.6, 3.8))] },
+      {
+        z: -8.8,
+        color: "#ffffff",
+        geos: () => [
+          cloud(8.0, 3.8, 1.1),
+          cloud(-10.0, 4.4, 0.85),
+          cloud(13.5, 2.8, 1.2),
+        ],
+      },
+      { z: -7.6, color: "#8cc3dc", geos: () => [geo([semiS(-9, -4.5, 5.5), semiS(2, -4.5, 7.5), semiS(12, -4.5, 6.0)])] },
+      { z: -6.4, text: true },
+      {
+        z: -3.5,
+        color: "#2d6a4f",
+        geos: () => [
+          ...palmLeaf(-13.0, 6.2, 5.0, -0.75),
+          ...palmLeaf(-13.5, 5.2, 4.2, -0.45),
+          ...palmLeaf(13.0, 6.2, 5.0, Math.PI + 0.75),
+          ...palmLeaf(13.5, 5.2, 4.2, Math.PI + 0.45),
+        ],
+      },
+    ],
+  },
+  {
+    id: "retro" as const,
+    label: "RETRO",
+    bg: "#f1e4c8",
+    floor: "#e2d0a6",
+    word: "RETRO",
+    line: "rgba(20,20,20,0.4)",
+    layers: [
+      { z: -10, color: "#e98a2b", geos: () => [geo(semiS(0, -3.8, 7.5))] },
+      { z: -9.7, color: "#f2a94f", geos: () => [geo(semiS(0, -3.8, 5.8))] },
+      { z: -9.4, color: "#f7cd8e", geos: () => [geo(semiS(0, -3.8, 4.2))] },
+      { z: -7, text: true },
+      { z: -4, color: "#d4601a", geos: () => [geo([archS(-10, -4.5, 3.2, 9.5), archS(10, -4.5, 3.2, 9.5)])] },
+    ],
+  },
+];
+
 export default function HeroScene3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -15,7 +198,9 @@ export default function HeroScene3D() {
     if (!container) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
+    scene.background = new THREE.Color(THEMES[0].bg);
+    const targetBg = new THREE.Color(THEMES[0].bg);
+    const targetFloor = new THREE.Color(THEMES[0].floor);
 
     const width = container.clientWidth;
     const height = container.clientHeight;
@@ -25,13 +210,103 @@ export default function HeroScene3D() {
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha: false,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
+
+    const FLOOR_Y = -3.48;
+
+    const floorGeo = new THREE.PlaneGeometry(80, 50);
+    const floorMat = new THREE.MeshBasicMaterial({ color: THEMES[0].floor });
+    const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+    floorMesh.rotation.x = -Math.PI / 2;
+    floorMesh.position.set(0, FLOOR_Y, -18);
+    scene.add(floorMesh);
+
+    const sceneryGroup = new THREE.Group();
+    scene.add(sceneryGroup);
+
+    interface BuiltLayer {
+      z: number;
+      off: number;
+      target: number;
+      group: THREE.Group;
+    }
+    interface BuiltTheme {
+      group: THREE.Group;
+      layers: BuiltLayer[];
+    }
+
+    const textDraws: (() => void)[] = [];
+    const sceneryDisposables: { geo?: THREE.BufferGeometry; mat?: THREE.Material; tex?: THREE.Texture }[] = [];
+    const builtThemes: BuiltTheme[] = [];
+
+    THEMES.forEach((t, i) => {
+      const grp = new THREE.Group();
+      sceneryGroup.add(grp);
+      const layers: BuiltLayer[] = [];
+
+      t.layers.forEach((l) => {
+        const layerGroup = new THREE.Group();
+        layerGroup.position.z = l.z;
+        layerGroup.position.y = i === 0 ? 0 : -18;
+        grp.add(layerGroup);
+
+        const bl: BuiltLayer = {
+          z: l.z,
+          off: i === 0 ? 0 : -18,
+          target: i === 0 ? 0 : -18,
+          group: layerGroup,
+        };
+
+        if (l.text) {
+          const tc = document.createElement("canvas");
+          tc.width = 2048;
+          tc.height = 640;
+          const tex = new THREE.CanvasTexture(tc);
+          tex.colorSpace = THREE.SRGBColorSpace;
+          const draw = () => {
+            const g = tc.getContext("2d");
+            if (!g) return;
+            g.clearRect(0, 0, 2048, 640);
+            g.font = "400 520px 'Bebas Neue', Impact, sans-serif";
+            g.textAlign = "center";
+            g.textBaseline = "middle";
+            g.lineWidth = 6;
+            g.strokeStyle = t.line;
+            g.strokeText(t.word, 1024, 320);
+            tex.needsUpdate = true;
+          };
+          draw();
+          textDraws.push(draw);
+          const tGeo = new THREE.PlaneGeometry(26, 8.1);
+          const tMat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
+          const m = new THREE.Mesh(tGeo, tMat);
+          m.position.set(0, 0.4, 0);
+          layerGroup.add(m);
+          sceneryDisposables.push({ geo: tGeo, mat: tMat, tex });
+        } else if (l.geos && l.color) {
+          const mat = new THREE.MeshBasicMaterial({ color: l.color });
+          const geometries = l.geos();
+          geometries.forEach((g) => {
+            const m = new THREE.Mesh(g, mat);
+            layerGroup.add(m);
+            sceneryDisposables.push({ geo: g, mat });
+          });
+        }
+
+        layers.push(bl);
+      });
+
+      builtThemes.push({ group: grp, layers });
+    });
+
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready.then(() => textDraws.forEach((d) => d()));
+    }
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
@@ -74,9 +349,12 @@ export default function HeroScene3D() {
 
     const bgCylinderMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
+      transparent: true,
+      opacity: 0,
       side: THREE.DoubleSide,
     });
     const bgCylinderMesh = new THREE.Mesh(bgCylinderGeo, bgCylinderMat);
+    bgCylinderMesh.visible = false;
     bgCylinderMesh.position.set(0, 0, -0.05);
     bgCylinderMesh.renderOrder = -1;
     backgroundGroup.add(bgCylinderMesh);
@@ -310,21 +588,15 @@ export default function HeroScene3D() {
       }
 
       const currentWord = words[wordIdx];
-      const isLongWord = currentWord.length > 11;
-      let targetStartX = defaultStartX;
-
-      if (isLongWord && (charIdx > 0 || isDeleting)) {
+      let startX = defaultStartX;
+      if (currentWord.length > 11) {
         const fullWordWidth = textCtx.measureText(currentWord).width;
-        const totalLineWidth = staticWidth + spaceWidth + fullWordWidth;
-        targetStartX = (textCanvas.width - totalLineWidth) / 2;
+        startX = (textCanvas.width - (staticWidth + spaceWidth + fullWordWidth)) / 2;
       }
-
-      currentStartX += (targetStartX - currentStartX) * 0.08;
 
       const dynamicText = currentWord.substring(0, charIdx);
       const cursorChar = cursorVisible ? "|" : " ";
-      const roundedX = Math.round(currentStartX * 2) / 2;
-      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
+      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}`;
 
       if (drawKey === lastDrawnKey) {
         return;
@@ -335,15 +607,15 @@ export default function HeroScene3D() {
 
       textCtx.textAlign = "left";
       textCtx.fillStyle = "#000000";
-      textCtx.fillText(staticText, currentStartX, centerY);
+      textCtx.fillText(staticText, startX, centerY);
 
       textCtx.fillStyle = "#581c87";
-      textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
+      textCtx.fillText(dynamicText, startX + staticWidth + spaceWidth, centerY);
 
       textCtx.fillStyle = "#6b21a8";
       textCtx.fillText(
         cursorChar,
-        currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
+        startX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
         centerY
       );
 
@@ -460,7 +732,7 @@ export default function HeroScene3D() {
     });
 
     const avatarMesh = new THREE.Mesh(geometry, material);
-    avatarMesh.renderOrder = 1;
+    avatarMesh.renderOrder = 2;
     avatarGroup.position.set(0, -planeHeight * 0.4 - 0.2, 0);
     avatarGroup.scale.set(0.85, 0.85, 1.0);
     avatarGroup.add(avatarMesh);
@@ -475,6 +747,29 @@ export default function HeroScene3D() {
     switchAvatarRef.current = (target: "dark" | "urban" | "summer" | "retro") => {
       if (isTransitioning || target === currentAvatar) return;
       isTransitioning = true;
+
+      const prevIdx = THEMES.findIndex((t) => t.id === currentAvatar);
+      const nextIdx = THEMES.findIndex((t) => t.id === target);
+
+      if (prevIdx >= 0 && builtThemes[prevIdx]) {
+        builtThemes[prevIdx].layers.forEach((l, n) => {
+          setTimeout(() => {
+            l.target = -18;
+          }, n * 60);
+        });
+      }
+
+      if (nextIdx >= 0 && builtThemes[nextIdx]) {
+        builtThemes[nextIdx].layers.forEach((l, n) => {
+          l.off = -18;
+          setTimeout(() => {
+            l.target = 0;
+          }, 180 + n * 80);
+        });
+        targetBg.set(THEMES[nextIdx].bg);
+        targetFloor.set(THEMES[nextIdx].floor);
+      }
+
       currentAvatar = target;
       setActiveAvatar(target);
 
@@ -611,15 +906,15 @@ export default function HeroScene3D() {
         duration: 0.55,
         ease: "power2.out",
       }, 0.28)
-      .fromTo("#avatar-dock", {
+      .fromTo("#hero-nav", {
         opacity: 0,
-        x: -30,
+        y: 20,
       }, {
         opacity: 1,
-        x: 0,
+        y: 0,
         duration: 0.6,
         ease: "power2.out",
-      }, 0.38)
+      }, 0.35)
       .fromTo("#header-nav", {
         opacity: 0,
         y: -20,
@@ -632,17 +927,40 @@ export default function HeroScene3D() {
 
     let isRunning = false;
     let animationFrameId: number;
+    const clock = new THREE.Clock();
 
     const animate = () => {
       if (!isRunning) return;
       animationFrameId = requestAnimationFrame(animate);
 
+      const delta = Math.min(clock.getDelta(), 0.05);
       const now = performance.now();
       renderTypewriter(now);
       glitchUniforms.uTime.value = now * 0.001;
 
-      mouse.x += (mouse.targetX - mouse.x) * 0.055;
-      mouse.y += (mouse.targetY - mouse.y) * 0.055;
+      if (scene.background instanceof THREE.Color) {
+        scene.background.lerp(targetBg, 0.06);
+      }
+      floorMat.color.lerp(targetFloor, 0.06);
+
+      const lerpFactor = 1 - Math.exp(-9.0 * delta);
+      mouse.x += (mouse.targetX - mouse.x) * lerpFactor;
+      mouse.y += (mouse.targetY - mouse.y) * lerpFactor;
+
+      builtThemes.forEach((th) => {
+        let any = false;
+        th.layers.forEach((l) => {
+          if (Math.abs(l.target - l.off) > 0.005) {
+            l.off += (l.target - l.off) * 0.075;
+          }
+          if (l.off > -17.5) {
+            any = true;
+            l.group.position.x = -mouse.x * ((Math.abs(l.z) - 3.0) * 0.12);
+            l.group.position.y = l.off;
+          }
+        });
+        th.group.visible = any;
+      });
 
       avatarGroup.rotation.y = mouse.x * 0.08;
       avatarGroup.rotation.x = -mouse.y * 0.08;
@@ -651,6 +969,10 @@ export default function HeroScene3D() {
       backgroundGroup.position.x = -mouse.x * 0.7;
       backgroundGroup.rotation.y = mouse.x * 0.08;
       backgroundGroup.rotation.x = 0;
+
+      sceneryGroup.position.x = -mouse.x * 1.2;
+      sceneryGroup.rotation.y = mouse.x * 0.10;
+      sceneryGroup.rotation.x = -mouse.y * 0.03;
 
       camera.position.x = 0;
       camera.position.y = -mouse.y * 0.8;
@@ -697,6 +1019,13 @@ export default function HeroScene3D() {
       }
 
       renderer.dispose();
+      floorGeo.dispose();
+      floorMat.dispose();
+      sceneryDisposables.forEach((item) => {
+        item.geo?.dispose();
+        item.mat?.dispose();
+        item.tex?.dispose();
+      });
       geometry?.dispose();
       material.dispose();
       textureDark.dispose();
@@ -722,117 +1051,48 @@ export default function HeroScene3D() {
       className={`relative w-full h-screen transition-opacity duration-500 ease-out ${isLoaded ? "opacity-100" : "opacity-0"
         }`}
     >
-      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
       <div
-        id="avatar-dock"
-        className="fixed left-6 sm:left-12 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2.5 select-none pointer-events-auto opacity-0"
+        className="pointer-events-none fixed inset-0 z-10 opacity-15"
+        style={{
+          backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .8 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")`,
+        }}
+      />
+
+      <nav
+        id="hero-nav"
+        className="fixed z-20 left-6 right-6 sm:left-12 sm:right-12 bottom-6 sm:bottom-8 select-none pointer-events-auto opacity-0"
       >
-        <div className="flex items-center gap-1.5 mb-1 pl-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
-          <span className="text-[10px] font-mono tracking-[0.25em] text-neutral-400 uppercase font-semibold">
-            LOOK
-          </span>
+        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-3 sm:gap-8">
+          {THEMES.map((t, i) => {
+            const isActive = activeAvatar === t.id;
+            return (
+              <button
+                key={t.id}
+                id={`btn-nav-${t.id}`}
+                onClick={() => switchAvatarRef.current?.(t.id)}
+                className={`group text-left transition-all duration-300 pt-3 sm:pt-4 border-t flex items-center font-mono text-xs sm:text-sm tracking-widest uppercase cursor-pointer ${isActive
+                  ? "border-neutral-900 text-neutral-900 border-t-2 sm:border-t-4 font-bold opacity-100"
+                  : "border-neutral-900/30 text-neutral-600 hover:text-neutral-900 hover:border-neutral-900/60 opacity-60 hover:opacity-90"
+                  }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isActive
+                      ? "bg-purple-600 animate-pulse"
+                      : "bg-neutral-300 group-hover:bg-neutral-400"
+                      }`}
+                  />
+                  <span>
+                    0{i + 1} {t.label}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
+      </nav>
 
-        
-        <button
-          id="btn-avatar-dark"
-          onClick={() => switchAvatarRef.current?.("dark")}
-          className={`group relative flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-mono tracking-widest uppercase transition-all duration-300 ${activeAvatar === "dark"
-            ? "bg-black text-white shadow-lg shadow-black/15 font-bold scale-[1.03]"
-            : "bg-white/80 backdrop-blur-md text-neutral-600 hover:text-black border border-neutral-200/90 hover:border-black/40 hover:bg-white"
-            }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeAvatar === "dark"
-                ? "bg-purple-400 animate-pulse"
-                : "bg-neutral-300 group-hover:bg-neutral-400"
-                }`}
-            />
-            <span>DARK</span>
-          </div>
-          {activeAvatar === "dark" && (
-            <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
-              [ACTIVE]
-            </span>
-          )}
-        </button>
-
-        
-        <button
-          id="btn-avatar-urban"
-          onClick={() => switchAvatarRef.current?.("urban")}
-          className={`group relative flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-mono tracking-widest uppercase transition-all duration-300 ${activeAvatar === "urban"
-            ? "bg-black text-white shadow-lg shadow-black/15 font-bold scale-[1.03]"
-            : "bg-white/80 backdrop-blur-md text-neutral-600 hover:text-black border border-neutral-200/90 hover:border-black/40 hover:bg-white"
-            }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeAvatar === "urban"
-                ? "bg-purple-400 animate-pulse"
-                : "bg-neutral-300 group-hover:bg-neutral-400"
-                }`}
-            />
-            <span>URBAN</span>
-          </div>
-          {activeAvatar === "urban" && (
-            <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
-              [ACTIVE]
-            </span>
-          )}
-        </button>
-
-        
-        <button
-          id="btn-avatar-summer"
-          onClick={() => switchAvatarRef.current?.("summer")}
-          className={`group relative flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-mono tracking-widest uppercase transition-all duration-300 ${activeAvatar === "summer"
-            ? "bg-black text-white shadow-lg shadow-black/15 font-bold scale-[1.03]"
-            : "bg-white/80 backdrop-blur-md text-neutral-600 hover:text-black border border-neutral-200/90 hover:border-black/40 hover:bg-white"
-            }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeAvatar === "summer"
-                ? "bg-purple-400 animate-pulse"
-                : "bg-neutral-300 group-hover:bg-neutral-400"
-                }`}
-            />
-            <span>SUMMER</span>
-          </div>
-          {activeAvatar === "summer" && (
-            <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
-              [ACTIVE]
-            </span>
-          )}
-        </button>
-
-        <button
-          id="btn-avatar-retro"
-          onClick={() => switchAvatarRef.current?.("retro")}
-          className={`group relative flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-mono tracking-widest uppercase transition-all duration-300 ${activeAvatar === "retro"
-            ? "bg-black text-white shadow-lg shadow-black/15 font-bold scale-[1.03]"
-            : "bg-white/80 backdrop-blur-md text-neutral-600 hover:text-black border border-neutral-200/90 hover:border-black/40 hover:bg-white"
-            }`}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeAvatar === "retro"
-                ? "bg-purple-400 animate-pulse"
-                : "bg-neutral-300 group-hover:bg-neutral-400"
-                }`}
-            />
-            <span>RETRO</span>
-          </div>
-          {activeAvatar === "retro" && (
-            <span className="text-[9px] font-mono text-neutral-400 ml-3 tracking-normal opacity-80">
-              [ACTIVE]
-            </span>
-          )}
-        </button>
-      </div>
+      <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
     </div>
   );
 }
