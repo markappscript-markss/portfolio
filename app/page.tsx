@@ -14,7 +14,7 @@ export default function Home() {
       <LoadingScreen />
       <Header activeView={activeView} onViewChange={setActiveView} />
       <AboutOverlay isOpen={activeView === "about"} />
-      <main id="home" className="min-h-screen w-full bg-white relative overflow-hidden flex items-center justify-center">
+      <main id="home" className="h-[100dvh] w-full bg-white relative overflow-hidden flex items-center justify-center">
         <HeroScene3D />
       </main>
     </>

@@ -1332,7 +1332,7 @@ export default function HeroScene3D() {
 
   return (
     <div
-      className={`relative w-full h-screen transition-opacity duration-500 ease-out ${isLoaded ? "opacity-100" : "opacity-0"
+      className={`relative w-full h-full h-[100dvh] transition-opacity duration-500 ease-out ${isLoaded ? "opacity-100" : "opacity-0"
         }`}
     >
       <div
