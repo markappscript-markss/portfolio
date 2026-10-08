@@ -6,7 +6,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        accent: "#D85A30", // coral, from the mockup — swap for your brand color
+        accent: "#D85A30",
       },
     },
   },

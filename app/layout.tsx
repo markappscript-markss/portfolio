@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css"; 
+import "./globals.css";
 import SmoothScroll from "@/components/animations/SmoothScroll";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" style={{ scrollBehavior: "smooth" }}>
-      <body className={`${inter.className} antialiased bg-neutral-950 text-neutral-50`}>
+    <html lang="en" style={{ scrollBehavior: "smooth" }}>
+      <body className={`${inter.className} antialiased bg-white text-neutral-900`}>
         <SmoothScroll>
           {children}
         </SmoothScroll>
