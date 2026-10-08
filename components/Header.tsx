@@ -17,6 +17,9 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
 
   const handleAboutClick = () => {
     onViewChange?.("about");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("portfolio-view-about"));
+    }
   };
 
   return (

@@ -229,6 +229,7 @@ export default function HeroScene3D() {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: "high-performance",
+      stencil: false,
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -623,7 +624,7 @@ export default function HeroScene3D() {
 
       const dynamicText = currentWord.substring(0, charIdx);
       const cursorChar = cursorVisible ? "|" : " ";
-      const roundedX = Math.round(currentStartX * 2) / 2;
+      const roundedX = Math.round(currentStartX / 2) * 2;
       const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
 
       if (drawKey === lastDrawnKey) {
@@ -862,7 +863,7 @@ export default function HeroScene3D() {
       }
     };
 
-    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: true });
 
     const onResize = () => {
@@ -960,11 +961,12 @@ export default function HeroScene3D() {
       }, 0.30);
 
     let isRunning = false;
+    let isOverlayOpen = false;
     let animationFrameId: number;
     const clock = new THREE.Clock();
 
     const animate = () => {
-      if (!isRunning) return;
+      if (!isRunning || isOverlayOpen) return;
       animationFrameId = requestAnimationFrame(animate);
 
       const delta = Math.min(clock.getDelta(), 0.05);
@@ -972,32 +974,42 @@ export default function HeroScene3D() {
       renderTypewriter(now, delta);
       glitchUniforms.uTime.value = now * 0.001;
 
+      const colorLerp = 1 - Math.exp(-4.5 * delta);
       if (scene.background instanceof THREE.Color) {
-        scene.background.lerp(targetBg, 0.06);
+        scene.background.lerp(targetBg, colorLerp);
       }
-      floorMat.color.lerp(targetFloor, 0.06);
+      floorMat.color.lerp(targetFloor, colorLerp);
 
-      const lerpFactor = 1 - Math.exp(-9.0 * delta);
+      const lerpFactor = 1 - Math.exp(-6.8 * delta);
       mouse.x += (mouse.targetX - mouse.x) * lerpFactor;
       mouse.y += (mouse.targetY - mouse.y) * lerpFactor;
 
+      const layerLerp = 1 - Math.exp(-7.2 * delta);
       builtThemes.forEach((th) => {
-        let any = false;
-        th.layers.forEach((l) => {
-          if (Math.abs(l.target - l.off) > 0.005) {
-            l.off += (l.target - l.off) * 0.092;
+        let isVisible = false;
+        for (let i = 0; i < th.layers.length; i++) {
+          const l = th.layers[i];
+          const diff = l.target - l.off;
+          if (Math.abs(diff) > 0.003) {
+            l.off += diff * layerLerp;
+          } else {
+            l.off = l.target;
           }
           if (l.off > -17.5) {
-            any = true;
+            isVisible = true;
             l.group.position.x = -mouse.x * ((Math.abs(l.z) - 3.0) * 0.12);
             l.group.position.y = l.off;
           }
-        });
-        th.group.visible = any;
+        }
+        th.group.visible = isVisible;
       });
 
-      avatarGroup.rotation.y = mouse.x * 0.08;
-      avatarGroup.rotation.x = -mouse.y * 0.08;
+      const breathY = Math.sin(now * 0.0012) * 0.035;
+      const breathRot = Math.cos(now * 0.0009) * 0.006;
+
+      avatarGroup.position.y = -planeHeight * 0.4 - 0.2 + breathY * 0.5;
+      avatarGroup.rotation.y = mouse.x * 0.08 + breathRot;
+      avatarGroup.rotation.x = -mouse.y * 0.08 + breathY * 0.05;
       avatarGroup.rotation.z = 0;
 
       backgroundGroup.position.x = -mouse.x * 0.7;
@@ -1017,7 +1029,14 @@ export default function HeroScene3D() {
 
     let hasStarted3D = false;
     const start3D = () => {
-      if (hasStarted3D) return;
+      if (hasStarted3D) {
+        if (!isRunning) {
+          isRunning = true;
+          clock.getDelta();
+          animate();
+        }
+        return;
+      }
       hasStarted3D = true;
       if (!isRunning) {
         isRunning = true;
@@ -1179,7 +1198,18 @@ export default function HeroScene3D() {
       setTimeout(playStaggerReveal, 80);
     };
 
+    const onPortfolioViewAbout = () => {
+      isOverlayOpen = true;
+    };
+
     const onPortfolioTriggerMain = () => {
+      if (isOverlayOpen) {
+        isOverlayOpen = false;
+        clock.getDelta();
+        if (isRunning) {
+          animate();
+        }
+      }
       resetToDarkWithStagger();
     };
 
@@ -1190,6 +1220,7 @@ export default function HeroScene3D() {
       window.addEventListener("paper-tear-complete", playStaggerReveal);
     }
     window.addEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
+    window.addEventListener("portfolio-view-about", onPortfolioViewAbout);
     const fallbackTimer = setTimeout(playStaggerReveal, 2500);
 
     renderer.render(scene, camera);
@@ -1201,6 +1232,7 @@ export default function HeroScene3D() {
       window.removeEventListener("paper-tear-reveal", onPaperTearReveal);
       window.removeEventListener("paper-tear-complete", playStaggerReveal);
       window.removeEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
+      window.removeEventListener("portfolio-view-about", onPortfolioViewAbout);
       staggerTimeline.kill();
 
       cancelAnimationFrame(animationFrameId);
