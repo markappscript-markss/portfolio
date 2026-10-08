@@ -291,19 +291,21 @@ export default function LoadingScreen() {
             </motion.div>
           </>
         ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            onEnded={startTear}
-            onError={startTear}
-            className="w-full h-full object-cover"
-          >
-            <source src="/videos/match-cut.mp4" type="video/mp4" />
-            <source src="/videos/match-cut.webm" type="video/webm" />
-          </video>
+          <div className="absolute inset-0 w-full h-full bg-neutral-950">
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onEnded={startTear}
+              onError={startTear}
+              className="w-full h-full object-cover"
+            >
+              <source src="/videos/match-cut.mp4" type="video/mp4" />
+              <source src="/videos/match-cut.webm" type="video/webm" />
+            </video>
+          </div>
         )}
       </div>
     </AnimatePresence>
