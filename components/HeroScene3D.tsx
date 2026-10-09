@@ -719,8 +719,8 @@ export default function HeroScene3D() {
     let lastCursorBlink = 0;
     let cursorVisible = true;
     let currentStartX = -1;
+    let lastDrawnKey = "";
     let canStartTypewriter = false;
-    let didInitTypewriter = false;
 
     const renderTypewriter = (now: number, delta: number = 0.016) => {
       if (!textCtx) return;
@@ -751,17 +751,9 @@ export default function HeroScene3D() {
         currentStartX = defaultStartX;
       }
 
-      let shouldRedraw = false;
-
-      if (!didInitTypewriter) {
-        didInitTypewriter = true;
-        shouldRedraw = true;
-      }
-
       if (now - lastCursorBlink > 500) {
         cursorVisible = !cursorVisible;
         lastCursorBlink = now;
-        shouldRedraw = true;
       }
 
       if (now >= pauseUntil) {
@@ -770,7 +762,6 @@ export default function HeroScene3D() {
 
         if (now - lastStepTime >= stepDelay) {
           lastStepTime = now;
-          shouldRedraw = true;
 
           if (!isDeleting) {
             charIdx++;
@@ -801,29 +792,39 @@ export default function HeroScene3D() {
         targetStartX = (textCanvas.width - totalLineWidth) / 2;
       }
 
-      if (shouldRedraw) {
+      const slideLerp = 1 - Math.exp(-7.0 * delta);
+      currentStartX += (targetStartX - currentStartX) * slideLerp;
+      if (Math.abs(targetStartX - currentStartX) < 0.25) {
         currentStartX = targetStartX;
-        const dynamicText = currentWord.substring(0, charIdx);
-        const cursorChar = cursorVisible ? "|" : " ";
-
-        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-
-        textCtx.textAlign = "left";
-        textCtx.fillStyle = "#000000";
-        textCtx.fillText(staticText, currentStartX, centerY);
-
-        textCtx.fillStyle = "#581c87";
-        textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
-
-        textCtx.fillStyle = "#6b21a8";
-        textCtx.fillText(
-          cursorChar,
-          currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 4,
-          centerY
-        );
-
-        textTexture.needsUpdate = true;
       }
+
+      const dynamicText = currentWord.substring(0, charIdx);
+      const cursorChar = cursorVisible ? "|" : " ";
+      const roundedX = Math.round(currentStartX / 2) * 2;
+      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
+
+      if (drawKey === lastDrawnKey) {
+        return;
+      }
+      lastDrawnKey = drawKey;
+
+      textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+
+      textCtx.textAlign = "left";
+      textCtx.fillStyle = "#000000";
+      textCtx.fillText(staticText, currentStartX, centerY);
+
+      textCtx.fillStyle = "#581c87";
+      textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
+
+      textCtx.fillStyle = "#6b21a8";
+      textCtx.fillText(
+        cursorChar,
+        currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 4,
+        centerY
+      );
+
+      textTexture.needsUpdate = true;
     };
 
     const textureLoader = new THREE.TextureLoader();
@@ -1465,7 +1466,7 @@ export default function HeroScene3D() {
       pauseUntil = 0;
       lastStepTime = 0;
       currentStartX = -1;
-      didInitTypewriter = false;
+      lastDrawnKey = "";
       canStartTypewriter = true;
     };
 
