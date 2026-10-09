@@ -1,10 +1,147 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import Magnetic from "@/components/animations/Magnetic";
 
 interface HeaderProps {
   activeView?: "main" | "about";
   onViewChange?: (view: "main" | "about") => void;
+}
+
+function HeaderNavItem({
+  id,
+  label,
+  isActive,
+  onClick,
+}: {
+  id: string;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const activeLineRef = useRef<HTMLDivElement>(null);
+  const hoverLineRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (activeLineRef.current) gsap.killTweensOf(activeLineRef.current);
+      if (hoverLineRef.current) gsap.killTweensOf(hoverLineRef.current);
+      if (textRef.current) gsap.killTweensOf(textRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeLineRef.current) return;
+
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      gsap.set(activeLineRef.current, {
+        scaleX: isActive ? 1 : 0,
+        transformOrigin: "left",
+      });
+      if (hoverLineRef.current) {
+        gsap.set(hoverLineRef.current, { scaleX: 0, transformOrigin: "left" });
+      }
+      return;
+    }
+
+    gsap.killTweensOf(activeLineRef.current);
+    if (isActive) {
+      if (hoverLineRef.current) {
+        gsap.killTweensOf(hoverLineRef.current);
+        gsap.set(hoverLineRef.current, { scaleX: 0 });
+      }
+      gsap.fromTo(
+        activeLineRef.current,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 0.42, ease: "power3.out" }
+      );
+    } else {
+      gsap.to(activeLineRef.current, {
+        scaleX: 0,
+        transformOrigin: "right",
+        duration: 0.32,
+        ease: "power2.inOut",
+      });
+    }
+  }, [isActive]);
+
+  const handleMouseEnter = () => {
+    if (isActive) return;
+    if (hoverLineRef.current) {
+      gsap.killTweensOf(hoverLineRef.current);
+      gsap.fromTo(
+        hoverLineRef.current,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 0.32, ease: "power2.out" }
+      );
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        y: -1.5,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isActive) return;
+    if (hoverLineRef.current) {
+      gsap.killTweensOf(hoverLineRef.current);
+      gsap.to(hoverLineRef.current, {
+        scaleX: 0,
+        transformOrigin: "right",
+        duration: 0.28,
+        ease: "power2.inOut",
+      });
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        y: 0,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  return (
+    <button
+      id={id}
+      type="button"
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="group relative flex flex-col items-center py-1 px-1 cursor-pointer select-none"
+    >
+      <span
+        ref={textRef}
+        className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors duration-200 will-change-transform ${
+          isActive
+            ? "text-neutral-950 font-bold"
+            : "text-neutral-500 group-hover:text-neutral-950 font-medium"
+        }`}
+      >
+        {label}
+      </span>
+      <div className="relative w-full h-[2.5px] sm:h-[3px] mt-1 overflow-hidden rounded-[1px]">
+        <div className="absolute inset-0 bg-neutral-900/20" />
+        <div
+          ref={hoverLineRef}
+          className="absolute inset-0 bg-neutral-900/85 origin-left will-change-transform pointer-events-none"
+        />
+        <div
+          ref={activeLineRef}
+          className="absolute inset-0 bg-neutral-950 origin-left will-change-transform pointer-events-none"
+        />
+      </div>
+    </button>
+  );
 }
 
 export default function Header({ activeView = "main", onViewChange }: HeaderProps) {
@@ -44,31 +181,19 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
         </Magnetic>
       </div>
 
-      <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-8 select-none">
-        <button
+      <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-6 sm:gap-10 select-none">
+        <HeaderNavItem
           id="nav-btn-main"
-          type="button"
+          label="MAIN"
+          isActive={activeView === "main"}
           onClick={handleMainClick}
-          className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-all duration-200 cursor-pointer ${
-            activeView === "main"
-              ? "text-neutral-900 font-bold border-b-2 border-neutral-900 pb-0.5"
-              : "text-neutral-500 hover:text-neutral-900 font-medium pb-0.5 border-b-2 border-transparent"
-          }`}
-        >
-          MAIN
-        </button>
-        <button
+        />
+        <HeaderNavItem
           id="nav-btn-about"
-          type="button"
+          label="ABOUT"
+          isActive={activeView === "about"}
           onClick={handleAboutClick}
-          className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-all duration-200 cursor-pointer ${
-            activeView === "about"
-              ? "text-neutral-900 font-bold border-b-2 border-neutral-900 pb-0.5"
-              : "text-neutral-500 hover:text-neutral-900 font-medium pb-0.5 border-b-2 border-transparent"
-          }`}
-        >
-          ABOUT
-        </button>
+        />
       </div>
 
       <div className="pointer-events-auto flex items-center gap-3 sm:gap-5 text-sm text-neutral-800">

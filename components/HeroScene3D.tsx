@@ -111,10 +111,10 @@ const tower = (x: number) => [
 const THEMES = [
   {
     id: "dark" as const,
-    label: "DARK",
+    label: "NIGHT",
     bg: "#e9e3d6",
     floor: "#d6cdb8",
-    word: "DARK",
+    word: "BUILD",
     line: "rgba(20,20,20,0.45)",
     layers: [
       { z: -10, color: "#d9a441", geos: () => [geo(circS(5, 2.2, 3.4))] },
@@ -126,10 +126,10 @@ const THEMES = [
   },
   {
     id: "urban" as const,
-    label: "URBAN",
+    label: "STREET",
     bg: "#d6d3cc",
     floor: "#bdb9b0",
-    word: "URBAN",
+    word: "DESIGN",
     line: "rgba(20,20,20,0.6)",
     layers: [
       { z: -9, color: "#c2beb5", geos: () => [geo(sky(5, 2.5, 5.5, 1.5, 3.2))] },
@@ -140,10 +140,10 @@ const THEMES = [
   },
   {
     id: "summer" as const,
-    label: "SUMMER",
+    label: "HOLIDAY",
     bg: "#a9d6ea",
     floor: "#f1deb0",
-    word: "SUMMER",
+    word: "RENDER",
     line: "rgba(20,20,20,0.55)",
     layers: [
       { z: -10, color: "#f08a5d", geos: () => [geo(circS(-4.5, 2.6, 3.8))] },
@@ -175,7 +175,7 @@ const THEMES = [
     label: "RETRO",
     bg: "#f1e4c8",
     floor: "#e2d0a6",
-    word: "RETRO",
+    word: "DEPLOY",
     line: "rgba(20,20,20,0.4)",
     layers: [
       { z: -10, color: "#e98a2b", geos: () => [geo(semiS(0, -3.8, 7.5))] },
@@ -186,6 +186,172 @@ const THEMES = [
     ],
   },
 ];
+
+function HeroNavTab({
+  id,
+  index,
+  label,
+  isActive,
+  onClick,
+}: {
+  id: string;
+  index: number;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const activeLineRef = useRef<HTMLDivElement>(null);
+  const hoverLineRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const dotRef = useRef<HTMLSpanElement>(null);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (activeLineRef.current) gsap.killTweensOf(activeLineRef.current);
+      if (hoverLineRef.current) gsap.killTweensOf(hoverLineRef.current);
+      if (textRef.current) gsap.killTweensOf(textRef.current);
+      if (dotRef.current) gsap.killTweensOf(dotRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeLineRef.current) return;
+
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      gsap.set(activeLineRef.current, {
+        scaleX: isActive ? 1 : 0,
+        transformOrigin: "left",
+      });
+      if (hoverLineRef.current) {
+        gsap.set(hoverLineRef.current, { scaleX: 0, transformOrigin: "left" });
+      }
+      return;
+    }
+
+    gsap.killTweensOf(activeLineRef.current);
+    if (isActive) {
+      if (hoverLineRef.current) {
+        gsap.killTweensOf(hoverLineRef.current);
+        gsap.set(hoverLineRef.current, { scaleX: 0 });
+      }
+      gsap.fromTo(
+        activeLineRef.current,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 0.45, ease: "power3.out" }
+      );
+    } else {
+      gsap.to(activeLineRef.current, {
+        scaleX: 0,
+        transformOrigin: "right",
+        duration: 0.32,
+        ease: "power2.inOut",
+      });
+    }
+  }, [isActive]);
+
+  const handleMouseEnter = () => {
+    if (isActive) return;
+    if (hoverLineRef.current) {
+      gsap.killTweensOf(hoverLineRef.current);
+      gsap.fromTo(
+        hoverLineRef.current,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 0.35, ease: "power2.out" }
+      );
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        y: -2,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+    if (dotRef.current) {
+      gsap.killTweensOf(dotRef.current);
+      gsap.to(dotRef.current, {
+        scale: 1.4,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isActive) return;
+    if (hoverLineRef.current) {
+      gsap.killTweensOf(hoverLineRef.current);
+      gsap.to(hoverLineRef.current, {
+        scaleX: 0,
+        transformOrigin: "right",
+        duration: 0.28,
+        ease: "power2.inOut",
+      });
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        y: 0,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+    if (dotRef.current) {
+      gsap.killTweensOf(dotRef.current);
+      gsap.to(dotRef.current, {
+        scale: 1,
+        duration: 0.22,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  return (
+    <button
+      id={id}
+      type="button"
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="w-full group text-left pt-1 sm:pt-2 flex flex-col font-mono text-[10px] sm:text-sm tracking-tight sm:tracking-widest uppercase cursor-pointer select-none"
+    >
+      <div className="relative w-full h-[3px] sm:h-[4px] mb-2 sm:mb-3 overflow-hidden rounded-[1px]">
+        <div className="absolute inset-0 bg-neutral-900/25" />
+        <div
+          ref={hoverLineRef}
+          className="absolute inset-0 bg-neutral-900/85 origin-left will-change-transform pointer-events-none"
+        />
+        <div
+          ref={activeLineRef}
+          className="absolute inset-0 bg-neutral-950 origin-left will-change-transform pointer-events-none"
+        />
+      </div>
+
+      <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+        <span
+          ref={dotRef}
+          className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 transition-colors duration-300 will-change-transform ${
+            isActive
+              ? "bg-purple-600 animate-pulse ring-4 ring-purple-600/20"
+              : "bg-neutral-400 group-hover:bg-neutral-900"
+          }`}
+        />
+        <span
+          ref={textRef}
+          className={`truncate transition-colors duration-200 will-change-transform ${
+            isActive
+              ? "text-neutral-950 font-bold"
+              : "text-neutral-600 group-hover:text-neutral-950 font-medium"
+          }`}
+        >
+          0{index + 1} {label}
+        </span>
+      </div>
+    </button>
+  );
+}
 
 export default function HeroScene3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -232,7 +398,8 @@ export default function HeroScene3D() {
       stencil: false,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const isMobileInitial = width < 768;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobileInitial ? 1.4 : 1.6));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
@@ -243,6 +410,8 @@ export default function HeroScene3D() {
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
     floorMesh.rotation.x = -Math.PI / 2;
     floorMesh.position.set(0, FLOOR_Y, -18);
+    floorMesh.matrixAutoUpdate = false;
+    floorMesh.updateMatrix();
     scene.add(floorMesh);
 
     const sceneryGroup = new THREE.Group();
@@ -287,6 +456,8 @@ export default function HeroScene3D() {
           tc.height = 640;
           const tex = new THREE.CanvasTexture(tc);
           tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
           const draw = () => {
             const g = tc.getContext("2d");
             if (!g) return;
@@ -298,6 +469,7 @@ export default function HeroScene3D() {
             g.strokeStyle = t.line;
             g.strokeText(t.word, 1024, 320);
             tex.needsUpdate = true;
+            renderer.initTexture(tex);
           };
           draw();
           textDraws.push(draw);
@@ -380,24 +552,25 @@ export default function HeroScene3D() {
 
 
     const textCanvas = document.createElement("canvas");
-    textCanvas.width = 2800;
-    textCanvas.height = 600;
+    textCanvas.width = 1400;
+    textCanvas.height = 300;
     const textCtx = textCanvas.getContext("2d");
 
     const textTexture = new THREE.CanvasTexture(textCanvas);
     textTexture.colorSpace = THREE.SRGBColorSpace;
     textTexture.minFilter = THREE.LinearFilter;
+    textTexture.generateMipmaps = false;
 
     const textArcLength = 13.0;
     const textThetaLength = textArcLength / cylinderRadius;
     const textThetaStart = -textThetaLength / 2;
-    const textHeight = textArcLength * (600 / 2800);
+    const textHeight = textArcLength * (300 / 1400);
 
     const textCurvedGeo = new THREE.CylinderGeometry(
       cylinderRadius - 0.02,
       cylinderRadius - 0.02,
       textHeight,
-      64,
+      48,
       1,
       true,
       textThetaStart,
@@ -434,6 +607,7 @@ export default function HeroScene3D() {
     const webAppsTexture = new THREE.CanvasTexture(webAppsCanvas);
     webAppsTexture.colorSpace = THREE.SRGBColorSpace;
     webAppsTexture.minFilter = THREE.LinearFilter;
+    webAppsTexture.generateMipmaps = false;
 
     const webAppsGeo = new THREE.CylinderGeometry(
       cylinderRadius - 0.02,
@@ -472,6 +646,7 @@ export default function HeroScene3D() {
     const aiVideoTexture = new THREE.CanvasTexture(aiVideoCanvas);
     aiVideoTexture.colorSpace = THREE.SRGBColorSpace;
     aiVideoTexture.minFilter = THREE.LinearFilter;
+    aiVideoTexture.generateMipmaps = false;
 
     const aiVideoGeo = new THREE.CylinderGeometry(
       cylinderRadius - 0.02,
@@ -511,6 +686,7 @@ export default function HeroScene3D() {
       webAppsCtx.textAlign = "right";
       webAppsCtx.fillText("WEB APPS AND DESIGN", 1080, 200);
       webAppsTexture.needsUpdate = true;
+      renderer.initTexture(webAppsTexture);
     };
 
     const renderAiVideoText = () => {
@@ -522,6 +698,7 @@ export default function HeroScene3D() {
       aiVideoCtx.textAlign = "left";
       aiVideoCtx.fillText("AI VIDEO ADS AND VISUALS", 320, 200);
       aiVideoTexture.needsUpdate = true;
+      renderer.initTexture(aiVideoTexture);
     };
 
     renderWebAppsText();
@@ -542,15 +719,14 @@ export default function HeroScene3D() {
     let lastCursorBlink = 0;
     let cursorVisible = true;
     let currentStartX = -1;
-    let lastDrawnKey = "";
-
     let canStartTypewriter = false;
+    let didInitTypewriter = false;
 
     const renderTypewriter = (now: number, delta: number = 0.016) => {
       if (!textCtx) return;
 
       const staticText = "AI-ASSISTED";
-      textCtx.font = 'bold 155px "Bebas Neue", Anton, Impact, Oswald, "Arial Narrow", sans-serif-condensed, sans-serif';
+      textCtx.font = 'bold 78px "Bebas Neue", Anton, Impact, Oswald, "Arial Narrow", sans-serif-condensed, sans-serif';
       textCtx.textBaseline = "middle";
 
       const staticWidth = textCtx.measureText(staticText).width;
@@ -575,9 +751,17 @@ export default function HeroScene3D() {
         currentStartX = defaultStartX;
       }
 
+      let shouldRedraw = false;
+
+      if (!didInitTypewriter) {
+        didInitTypewriter = true;
+        shouldRedraw = true;
+      }
+
       if (now - lastCursorBlink > 500) {
         cursorVisible = !cursorVisible;
         lastCursorBlink = now;
+        shouldRedraw = true;
       }
 
       if (now >= pauseUntil) {
@@ -586,6 +770,7 @@ export default function HeroScene3D() {
 
         if (now - lastStepTime >= stepDelay) {
           lastStepTime = now;
+          shouldRedraw = true;
 
           if (!isDeleting) {
             charIdx++;
@@ -616,41 +801,30 @@ export default function HeroScene3D() {
         targetStartX = (textCanvas.width - totalLineWidth) / 2;
       }
 
-      const slideLerp = 1 - Math.exp(-7.0 * delta);
-      currentStartX += (targetStartX - currentStartX) * slideLerp;
-      if (Math.abs(targetStartX - currentStartX) < 0.25) {
+      if (shouldRedraw) {
         currentStartX = targetStartX;
+        const dynamicText = currentWord.substring(0, charIdx);
+        const cursorChar = cursorVisible ? "|" : " ";
+
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+
+        textCtx.textAlign = "left";
+        textCtx.fillStyle = "#000000";
+        textCtx.fillText(staticText, currentStartX, centerY);
+
+        textCtx.fillStyle = "#581c87";
+        textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
+
+        textCtx.fillStyle = "#6b21a8";
+        textCtx.fillText(
+          cursorChar,
+          currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 4,
+          centerY
+        );
+
+        textTexture.needsUpdate = true;
       }
-
-      const dynamicText = currentWord.substring(0, charIdx);
-      const cursorChar = cursorVisible ? "|" : " ";
-      const roundedX = Math.round(currentStartX / 2) * 2;
-      const drawKey = `${wordIdx}-${charIdx}-${cursorVisible}-${roundedX}`;
-
-      if (drawKey === lastDrawnKey) {
-        return;
-      }
-      lastDrawnKey = drawKey;
-
-      textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-
-      textCtx.textAlign = "left";
-      textCtx.fillStyle = "#000000";
-      textCtx.fillText(staticText, currentStartX, centerY);
-
-      textCtx.fillStyle = "#581c87";
-      textCtx.fillText(dynamicText, currentStartX + staticWidth + spaceWidth, centerY);
-
-      textCtx.fillStyle = "#6b21a8";
-      textCtx.fillText(
-        cursorChar,
-        currentStartX + staticWidth + spaceWidth + textCtx.measureText(dynamicText).width + 8,
-        centerY
-      );
-
-      textTexture.needsUpdate = true;
     };
-
 
     const textureLoader = new THREE.TextureLoader();
     const avatarAspect = 1536 / 2752;
@@ -663,26 +837,42 @@ export default function HeroScene3D() {
 
     const textureDark = textureLoader.load("/images/Hero-avatar1.webp", () => {
       setIsLoaded(true);
+      renderer.initTexture(textureDark);
       setTimeout(() => {
-        textureUrban = textureLoader.load("/images/Hero-avatar2.webp");
+        textureUrban = textureLoader.load("/images/Hero-avatar2.webp", (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          renderer.initTexture(tex);
+        });
         textureUrban.colorSpace = THREE.SRGBColorSpace;
         textureUrban.minFilter = THREE.LinearFilter;
-        textureUrban.generateMipmaps = true;
+        textureUrban.generateMipmaps = false;
 
-        textureSummer = textureLoader.load("/images/Hero-avatar3.webp");
+        textureSummer = textureLoader.load("/images/Hero-avatar3.webp", (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          renderer.initTexture(tex);
+        });
         textureSummer.colorSpace = THREE.SRGBColorSpace;
         textureSummer.minFilter = THREE.LinearFilter;
-        textureSummer.generateMipmaps = true;
+        textureSummer.generateMipmaps = false;
 
-        textureRetro = textureLoader.load("/images/Hero-avatar4.webp");
+        textureRetro = textureLoader.load("/images/Hero-avatar4.webp", (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          renderer.initTexture(tex);
+        });
         textureRetro.colorSpace = THREE.SRGBColorSpace;
         textureRetro.minFilter = THREE.LinearFilter;
-        textureRetro.generateMipmaps = true;
-      }, 1000);
+        textureRetro.generateMipmaps = false;
+      }, 600);
     });
     textureDark.colorSpace = THREE.SRGBColorSpace;
     textureDark.minFilter = THREE.LinearFilter;
-    textureDark.generateMipmaps = true;
+    textureDark.generateMipmaps = false;
 
     const glitchUniforms = {
       map: { value: textureDark as THREE.Texture },
@@ -850,10 +1040,12 @@ export default function HeroScene3D() {
 
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let isTouching = false;
+    let winWidth = typeof window !== "undefined" ? window.innerWidth : 1920;
+    let winHeight = typeof window !== "undefined" ? window.innerHeight : 1080;
 
     const onMouseMove = (e: MouseEvent) => {
-      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+      mouse.targetX = (e.clientX / winWidth) * 2 - 1;
+      mouse.targetY = -(e.clientY / winHeight) * 2 + 1;
     };
 
     const onTouchStart = () => {
@@ -864,8 +1056,8 @@ export default function HeroScene3D() {
       isTouching = true;
       if (e.touches.length > 0) {
         const touch = e.touches[0];
-        mouse.targetX = (touch.clientX / window.innerWidth) * 2 - 1;
-        mouse.targetY = -(touch.clientY / window.innerHeight) * 2 + 1;
+        mouse.targetX = (touch.clientX / winWidth) * 2 - 1;
+        mouse.targetY = -(touch.clientY / winHeight) * 2 + 1;
       }
     };
 
@@ -910,13 +1102,26 @@ export default function HeroScene3D() {
     window.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
 
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "1") switchAvatarRef.current?.("dark");
+      else if (e.key === "2") switchAvatarRef.current?.("urban");
+      else if (e.key === "3") switchAvatarRef.current?.("summer");
+      else if (e.key === "4") switchAvatarRef.current?.("retro");
+    };
+    window.addEventListener("keydown", onKeyDown);
+
     const onResize = () => {
       if (!container) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
+      winWidth = w || (typeof window !== "undefined" ? window.innerWidth : 1920);
+      winHeight = h || (typeof window !== "undefined" ? window.innerHeight : 1080);
       camera.aspect = w / h;
 
       const isMobile = w < 768;
+      const maxDpr = isMobile ? 1.4 : 1.6;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
       if (isMobile) {
         camera.position.z = 11.2;
         const mobileScale = Math.min(1.0, Math.max(0.68, (w / 768) * 0.90 + 0.10));
@@ -1001,7 +1206,7 @@ export default function HeroScene3D() {
       .set("#hero-nav", {
         opacity: 1,
       }, 0.28)
-      .fromTo(".hero-nav-item", {
+      .fromTo([".hero-nav-header", ".hero-nav-item"], {
         opacity: 0,
         y: 16,
       }, {
@@ -1009,7 +1214,7 @@ export default function HeroScene3D() {
         y: 0,
         duration: 0.38,
         ease: "power2.out",
-        stagger: 0.06,
+        stagger: 0.05,
       }, 0.30);
 
     let isRunning = false;
@@ -1026,25 +1231,41 @@ export default function HeroScene3D() {
       renderTypewriter(now, delta);
       glitchUniforms.uTime.value = now * 0.001;
 
-      const colorLerp = 1 - Math.exp(-4.5 * delta);
       if (scene.background instanceof THREE.Color) {
-        scene.background.lerp(targetBg, colorLerp);
+        const dr = Math.abs(scene.background.r - targetBg.r);
+        const dg = Math.abs(scene.background.g - targetBg.g);
+        const db = Math.abs(scene.background.b - targetBg.b);
+        if (dr > 0.002 || dg > 0.002 || db > 0.002) {
+          const colorLerp = 1 - Math.exp(-4.5 * delta);
+          scene.background.lerp(targetBg, colorLerp);
+          floorMat.color.lerp(targetFloor, colorLerp);
+        } else if (dr > 0 || dg > 0 || db > 0) {
+          scene.background.copy(targetBg);
+          floorMat.color.copy(targetFloor);
+        }
       }
-      floorMat.color.lerp(targetFloor, colorLerp);
 
       const lerpFactor = 1 - Math.exp(-6.8 * delta);
-      mouse.x += (mouse.targetX - mouse.x) * lerpFactor;
-      mouse.y += (mouse.targetY - mouse.y) * lerpFactor;
+      const mouseDiffX = mouse.targetX - mouse.x;
+      const mouseDiffY = mouse.targetY - mouse.y;
+      if (Math.abs(mouseDiffX) > 0.0004 || Math.abs(mouseDiffY) > 0.0004) {
+        mouse.x += mouseDiffX * lerpFactor;
+        mouse.y += mouseDiffY * lerpFactor;
+      } else if (mouse.x !== mouse.targetX || mouse.y !== mouse.targetY) {
+        mouse.x = mouse.targetX;
+        mouse.y = mouse.targetY;
+      }
 
       const layerLerp = 1 - Math.exp(-7.2 * delta);
-      builtThemes.forEach((th) => {
+      for (let t = 0; t < builtThemes.length; t++) {
+        const th = builtThemes[t];
         let isVisible = false;
         for (let i = 0; i < th.layers.length; i++) {
           const l = th.layers[i];
           const diff = l.target - l.off;
           if (Math.abs(diff) > 0.003) {
             l.off += diff * layerLerp;
-          } else {
+          } else if (l.off !== l.target) {
             l.off = l.target;
           }
           if (l.off > -17.5) {
@@ -1054,7 +1275,7 @@ export default function HeroScene3D() {
           }
         }
         th.group.visible = isVisible;
-      });
+      }
 
       const breathY = Math.sin(now * 0.0012) * 0.035;
       const breathRot = Math.cos(now * 0.0009) * 0.006;
@@ -1170,6 +1391,7 @@ export default function HeroScene3D() {
         webAppsMat,
         aiVideoAdsMesh.position,
         aiVideoMat,
+        ".hero-nav-header",
         ".hero-nav-item",
       ]);
 
@@ -1219,7 +1441,7 @@ export default function HeroScene3D() {
         ease: "power2.out",
         delay: 0.20,
       });
-      gsap.fromTo(".hero-nav-item", {
+      gsap.fromTo([".hero-nav-header", ".hero-nav-item"], {
         opacity: 0,
         y: 16,
       }, {
@@ -1227,7 +1449,7 @@ export default function HeroScene3D() {
         y: 0,
         duration: 0.38,
         ease: "power2.out",
-        stagger: 0.06,
+        stagger: 0.05,
         delay: 0.24,
       });
 
@@ -1243,7 +1465,7 @@ export default function HeroScene3D() {
       pauseUntil = 0;
       lastStepTime = 0;
       currentStartX = -1;
-      lastDrawnKey = "";
+      didInitTypewriter = false;
       canStartTypewriter = true;
     };
 
@@ -1277,6 +1499,7 @@ export default function HeroScene3D() {
     window.addEventListener("portfolio-view-about", onPortfolioViewAbout);
     const fallbackTimer = setTimeout(playStaggerReveal, 2500);
 
+    renderer.compile(scene, camera);
     renderer.render(scene, camera);
 
     return () => {
@@ -1297,6 +1520,7 @@ export default function HeroScene3D() {
       window.removeEventListener("deviceorientation", onOrientation);
       window.removeEventListener("touchstart", requestGyroPermission);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKeyDown);
 
       if (container && renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
@@ -1336,7 +1560,7 @@ export default function HeroScene3D() {
         }`}
     >
       <div
-        className="pointer-events-none fixed inset-0 z-10 opacity-15"
+        className="pointer-events-none fixed inset-0 z-10 opacity-15 transform-gpu"
         style={{
           backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .8 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")`,
         }}
@@ -1344,9 +1568,15 @@ export default function HeroScene3D() {
 
       <div
         id="work-status"
-        className="fixed left-4 sm:left-12 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col"
+        className="fixed left-0 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col rounded-r-2xl sm:rounded-r-full rounded-l-none border border-l-0 border-white/45 pl-4 sm:pl-6 pr-5 sm:pr-8 py-2 sm:py-3 transform-gpu"
+        style={{
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65)",
+        }}
       >
-        <span className="font-mono text-[10px] sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.24em] uppercase text-neutral-600">
+        <span className="font-mono text-[9px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase text-neutral-600">
           AVAILABLE FOR WORK
         </span>
         <span className="text-xs sm:text-xl font-black italic tracking-tight text-neutral-900 mt-0.5 sm:mt-1">
@@ -1356,11 +1586,17 @@ export default function HeroScene3D() {
 
       <div
         id="location-status"
-        className="fixed right-4 sm:right-12 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col items-end text-right"
+        className="fixed right-0 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col items-center text-center rounded-l-2xl sm:rounded-l-full rounded-r-none border border-r-0 border-white/45 pr-4 sm:pr-6 pl-5 sm:pl-8 py-2 sm:py-3 transform-gpu"
+        style={{
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65)",
+        }}
       >
         <span
           suppressHydrationWarning
-          className="font-mono tabular-nums text-[10px] sm:text-sm font-bold tracking-[0.14em] sm:tracking-[0.24em] uppercase text-neutral-600"
+          className="font-mono tabular-nums text-[9px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase text-neutral-600"
         >
           {philippineTime || "12:00:00 AM GMT+8"}
         </span>
@@ -1373,34 +1609,32 @@ export default function HeroScene3D() {
         id="hero-nav"
         className="fixed z-20 left-4 right-4 sm:left-12 sm:right-12 bottom-4 sm:bottom-8 select-none pointer-events-auto opacity-0"
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-1.5 sm:gap-8">
+        <div className="max-w-6xl mx-auto flex flex-col gap-1.5 sm:gap-2.5">
+          <div className="hero-nav-header flex items-center justify-between font-mono text-[9px] sm:text-xs tracking-widest uppercase text-neutral-500 px-0.5">
+            <span className="font-semibold text-neutral-900 tracking-wider sm:tracking-widest">
+              SELECT MOOD
+            </span>
+            <span className="font-mono text-neutral-400 tracking-wider">
+              [ 01 — 04 ]
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-8">
           {THEMES.map((t, i) => {
             const isActive = activeAvatar === t.id;
             return (
               <div key={t.id} className="hero-nav-item">
-                <button
+                <HeroNavTab
                   id={`btn-nav-${t.id}`}
+                  index={i}
+                  label={t.label}
+                  isActive={isActive}
                   onClick={() => switchAvatarRef.current?.(t.id)}
-                  className={`w-full group text-left transition-all duration-300 pt-2 sm:pt-4 border-t flex items-center font-mono text-[10px] sm:text-sm tracking-tight sm:tracking-widest uppercase cursor-pointer ${isActive
-                    ? "border-neutral-900 text-neutral-900 border-t-2 sm:border-t-4 font-bold opacity-100"
-                    : "border-neutral-900/30 text-neutral-600 hover:text-neutral-900 hover:border-neutral-900/60 opacity-60 hover:opacity-90"
-                    }`}
-                >
-                  <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                    <span
-                      className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full shrink-0 transition-all duration-300 ${isActive
-                        ? "bg-purple-600 animate-pulse"
-                        : "bg-neutral-300 group-hover:bg-neutral-400"
-                        }`}
-                    />
-                    <span className="truncate">
-                      0{i + 1} {t.label}
-                    </span>
-                  </div>
-                </button>
+                />
               </div>
             );
           })}
+          </div>
         </div>
       </nav>
 
