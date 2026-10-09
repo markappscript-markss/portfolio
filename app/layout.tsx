@@ -6,8 +6,30 @@ import SmoothScroll from "@/components/animations/SmoothScroll";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mark | AI-Assisted Developer",
-  description: "Web, ads, and everything between — built to look intentional",
+  metadataBase: new URL("https://markappscript.dev"),
+  title: "MARK | Portfolio",
+  description: "Build, Design, Render, Deploy.",
+  openGraph: {
+    title: "MARK | Portfolio",
+    description: "Build, Design, Render, Deploy.",
+    url: "https://markappscript.dev",
+    siteName: "MARK | Portfolio",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MARK | Portfolio",
+    description: "Build, Design, Render, Deploy.",
+  },
+  icons: {
+    icon: [
+      { url: "/images/favicon.png" },
+      { url: "/images/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/images/favicon.png",
+    apple: "/images/favicon.png",
+  },
 };
 
 export const viewport: Viewport = {
