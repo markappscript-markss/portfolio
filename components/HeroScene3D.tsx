@@ -353,6 +353,153 @@ function HeroNavTab({
   );
 }
 
+function ExploreWorkButton({ onClick }: { onClick: () => void }) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (lineRef.current) gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left" });
+    return () => {
+      if (btnRef.current) gsap.killTweensOf(btnRef.current);
+      if (lineRef.current) gsap.killTweensOf(lineRef.current);
+      if (arrowRef.current) gsap.killTweensOf(arrowRef.current);
+      if (textRef.current) gsap.killTweensOf(textRef.current);
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (btnRef.current) {
+      gsap.killTweensOf(btnRef.current);
+      gsap.to(btnRef.current, {
+        y: -1.5,
+        borderColor: "rgba(255, 255, 255, 0.4)",
+        boxShadow: "0 6px 18px rgba(0, 0, 0, 0.25)",
+        duration: 0.28,
+        ease: "power2.out",
+      });
+    }
+    if (lineRef.current) {
+      gsap.killTweensOf(lineRef.current);
+      gsap.fromTo(
+        lineRef.current,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 0.32, ease: "power2.out" }
+      );
+    }
+    if (arrowRef.current) {
+      gsap.killTweensOf(arrowRef.current);
+      gsap.to(arrowRef.current, {
+        rotate: -45,
+        x: 3,
+        y: -1.5,
+        duration: 0.28,
+        ease: "power2.out",
+      });
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        color: "#ffffff",
+        duration: 0.2,
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (btnRef.current) {
+      gsap.killTweensOf(btnRef.current);
+      gsap.to(btnRef.current, {
+        y: 0,
+        borderColor: "rgba(255, 255, 255, 0.15)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
+        duration: 0.24,
+        ease: "power2.out",
+      });
+    }
+    if (lineRef.current) {
+      gsap.killTweensOf(lineRef.current);
+      gsap.to(lineRef.current, {
+        scaleX: 0,
+        transformOrigin: "right",
+        duration: 0.26,
+        ease: "power2.inOut",
+      });
+    }
+    if (arrowRef.current) {
+      gsap.killTweensOf(arrowRef.current);
+      gsap.to(arrowRef.current, {
+        rotate: 0,
+        x: 0,
+        y: 0,
+        duration: 0.24,
+        ease: "power2.out",
+      });
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.to(textRef.current, {
+        color: "rgba(255, 255, 255, 0.88)",
+        duration: 0.2,
+      });
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (btnRef.current) {
+      gsap.to(btnRef.current, {
+        scale: 0.97,
+        duration: 0.1,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (btnRef.current) {
+      gsap.to(btnRef.current, {
+        scale: 1,
+        duration: 0.15,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  return (
+    <button
+      ref={btnRef}
+      type="button"
+      id="btn-explore-work"
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className="group pointer-events-auto mt-2.5 sm:mt-3 self-center inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neutral-950 text-white/90 border border-white/15 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-sm cursor-pointer select-none will-change-transform"
+    >
+      <div className="relative flex flex-col items-start">
+        <span ref={textRef} className="block tracking-wider text-white/90 whitespace-nowrap">
+          EXPLORE WORK
+        </span>
+        <div className="relative w-full h-[1.5px] mt-0.5 overflow-hidden rounded-[1px]">
+          <div className="absolute inset-0 bg-white/20" />
+          <div
+            ref={lineRef}
+            className="absolute inset-0 bg-white origin-left will-change-transform"
+          />
+        </div>
+      </div>
+      <span
+        ref={arrowRef}
+        className="inline-block shrink-0 text-[11px] sm:text-sm font-light text-white will-change-transform"
+      >
+        →
+      </span>
+    </button>
+  );
+}
+
 export default function HeroScene3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -1479,6 +1626,10 @@ export default function HeroScene3D() {
       isOverlayOpen = true;
     };
 
+    const onPortfolioViewWork = () => {
+      isOverlayOpen = true;
+    };
+
     const onPortfolioTriggerMain = () => {
       if (isOverlayOpen) {
         isOverlayOpen = false;
@@ -1498,6 +1649,8 @@ export default function HeroScene3D() {
     }
     window.addEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
     window.addEventListener("portfolio-view-about", onPortfolioViewAbout);
+    window.addEventListener("portfolio-explore-work", onPortfolioViewWork);
+    window.addEventListener("portfolio-view-work", onPortfolioViewWork);
     const fallbackTimer = setTimeout(playStaggerReveal, 2500);
 
     renderer.compile(scene, camera);
@@ -1511,6 +1664,8 @@ export default function HeroScene3D() {
       window.removeEventListener("paper-tear-complete", playStaggerReveal);
       window.removeEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
       window.removeEventListener("portfolio-view-about", onPortfolioViewAbout);
+      window.removeEventListener("portfolio-explore-work", onPortfolioViewWork);
+      window.removeEventListener("portfolio-view-work", onPortfolioViewWork);
       staggerTimeline.kill();
 
       cancelAnimationFrame(animationFrameId);
@@ -1569,7 +1724,7 @@ export default function HeroScene3D() {
 
       <div
         id="work-status"
-        className="fixed left-0 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col rounded-r-2xl sm:rounded-r-full rounded-l-none border border-l-0 border-white/45 pl-4 sm:pl-6 pr-5 sm:pr-8 py-2 sm:py-3 transform-gpu"
+        className="fixed left-0 top-20 sm:top-1/2 sm:-translate-y-1/2 z-20 select-none pointer-events-none flex flex-col rounded-r-2xl sm:rounded-r-3xl rounded-l-none border border-l-0 border-white/45 pl-4 sm:pl-6 pr-5 sm:pr-8 py-2.5 sm:py-3.5 transform-gpu"
         style={{
           background: "linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%)",
           backdropFilter: "blur(20px) saturate(180%)",
@@ -1583,6 +1738,13 @@ export default function HeroScene3D() {
         <span className="text-xs sm:text-xl font-black italic tracking-tight text-neutral-900 mt-0.5 sm:mt-1">
           Freelance & Collab
         </span>
+        <ExploreWorkButton
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("portfolio-explore-work"));
+            }
+          }}
+        />
       </div>
 
       <div

@@ -47,7 +47,7 @@ export default function AboutOverlay({ isOpen }: AboutOverlayProps) {
     <div
       ref={containerRef}
       id="about-overlay"
-      className={`fixed inset-0 z-30 bg-white overflow-y-auto overscroll-contain touch-pan-y transition-opacity duration-200 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      className={`fixed inset-0 z-40 bg-white overflow-y-auto overscroll-contain touch-pan-y transition-opacity duration-100 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
     >
       <div className="min-h-full w-full flex items-center justify-center px-6 sm:px-12 md:px-16 lg:px-24 py-24 sm:py-28">

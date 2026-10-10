@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import Magnetic from "@/components/animations/Magnetic";
 
 interface HeaderProps {
-  activeView?: "main" | "about";
-  onViewChange?: (view: "main" | "about") => void;
+  activeView?: "main" | "about" | "work";
+  onViewChange?: (view: "main" | "about" | "work") => void;
 }
 
 function HeaderNavItem({
@@ -121,11 +121,10 @@ function HeaderNavItem({
     >
       <span
         ref={textRef}
-        className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors duration-200 will-change-transform ${
-          isActive
-            ? "text-neutral-950 font-bold"
-            : "text-neutral-500 group-hover:text-neutral-950 font-medium"
-        }`}
+        className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors duration-200 will-change-transform ${isActive
+          ? "text-neutral-950 font-bold"
+          : "text-neutral-500 group-hover:text-neutral-950 font-medium"
+          }`}
       >
         {label}
       </span>
@@ -144,8 +143,111 @@ function HeaderNavItem({
   );
 }
 
+const GLITCH_GLYPHS = "!<>-_\\/[]{}—=+*^?#_01";
+
+function HeaderLogo() {
+  const [isAlt, setIsAlt] = useState(false);
+  const [text, setText] = useState<{ prefix: string; suffix: string }>({
+    prefix: "markappscript",
+    suffix: ".dev",
+  });
+  const [isGlitching, setIsGlitching] = useState(false);
+  const animFrameRef = useRef<number | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isGlitching) return;
+    setIsGlitching(true);
+
+    const nextIsAlt = !isAlt;
+    setIsAlt(nextIsAlt);
+
+    const targetPrefix = nextIsAlt ? "Code by Mark" : "markappscript";
+    const targetSuffix = nextIsAlt ? "©" : ".dev";
+    const fullTarget = targetPrefix + targetSuffix;
+
+    if (btnRef.current) {
+      gsap.killTweensOf(btnRef.current);
+      gsap.timeline()
+        .to(btnRef.current, { x: -2, y: 1, duration: 0.04, ease: "none" })
+        .to(btnRef.current, { x: 2.5, y: -1, duration: 0.04, ease: "none" })
+        .to(btnRef.current, { x: -1.5, y: 0.5, duration: 0.04, ease: "none" })
+        .to(btnRef.current, { x: 1, y: -0.5, duration: 0.04, ease: "none" })
+        .to(btnRef.current, { x: 0, y: 0, duration: 0.04, ease: "none" });
+    }
+
+    let frame = 0;
+    const totalFrames = 12;
+
+    const animate = () => {
+      frame++;
+      const progress = frame / totalFrames;
+
+      if (frame >= totalFrames) {
+        setText({ prefix: targetPrefix, suffix: targetSuffix });
+        setIsGlitching(false);
+        return;
+      }
+
+      let scrambled = "";
+      for (let i = 0; i < fullTarget.length; i++) {
+        if (progress > i / fullTarget.length + 0.18) {
+          scrambled += fullTarget[i];
+        } else {
+          scrambled += GLITCH_GLYPHS[Math.floor(Math.random() * GLITCH_GLYPHS.length)];
+        }
+      }
+
+      const splitIndex = targetPrefix.length;
+      setText({
+        prefix: scrambled.slice(0, splitIndex),
+        suffix: scrambled.slice(splitIndex),
+      });
+
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animFrameRef.current = requestAnimationFrame(animate);
+  };
+
+  return (
+    <Magnetic strength={0.2}>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={handleClick}
+        className="flex items-baseline select-none cursor-pointer text-left will-change-transform"
+        aria-label="Toggle logo title"
+      >
+        <span
+          className={`font-bold tracking-tight text-xs sm:text-base text-black transition-all ${isGlitching ? "drop-shadow-[1.5px_0_0_rgba(147,51,234,0.8)]" : ""
+            }`}
+        >
+          {text.prefix}
+        </span>
+        <span
+          className={`font-bold tracking-tight text-xs sm:text-base transition-all ${isAlt ? "text-black" : "text-purple-600"
+            } ${isGlitching ? "drop-shadow-[-1.5px_0_0_rgba(6,182,212,0.8)]" : ""}`}
+        >
+          {text.suffix}
+        </span>
+      </button>
+    </Magnetic>
+  );
+}
+
 export default function Header({ activeView = "main", onViewChange }: HeaderProps) {
+  const headerRef = useRef<HTMLElement>(null);
+
   const handleMainClick = () => {
+    if (activeView !== "about") return;
     onViewChange?.("main");
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("portfolio-trigger-main"));
@@ -153,6 +255,7 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
   };
 
   const handleAboutClick = () => {
+    if (activeView === "about") return;
     onViewChange?.("about");
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("portfolio-view-about"));
@@ -162,23 +265,11 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
   return (
     <header
       id="header-nav"
-      className="fixed top-0 left-0 right-0 z-40 w-full h-16 sm:h-20 bg-transparent px-4 sm:px-12 flex items-center justify-between pointer-events-none opacity-0"
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-50 w-full h-16 sm:h-20 bg-transparent px-4 sm:px-12 flex items-center justify-between pointer-events-none opacity-0 border-0 outline-none shadow-none"
     >
       <div className="pointer-events-auto">
-        <Magnetic strength={0.2}>
-          <button
-            type="button"
-            onClick={handleMainClick}
-            className="flex items-baseline select-none cursor-pointer text-left"
-          >
-            <span className="font-bold tracking-tight text-xs sm:text-base text-black">
-              markappscript
-            </span>
-            <span className="font-bold tracking-tight text-xs sm:text-base text-purple-600">
-              .dev
-            </span>
-          </button>
-        </Magnetic>
+        <HeaderLogo />
       </div>
 
       <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-6 sm:gap-10 select-none">
