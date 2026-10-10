@@ -518,7 +518,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
     const isTablet = typeof window !== "undefined" && window.innerWidth >= 768;
-    const targetX = isLarge ? "-13vw" : isTablet ? "-8vw" : "0px";
+    const targetX = isLarge ? "-10.8vw" : isTablet ? "-6.6vw" : "0px";
 
     const header = document.getElementById("header-nav");
     if (header) {
@@ -526,7 +526,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.to(header, {
         yPercent: -100,
         autoAlpha: 0,
-        duration: 0.65,
+        duration: 0.85,
         ease: "power3.inOut",
       });
     }
@@ -534,12 +534,12 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (heroSectionRef.current) {
       gsap.killTweensOf(heroSectionRef.current);
       gsap.to(heroSectionRef.current, {
-        height: isLarge ? "42vh" : "44vh",
-        minHeight: isLarge ? "42vh" : "44vh",
-        maxHeight: isLarge ? "42vh" : "44vh",
+        height: isLarge ? "53vh" : "55vh",
+        minHeight: isLarge ? "53vh" : "55vh",
+        maxHeight: isLarge ? "53vh" : "55vh",
         paddingTop: "1.5rem",
         paddingBottom: "0.5rem",
-        duration: 0.75,
+        duration: 1.15,
         ease: "power3.inOut",
       });
     }
@@ -547,10 +547,10 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (tabletContainerRef.current) {
       gsap.killTweensOf(tabletContainerRef.current);
       gsap.to(tabletContainerRef.current, {
-        scale: 0.72,
+        scale: 0.91,
         x: targetX,
-        y: isLarge ? -36 : -18,
-        duration: 0.75,
+        y: isLarge ? 58 : 38,
+        duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
       });
@@ -559,8 +559,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (rightContentRef.current) {
       gsap.killTweensOf(rightContentRef.current);
       gsap.to(rightContentRef.current, {
-        y: isLarge ? -32 : -16,
-        duration: 0.75,
+        y: isLarge ? 32 : 20,
+        duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
       });
@@ -570,9 +570,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.to(takeALookBtnWrapperRef.current, {
         autoAlpha: 0,
-        y: 16,
-        duration: 0.25,
-        ease: "power2.in",
+        y: 12,
+        duration: 0.35,
+        ease: "power2.out",
         onComplete: () => {
           if (takeALookBtnWrapperRef.current) {
             takeALookBtnWrapperRef.current.style.display = "none";
@@ -586,11 +586,11 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.killTweensOf(blackSectionRef.current);
       gsap.fromTo(
         blackSectionRef.current,
-        { y: 80, opacity: 0 },
+        { y: 60, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.75,
+          duration: 1.15,
           ease: "power3.inOut",
           force3D: true,
         }
@@ -602,7 +602,13 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     setIsDeepDiveNav(false);
 
     if (containerRef.current) {
-      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      if (containerRef.current.scrollTop > 0) {
+        gsap.to(containerRef.current, {
+          scrollTop: 0,
+          duration: 0.85,
+          ease: "power3.inOut",
+        });
+      }
     }
 
     const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
@@ -612,9 +618,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (blackSectionRef.current) {
       gsap.killTweensOf(blackSectionRef.current);
       gsap.to(blackSectionRef.current, {
-        y: 80,
+        y: 60,
         opacity: 0,
-        duration: 0.55,
+        duration: 0.95,
         ease: "power3.inOut",
         force3D: true,
         onComplete: () => {
@@ -633,9 +639,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.to(header, {
         yPercent: 0,
         autoAlpha: 1,
-        duration: 0.65,
+        duration: 0.9,
         ease: "power3.out",
-        delay: 0.05,
+        delay: 0.15,
       });
     }
 
@@ -647,7 +653,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         maxHeight: "none",
         paddingTop: "5rem",
         paddingBottom: "3rem",
-        duration: 0.75,
+        duration: 1.15,
         ease: "power3.inOut",
       });
     }
@@ -658,7 +664,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         scale: 1,
         x: targetX,
         y: 0,
-        duration: 0.75,
+        duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
       });
@@ -668,7 +674,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.killTweensOf(rightContentRef.current);
       gsap.to(rightContentRef.current, {
         y: 0,
-        duration: 0.75,
+        duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
       });
@@ -683,9 +689,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         {
           autoAlpha: 1,
           y: 0,
-          duration: 0.5,
+          duration: 0.65,
           ease: "power2.out",
-          delay: 0.25,
+          delay: 0.45,
           onComplete: () => {
             if (!isDeepDiveRef.current) {
               setCanTakeALook(true);
@@ -918,7 +924,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   return (
     <>
       <div
-        className={`fixed left-4 sm:left-12 top-20 sm:top-24 z-50 transition-opacity duration-200 ease-out ${
+        className={`fixed left-4 sm:left-12 top-20 sm:top-24 z-50 transition-opacity duration-300 ease-out ${
           isOpen && !isDeepDiveNav
             ? "opacity-100 pointer-events-auto delay-100"
             : "opacity-0 pointer-events-none delay-0 invisible"
@@ -935,9 +941,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       </div>
 
       <div
-        className={`fixed left-4 sm:left-12 top-4 sm:top-6 z-50 transition-opacity duration-150 ease-out ${
+        className={`fixed left-4 sm:left-12 top-4 sm:top-6 z-50 transition-opacity duration-300 ease-out ${
           isOpen && isDeepDiveNav
-            ? "opacity-100 pointer-events-auto delay-75"
+            ? "opacity-100 pointer-events-auto delay-100"
             : "opacity-0 pointer-events-none delay-0 invisible"
         }`}
         style={{
@@ -1012,239 +1018,69 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
       <div
         ref={blackSectionRef}
-        className={`w-full bg-neutral-950 text-white relative z-30 ${
+        className={`w-full relative z-30 ${
           isDeepDive ? "block" : "hidden"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-32 sm:pb-44">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-white/10 select-none">
-            <div>
-              <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                PLATFORM
-              </span>
-              <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                WEB & INTERACTIVE 3D
-              </p>
-            </div>
-            <div>
-              <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                ROLE
-              </span>
-              <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                AI-ASSISTED DEVELOPER
-              </p>
-            </div>
-            <div>
-              <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                STACK
-              </span>
-              <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                NEXT.JS / THREE / GSAP
-              </p>
-            </div>
-            <div>
-              <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                FOCUS
-              </span>
-              <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                FULL-STACK & MOTION
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-12 sm:mt-16 max-w-4xl">
-            <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-neutral-200 leading-relaxed tracking-tight select-none">
-              <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
-              complete ground-up reconstruction of my digital workspace. Rebuilt to showcase
-              high-performance 3D spatial scenes, reactive kinetic typography, and fluid
-              micro-interactions engineered with precision code.
-            </p>
-            <p className="mt-6 text-sm sm:text-base md:text-lg text-neutral-400 leading-relaxed font-sans max-w-3xl select-none">
-              From front-end spatial shaders to robust Next.js server components, every pixel and
-              motion curve was handcrafted to deliver a seamless, zero-compromise experience across
-              devices.
-            </p>
-          </div>
-
-          <div className="mt-16 sm:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-1">
-              <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest">
-                01 / ARCHITECTURE
-              </span>
-              <h3 className="mt-3 text-lg sm:text-xl font-bold text-white tracking-tight">
-                Full-Stack Precision
-              </h3>
-              <p className="mt-2.5 text-sm text-neutral-400 leading-relaxed">
-                Clean, modular TypeScript architecture built with Next.js App Router, zero runtime
-                overhead, and instant page transitions.
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-1">
-              <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest">
-                02 / SPATIAL 3D
-              </span>
-              <h3 className="mt-3 text-lg sm:text-xl font-bold text-white tracking-tight">
-                Three.js WebGL Engine
-              </h3>
-              <p className="mt-2.5 text-sm text-neutral-400 leading-relaxed">
-                Custom ExtrudeGeometry mesh with physically-based PBR materials, pre-warmed shader
-                pipelines, and locked 60 FPS animation.
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-1">
-              <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest">
-                03 / MOTION CHOREOGRAPHY
-              </span>
-              <h3 className="mt-3 text-lg sm:text-xl font-bold text-white tracking-tight">
-                Hardware GSAP Physics
-              </h3>
-              <p className="mt-2.5 text-sm text-neutral-400 leading-relaxed">
-                Hardware-accelerated kinetic typography, magnetic hitboxes, and seamless multi-stage
-                reveal sequences.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-16 sm:mt-24 p-8 sm:p-10 rounded-2xl bg-white/[0.02] border border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            <div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight">
-                60 <span className="text-xs font-normal text-neutral-400">FPS</span>
-              </div>
-              <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-neutral-400">
-                LOCKED FRAME RATE
-              </p>
-            </div>
-            <div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight">
-                0 <span className="text-xs font-normal text-neutral-400">RE-RENDERS</span>
-              </div>
-              <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-neutral-400">
-                GPU COMPOSITED
-              </p>
-            </div>
-            <div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight">
-                &lt; 50 <span className="text-xs font-normal text-neutral-400">MS</span>
-              </div>
-              <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-neutral-400">
-                INPUT LATENCY
-              </p>
-            </div>
-            <div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-red-500 font-mono tracking-tight">
-                100%
-              </div>
-              <p className="mt-1.5 text-xs font-mono uppercase tracking-widest text-neutral-400">
-                TYPE-SAFE TS
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-20 sm:mt-28 border-t border-white/10 pt-16">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div className="w-full bg-neutral-950 text-white">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-white/10 select-none">
               <div>
-                <span className="text-[11px] font-mono text-red-500 uppercase tracking-widest">
-                  04 / PROJECT SHOWCASE & DELIVERABLES
+                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                  PLATFORM
                 </span>
-                <h3 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
-                  Visual Systems & Artifacts
-                </h3>
+                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                  WEB & INTERACTIVE 3D
+                </p>
               </div>
-              <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                CUSTOM SCROLL ELEMENTS ZONE
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="min-h-[340px] rounded-2xl border border-white/10 bg-white/[0.02] p-8 flex flex-col justify-between hover:border-white/20 transition-all duration-300">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                      SHOWCASE ITEM A
-                    </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-neutral-300 uppercase">
-                      UI & Motion
-                    </span>
-                  </div>
-                  <h4 className="mt-3 text-xl font-bold text-white">
-                    Spatial Interface Architecture
-                  </h4>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-                    Drop your UI screenshots, design system tokens, or interactive feature demos right here.
-                  </p>
-                </div>
-                <div className="mt-8 rounded-xl bg-neutral-900/80 border border-dashed border-white/20 h-44 flex flex-col items-center justify-center text-center p-4">
-                  <span className="text-2xl text-neutral-600 mb-2">+</span>
-                  <span className="text-xs font-mono text-neutral-400">
-                    Insert Component, Image, or Video Slot
-                  </span>
-                  <span className="text-[10px] text-neutral-500 mt-1">
-                    Ready for your custom React elements
-                  </span>
-                </div>
+              <div>
+                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                  ROLE
+                </span>
+                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                  AI-ASSISTED DEVELOPER
+                </p>
               </div>
-
-              <div className="min-h-[340px] rounded-2xl border border-white/10 bg-white/[0.02] p-8 flex flex-col justify-between hover:border-white/20 transition-all duration-300">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                      SHOWCASE ITEM B
-                    </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-neutral-300 uppercase">
-                      Key Highlights
-                    </span>
-                  </div>
-                  <h4 className="mt-3 text-xl font-bold text-white">
-                    Motion Physics & Engineering
-                  </h4>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-                    Add project milestones, UX workflows, prototype links, or client testimonials here.
-                  </p>
-                </div>
-                <div className="mt-8 rounded-xl bg-neutral-900/80 border border-dashed border-white/20 h-44 flex flex-col items-center justify-center text-center p-4">
-                  <span className="text-2xl text-neutral-600 mb-2">+</span>
-                  <span className="text-xs font-mono text-neutral-400">
-                    Insert Case Study Media or Artifact
-                  </span>
-                  <span className="text-[10px] text-neutral-500 mt-1">
-                    Expand with your custom cards or layout
-                  </span>
-                </div>
+              <div>
+                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                  STACK
+                </span>
+                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                  NEXT.JS / THREE / GSAP
+                </p>
+              </div>
+              <div>
+                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                  FOCUS
+                </span>
+                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                  FULL-STACK & MOTION
+                </p>
               </div>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-8 sm:p-10 hover:border-white/20 transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                  SHOWCASE ITEM C (FULL WIDTH)
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-600/20 text-red-400 uppercase">
-                  Featured
-                </span>
-              </div>
-              <h4 className="text-xl sm:text-2xl font-bold text-white">
-                Interactive Canvas or Wide Media Gallery
-              </h4>
-              <p className="mt-2 text-sm text-neutral-400 leading-relaxed max-w-2xl">
-                This full-width container gives you ample horizontal canvas space for high-resolution gallery sliders, video players, or detailed analytics charts.
+            <div className="mt-12 sm:mt-16 max-w-4xl">
+              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-neutral-200 leading-relaxed tracking-tight select-none">
+                <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
+                complete ground-up reconstruction of my digital workspace. Rebuilt to showcase
+                high-performance 3D spatial scenes, reactive kinetic typography, and fluid
+                micro-interactions engineered with precision code.
               </p>
-              <div className="mt-8 rounded-xl bg-neutral-900/80 border border-dashed border-white/20 h-52 sm:h-64 flex flex-col items-center justify-center text-center p-6">
-                <span className="text-3xl text-neutral-600 mb-2">+</span>
-                <span className="text-sm font-mono text-neutral-300 font-medium">
-                  Insert Wide Banner, Video Player, or Image Carousel
-                </span>
-                <span className="text-xs text-neutral-400 mt-1">
-                  Full width module ready for your customized design
-                </span>
-              </div>
+              <p className="mt-6 text-sm sm:text-base md:text-lg text-neutral-400 leading-relaxed font-sans max-w-3xl select-none">
+                From front-end spatial shaders to robust Next.js server components, every pixel and
+                motion curve was handcrafted to deliver a seamless, zero-compromise experience across
+                devices.
+              </p>
             </div>
           </div>
         </div>
-      </div>
 
-      {children}
+        <div className="w-full bg-white text-neutral-950 min-h-[60vh] sm:min-h-screen">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24">
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
     </>
   );
