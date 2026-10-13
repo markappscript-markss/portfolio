@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/mark.poticar/Desktop/Mark%20Projects/portfolio/components/animations/SmoothScroll.tsx"],"sourcesContent":["\"use client\";\r\n\r\nimport { ReactLenis } from 'lenis/react';\r\nimport \"lenis/dist/lenis.css\";\r\n\r\nexport default function SmoothScroll({ children }: { children: React.ReactNode }) {\r\n  return (\r\n    <ReactLenis root options={{ lerp: 0.08, duration: 1.2, syncTouch: true }}>\r\n      {children}\r\n    </ReactLenis>\r\n  );\r\n}"],"names":["SmoothScroll","children","root","options","lerp","duration","syncTouch"],"mappings":";;;;;AAEA;AAFA;;;;AAKe,SAASA,aAAa,EAAEC,QAAQ,EAAiC;IAC9E,qBACE,6LAAC,iKAAU;QAACC,IAAI;QAACC,SAAS;YAAEC,MAAM;YAAMC,UAAU;YAAKC,WAAW;QAAK;kBACpEL;;;;;;AAGP;KANwBD"}}]
-}
