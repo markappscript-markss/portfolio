@@ -532,7 +532,7 @@ function HeaderLogo() {
         columnNumber: 5
     }, this);
 }
-_s1(HeaderLogo, "k7ZEZasUYctehwBqsNiejQK8s/c=");
+_s1(HeaderLogo, "CDtoCLLuTjYJEw5quJyYzyw4qfs=");
 _c1 = HeaderLogo;
 function Header({ activeView = "main", onViewChange }) {
     _s2();
@@ -2901,6 +2901,7 @@ function TabletReveal({ srcA = '/tablet/hero.png', srcB = '/tablet/poster.png', 
             scene.add(rim);
             let lastWinW = ("TURBOPACK compile-time truthy", 1) ? window.innerWidth : "TURBOPACK unreachable";
             let lastWinH = ("TURBOPACK compile-time truthy", 1) ? window.innerHeight : "TURBOPACK unreachable";
+            let baseCameraZ = 10;
             const resize = {
                 "TabletReveal.useEffect.resize": ()=>{
                     const w = mount.clientWidth || (("TURBOPACK compile-time truthy", 1) ? window.innerWidth : "TURBOPACK unreachable");
@@ -2913,7 +2914,8 @@ function TabletReveal({ srcA = '/tablet/hero.png', srcB = '/tablet/poster.png', 
                     const s = scale > 0 ? scale : 1;
                     const fitH = H * 1.65 / 2 / t / s;
                     const fitW = W * 1.38 / 2 / (t * a) / s;
-                    camera.position.set(0, 0, Math.max(fitH, fitW));
+                    baseCameraZ = Math.max(fitH, fitW);
+                    camera.position.set(0, 0, baseCameraZ);
                 }
             }["TabletReveal.useEffect.resize"];
             resize();
@@ -3016,10 +3018,12 @@ function TabletReveal({ srcA = '/tablet/hero.png', srcB = '/tablet/poster.png', 
                     const yaw = START.y + (Math.PI * 2 + END.y - START.y) * e;
                     const calm = reduced || p < 1 ? 0 : Math.min((elapsed - HOLD_START - SPIN) / 0.6, 1);
                     const idle = Math.sin(elapsed * 1.0) * calm;
+                    const spinArc = Math.sin(p * Math.PI);
+                    camera.position.z = baseCameraZ * (1 + 0.08 * spinArc);
                     tablet.rotation.y = yaw + idle * 0.01;
-                    tablet.rotation.x = START.x + (END.x - START.x) * e - 0.08 * Math.sin(p * Math.PI) + idle * 0.005;
-                    tablet.rotation.z = START.z + (END.z - START.z) * e + 0.07 * Math.sin(p * Math.PI * 2) + idle * 0.007;
-                    tablet.position.y = 0.06 * Math.sin(p * Math.PI) + idle * 0.012;
+                    tablet.rotation.x = START.x + (END.x - START.x) * e - 0.08 * spinArc + idle * 0.005;
+                    tablet.rotation.z = START.z + (END.z - START.z) * e + 0.02 * Math.sin(p * Math.PI * 2) + idle * 0.007;
+                    tablet.position.y = -0.12 * spinArc + idle * 0.012;
                     // swap the screen while the back of the tablet faces the camera
                     if (yaw > Math.PI && !swapped) {
                         swapped = true;
@@ -3110,12 +3114,12 @@ function TabletReveal({ srcA = '/tablet/hero.png', srcB = '/tablet/poster.png', 
             children: "Replay"
         }, void 0, false, {
             fileName: "[project]/components/TabletReveal.tsx",
-            lineNumber: 331,
+            lineNumber: 335,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/TabletReveal.tsx",
-        lineNumber: 325,
+        lineNumber: 329,
         columnNumber: 5
     }, this);
 }
@@ -3297,7 +3301,7 @@ function WorkOverlayBackButton({ id = "btn-back-work", onClick, isDeepDive = fal
                 children: "←"
             }, void 0, false, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 172,
+                lineNumber: 173,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3309,7 +3313,7 @@ function WorkOverlayBackButton({ id = "btn-back-work", onClick, isDeepDive = fal
                         children: isDeepDive ? "BACK TO EXPLORE" : "BACK"
                     }, void 0, false, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 181,
+                        lineNumber: 182,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3319,7 +3323,7 @@ function WorkOverlayBackButton({ id = "btn-back-work", onClick, isDeepDive = fal
                                 className: `absolute inset-0 ${isDeepDive ? "bg-neutral-950/15" : "bg-white/20"}`
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 190,
+                                lineNumber: 191,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3327,25 +3331,25 @@ function WorkOverlayBackButton({ id = "btn-back-work", onClick, isDeepDive = fal
                                 className: `absolute inset-0 origin-left will-change-transform ${isDeepDive ? "bg-neutral-950" : "bg-white"}`
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 195,
+                                lineNumber: 196,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 189,
+                        lineNumber: 190,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 180,
+                lineNumber: 181,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/WorkOverlay.tsx",
-        lineNumber: 156,
+        lineNumber: 157,
         columnNumber: 5
     }, this);
 }
@@ -3526,7 +3530,7 @@ function TakeALookButton({ onClick, disabled = false }) {
         onMouseLeave: handleMouseLeave,
         onMouseDown: handleMouseDown,
         onMouseUp: handleMouseUp,
-        className: `group inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform ${disabled ? "pointer-events-none cursor-default opacity-0 select-none" : "pointer-events-auto cursor-pointer"}`,
+        className: `group inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform ${disabled ? "pointer-events-none cursor-default select-none" : "pointer-events-auto cursor-pointer"}`,
         "aria-label": "Take a look",
         "aria-hidden": disabled,
         children: [
@@ -3539,7 +3543,7 @@ function TakeALookButton({ onClick, disabled = false }) {
                         children: "TAKE A LOOK"
                     }, void 0, false, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 386,
+                        lineNumber: 387,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3549,7 +3553,7 @@ function TakeALookButton({ onClick, disabled = false }) {
                                 className: "absolute inset-0 bg-neutral-900/15"
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 390,
+                                lineNumber: 391,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3557,19 +3561,19 @@ function TakeALookButton({ onClick, disabled = false }) {
                                 className: "absolute inset-0 bg-neutral-950 origin-left will-change-transform"
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 391,
+                                lineNumber: 392,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 389,
+                        lineNumber: 390,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 385,
+                lineNumber: 386,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3578,13 +3582,13 @@ function TakeALookButton({ onClick, disabled = false }) {
                 children: "→"
             }, void 0, false, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 397,
+                lineNumber: 398,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/WorkOverlay.tsx",
-        lineNumber: 367,
+        lineNumber: 368,
         columnNumber: 5
     }, this);
 }
@@ -3601,11 +3605,14 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
     const [isDeepDiveNav, setIsDeepDiveNav] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [canTakeALook, setCanTakeALook] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const canTakeALookRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const isTransitioningRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
     const heroSectionRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const tabletContainerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const rightContentRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const blackSectionRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const takeALookBtnWrapperRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const whereTitleRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const hasRevealedWhereRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "WorkOverlay.useEffect": ()=>{
             onCloseRef.current = onClose;
@@ -3627,6 +3634,63 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "WorkOverlay.useEffect": ()=>{
+            if (!isDeepDive) {
+                hasRevealedWhereRef.current = false;
+                if (whereTitleRef.current) {
+                    const words = whereTitleRef.current.querySelectorAll(".where-word");
+                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].set(words, {
+                        yPercent: 115,
+                        opacity: 0
+                    });
+                }
+                return;
+            }
+            const titleEl = whereTitleRef.current;
+            const container = containerRef.current;
+            if (!titleEl || !container) return;
+            const words = titleEl.querySelectorAll(".where-word");
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].set(words, {
+                yPercent: 115,
+                opacity: 0
+            });
+            const observer = new IntersectionObserver({
+                "WorkOverlay.useEffect": (entries)=>{
+                    entries.forEach({
+                        "WorkOverlay.useEffect": (entry)=>{
+                            if (entry.isIntersecting && !hasRevealedWhereRef.current) {
+                                hasRevealedWhereRef.current = true;
+                                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].fromTo(words, {
+                                    yPercent: 115,
+                                    opacity: 0
+                                }, {
+                                    yPercent: 0,
+                                    opacity: 1,
+                                    duration: 0.95,
+                                    stagger: 0.08,
+                                    ease: "power4.out",
+                                    force3D: true
+                                });
+                            }
+                        }
+                    }["WorkOverlay.useEffect"]);
+                }
+            }["WorkOverlay.useEffect"], {
+                root: container,
+                threshold: 0.15,
+                rootMargin: "0px 0px -40px 0px"
+            });
+            observer.observe(titleEl);
+            return ({
+                "WorkOverlay.useEffect": ()=>{
+                    observer.disconnect();
+                }
+            })["WorkOverlay.useEffect"];
+        }
+    }["WorkOverlay.useEffect"], [
+        isDeepDive
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "WorkOverlay.useEffect": ()=>{
             let targetScroll = 0;
             let currentScroll = 0;
             let rafId = null;
@@ -3634,7 +3698,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
             const update = {
                 "WorkOverlay.useEffect.update": ()=>{
                     const container = containerRef.current;
-                    if (!isDeepDiveRef.current || !container) {
+                    if (!isDeepDiveRef.current || isTransitioningRef.current || !container) {
                         isRunning = false;
                         return;
                     }
@@ -3652,7 +3716,12 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
             }["WorkOverlay.useEffect.update"];
             const handleWheel = {
                 "WorkOverlay.useEffect.handleWheel": (e)=>{
-                    if (!isDeepDiveRef.current || !containerRef.current) return;
+                    if (!isDeepDiveRef.current || isTransitioningRef.current || !containerRef.current) {
+                        if (isTransitioningRef.current || isOpen) {
+                            e.preventDefault();
+                        }
+                        return;
+                    }
                     const container = containerRef.current;
                     const maxScroll = container.scrollHeight - container.clientHeight;
                     if (maxScroll <= 0) return;
@@ -3696,13 +3765,16 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
             onTakeALook();
             return;
         }
-        if (!canTakeALookRef.current || isDeepDiveRef.current) return;
+        if (isTransitioningRef.current || !canTakeALookRef.current || isDeepDiveRef.current) return;
+        isTransitioningRef.current = true;
         setCanTakeALook(false);
         canTakeALookRef.current = false;
         setIsDeepDive(true);
         isDeepDiveRef.current = true;
         setIsDeepDiveNav(true);
         if (containerRef.current) {
+            containerRef.current.style.overflowY = "hidden";
+            containerRef.current.scrollTop = 0;
             containerRef.current.focus();
         }
         const isLarge = ("TURBOPACK compile-time value", "object") !== "undefined" && window.innerWidth >= 1024;
@@ -3727,7 +3799,13 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                 paddingTop: "1.5rem",
                 paddingBottom: "0.5rem",
                 duration: 1.15,
-                ease: "power3.inOut"
+                ease: "power3.inOut",
+                onComplete: ()=>{
+                    isTransitioningRef.current = false;
+                    if (containerRef.current) {
+                        containerRef.current.style.overflowY = "auto";
+                    }
+                }
             });
         }
         if (tabletContainerRef.current) {
@@ -3735,7 +3813,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].to(tabletContainerRef.current, {
                 scale: 0.91,
                 x: targetX,
-                y: isLarge ? 58 : 38,
+                y: isLarge ? 12 : 8,
                 duration: 1.15,
                 ease: "power3.inOut",
                 force3D: true
@@ -3744,7 +3822,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
         if (rightContentRef.current) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(rightContentRef.current);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].to(rightContentRef.current, {
-                y: isLarge ? 32 : 20,
+                y: isLarge ? 12 : 8,
                 duration: 1.15,
                 ease: "power3.inOut",
                 force3D: true
@@ -3767,48 +3845,35 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
         }
         if (blackSectionRef.current) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(blackSectionRef.current);
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].fromTo(blackSectionRef.current, {
-                y: 60,
-                opacity: 0
-            }, {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].set(blackSectionRef.current, {
                 y: 0,
-                opacity: 1,
-                duration: 1.15,
-                ease: "power3.inOut",
-                force3D: true
+                opacity: 1
             });
         }
     };
     const handleBackToExplore = ()=>{
+        if (isTransitioningRef.current) return;
+        isTransitioningRef.current = true;
+        isDeepDiveRef.current = false;
         setIsDeepDiveNav(false);
         if (containerRef.current) {
-            if (containerRef.current.scrollTop > 0) {
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].to(containerRef.current, {
-                    scrollTop: 0,
-                    duration: 0.85,
-                    ease: "power3.inOut"
-                });
-            }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(containerRef.current);
+            containerRef.current.style.overflowY = "hidden";
+            containerRef.current.scrollTo({
+                top: 0,
+                behavior: "instant"
+            });
+            containerRef.current.scrollTop = 0;
         }
         const isLarge = ("TURBOPACK compile-time value", "object") !== "undefined" && window.innerWidth >= 1024;
         const isTablet = ("TURBOPACK compile-time value", "object") !== "undefined" && window.innerWidth >= 768;
         const targetX = isLarge ? "-13vw" : isTablet ? "-8vw" : "0px";
         if (blackSectionRef.current) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(blackSectionRef.current);
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].to(blackSectionRef.current, {
-                y: 60,
-                opacity: 0,
-                duration: 0.95,
-                ease: "power3.inOut",
-                force3D: true,
-                onComplete: ()=>{
-                    setIsDeepDive(false);
-                    isDeepDiveRef.current = false;
-                }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].set(blackSectionRef.current, {
+                y: 0,
+                opacity: 1
             });
-        } else {
-            setIsDeepDive(false);
-            isDeepDiveRef.current = false;
         }
         const header = document.getElementById("header-nav");
         if (header) {
@@ -3830,7 +3895,26 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                 paddingTop: "5rem",
                 paddingBottom: "3rem",
                 duration: 1.15,
-                ease: "power3.inOut"
+                ease: "power3.inOut",
+                onComplete: ()=>{
+                    setIsDeepDive(false);
+                    isDeepDiveRef.current = false;
+                    isTransitioningRef.current = false;
+                    setCanTakeALook(true);
+                    canTakeALookRef.current = true;
+                    if (containerRef.current) {
+                        containerRef.current.scrollTop = 0;
+                        containerRef.current.style.overflowY = "hidden";
+                    }
+                    if (takeALookBtnWrapperRef.current) {
+                        takeALookBtnWrapperRef.current.style.display = "block";
+                        takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+                        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].set(takeALookBtnWrapperRef.current, {
+                            autoAlpha: 1,
+                            y: 0
+                        });
+                    }
+                }
             });
         }
         if (tabletContainerRef.current) {
@@ -3855,6 +3939,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
         }
         if (takeALookBtnWrapperRef.current) {
             takeALookBtnWrapperRef.current.style.display = "block";
+            takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(takeALookBtnWrapperRef.current);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].fromTo(takeALookBtnWrapperRef.current, {
                 autoAlpha: 0,
@@ -3866,9 +3951,10 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                 ease: "power2.out",
                 delay: 0.45,
                 onComplete: ()=>{
-                    if (!isDeepDiveRef.current) {
-                        setCanTakeALook(true);
-                        canTakeALookRef.current = true;
+                    setCanTakeALook(true);
+                    canTakeALookRef.current = true;
+                    if (takeALookBtnWrapperRef.current) {
+                        takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
                     }
                 }
             });
@@ -3905,6 +3991,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
         }
         if (!isDeepDiveRef.current && takeALookBtnWrapperRef.current) {
             takeALookBtnWrapperRef.current.style.display = "block";
+            takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].killTweensOf(takeALookBtnWrapperRef.current);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].fromTo(takeALookBtnWrapperRef.current, {
                 autoAlpha: 0,
@@ -3919,6 +4006,9 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                     if (!isDeepDiveRef.current) {
                         setCanTakeALook(true);
                         canTakeALookRef.current = true;
+                        if (takeALookBtnWrapperRef.current) {
+                            takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+                        }
                     }
                 }
             });
@@ -4148,12 +4238,12 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                     isDeepDive: false
                 }, void 0, false, {
                     fileName: "[project]/components/WorkOverlay.tsx",
-                    lineNumber: 936,
+                    lineNumber: 1005,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 926,
+                lineNumber: 995,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4167,12 +4257,12 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                     isDeepDive: true
                 }, void 0, false, {
                     fileName: "[project]/components/WorkOverlay.tsx",
-                    lineNumber: 953,
+                    lineNumber: 1022,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 943,
+                lineNumber: 1012,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4183,10 +4273,9 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                 "data-lenis-prevent-wheel": true,
                 "data-lenis-prevent-touch": true,
                 "aria-hidden": !isOpen,
-                className: "fixed inset-0 z-40 bg-white overflow-y-auto overscroll-contain pointer-events-auto no-scrollbar touch-pan-y outline-none",
+                className: `fixed inset-0 z-40 bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"}`,
                 style: {
-                    WebkitOverflowScrolling: "touch",
-                    touchAction: "pan-y"
+                    WebkitOverflowScrolling: "touch"
                 },
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4195,19 +4284,19 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                         children: [
                             active && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 ref: tabletContainerRef,
-                                className: "h-[74vh] sm:h-[76vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform translate-y-3 sm:translate-y-4 pointer-events-none",
+                                className: "h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform translate-y-2 sm:translate-y-3 pointer-events-none",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$TabletReveal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                     showReplay: false,
                                     onComplete: handleTabletSpinComplete,
-                                    scale: 1.12
+                                    scale: 1.26
                                 }, void 0, false, {
                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                    lineNumber: 980,
+                                    lineNumber: 1051,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 976,
+                                lineNumber: 1047,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4224,7 +4313,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                     children: "Portfolio,"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 990,
+                                                    lineNumber: 1061,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4235,20 +4324,20 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                             children: "Reloaded"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 992,
+                                                            lineNumber: 1063,
                                                             columnNumber: 19
                                                         }, this),
                                                         "."
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 991,
+                                                    lineNumber: 1062,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                            lineNumber: 989,
+                                            lineNumber: 1060,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4256,7 +4345,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                             children: "Same me. Completely rebuilt."
                                         }, void 0, false, {
                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                            lineNumber: 995,
+                                            lineNumber: 1066,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4274,34 +4363,34 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                 disabled: !canTakeALook || isDeepDive
                                             }, void 0, false, {
                                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                                lineNumber: 1010,
+                                                lineNumber: 1081,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                            lineNumber: 999,
+                                            lineNumber: 1070,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                    lineNumber: 988,
+                                    lineNumber: 1059,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 984,
+                                lineNumber: 1055,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 971,
+                        lineNumber: 1042,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         ref: blackSectionRef,
-                        className: `w-full relative z-30 ${isDeepDive ? "block" : "hidden"}`,
+                        className: `w-full bg-neutral-950 text-white relative z-30 -mt-px ${isDeepDive ? "block" : "hidden"}`,
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "w-full bg-neutral-950 text-white",
@@ -4309,7 +4398,7 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                     className: "max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-white/10 select-none",
+                                            className: "flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     children: [
@@ -4318,21 +4407,21 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                             children: "PLATFORM"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1029,
+                                                            lineNumber: 1100,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono",
-                                                            children: "WEB & INTERACTIVE 3D"
+                                                            children: "WEB"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1032,
+                                                            lineNumber: 1103,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1028,
+                                                    lineNumber: 1099,
                                                     columnNumber: 15
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4342,21 +4431,21 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                             children: "ROLE"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1037,
+                                                            lineNumber: 1108,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono",
-                                                            children: "AI-ASSISTED DEVELOPER"
+                                                            children: "FRONT AND BACK END DEVELOPER"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1040,
+                                                            lineNumber: 1111,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1036,
+                                                    lineNumber: 1107,
                                                     columnNumber: 15
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4366,134 +4455,174 @@ function WorkOverlay({ isOpen, onClose, onTakeALook, children }) {
                                                             children: "STACK"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1045,
+                                                            lineNumber: 1116,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono",
-                                                            children: "NEXT.JS / THREE / GSAP"
+                                                            children: "NEXT | THREE | GSAP"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1048,
+                                                            lineNumber: 1119,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1044,
-                                                    columnNumber: 15
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400",
-                                                            children: "FOCUS"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1053,
-                                                            columnNumber: 17
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono",
-                                                            children: "FULL-STACK & MOTION"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1056,
-                                                            columnNumber: 17
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1052,
+                                                    lineNumber: 1115,
                                                     columnNumber: 15
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                            lineNumber: 1027,
+                                            lineNumber: 1098,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "mt-12 sm:mt-16 max-w-4xl",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-neutral-200 leading-relaxed tracking-tight select-none",
+                                                    className: "text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none",
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: "text-red-500 font-semibold",
                                                             children: "Portfolio, Reloaded"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                                            lineNumber: 1064,
+                                                            lineNumber: 1127,
                                                             columnNumber: 17
                                                         }, this),
-                                                        " — is a complete ground-up reconstruction of my digital workspace. Rebuilt to showcase high-performance 3D spatial scenes, reactive kinetic typography, and fluid micro-interactions engineered with precision code."
+                                                        " — is a complete rebuild of my personal site, designed around one idea: a site that feels like a space instead of a page. It’s a ground-up rethink of how my work is presented, with interaction and motion shaping the experience as much as the content does. Every part of it responds to the visitor, and the details are paced to feel natural rather than flashy."
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1063,
+                                                    lineNumber: 1126,
                                                     columnNumber: 15
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "mt-6 text-sm sm:text-base md:text-lg text-neutral-400 leading-relaxed font-sans max-w-3xl select-none",
-                                                    children: "From front-end spatial shaders to robust Next.js server components, every pixel and motion curve was handcrafted to deliver a seamless, zero-compromise experience across devices."
+                                                    className: "mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none",
+                                                    children: "Built with Next.js and three.js, with close attention paid to motion, timing and how everything holds up from desktop to mobile."
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                                    lineNumber: 1069,
+                                                    lineNumber: 1133,
                                                     columnNumber: 15
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/WorkOverlay.tsx",
-                                            lineNumber: 1062,
+                                            lineNumber: 1125,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                    lineNumber: 1026,
+                                    lineNumber: 1097,
                                     columnNumber: 11
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 1025,
+                                lineNumber: 1096,
                                 columnNumber: 9
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "w-full bg-white text-neutral-950 min-h-[60vh] sm:min-h-screen",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24",
-                                    children: children
-                                }, void 0, false, {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "mb-12 sm:mb-16",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                                ref: whereTitleRef,
+                                                className: "font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "inline-block overflow-hidden py-1 mr-[0.26em]",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "where-word inline-block will-change-transform opacity-0",
+                                                            children: "Where"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/WorkOverlay.tsx",
+                                                            lineNumber: 1149,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/WorkOverlay.tsx",
+                                                        lineNumber: 1148,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "inline-block overflow-hidden py-1 mr-[0.26em]",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "where-word inline-block will-change-transform opacity-0",
+                                                            children: "It"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/WorkOverlay.tsx",
+                                                            lineNumber: 1154,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/WorkOverlay.tsx",
+                                                        lineNumber: 1153,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "inline-block overflow-hidden py-1",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "where-word inline-block will-change-transform opacity-0",
+                                                            children: "Started"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/WorkOverlay.tsx",
+                                                            lineNumber: 1159,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/WorkOverlay.tsx",
+                                                        lineNumber: 1158,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/WorkOverlay.tsx",
+                                                lineNumber: 1144,
+                                                columnNumber: 15
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/WorkOverlay.tsx",
+                                            lineNumber: 1143,
+                                            columnNumber: 13
+                                        }, this),
+                                        children
+                                    ]
+                                }, void 0, true, {
                                     fileName: "[project]/components/WorkOverlay.tsx",
-                                    lineNumber: 1079,
+                                    lineNumber: 1142,
                                     columnNumber: 11
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/WorkOverlay.tsx",
-                                lineNumber: 1078,
+                                lineNumber: 1141,
                                 columnNumber: 9
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/WorkOverlay.tsx",
-                        lineNumber: 1019,
+                        lineNumber: 1090,
                         columnNumber: 7
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/WorkOverlay.tsx",
-                lineNumber: 960,
+                lineNumber: 1029,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/WorkOverlay.tsx",
-        lineNumber: 925,
+        lineNumber: 994,
         columnNumber: 5
     }, this);
 }
-_s2(WorkOverlay, "XTX7qn6IjHmJ0lxLiwfd//WY6+k=");
+_s2(WorkOverlay, "Jqe5p4jCQuLTouvRPnK04gZksFM=");
 _c2 = WorkOverlay;
 var _c, _c1, _c2;
 __turbopack_context__.k.register(_c, "WorkOverlayBackButton");

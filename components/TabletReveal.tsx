@@ -4,9 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 type Props = {
-  /** First screen (dark hero). Put the file in /public/tablet/ */
   srcA?: string;
-  /** Last screen (poster). */
   srcB?: string;
   background?: string;
   showReplay?: boolean;
@@ -15,17 +13,15 @@ type Props = {
   onComplete?: () => void;
 };
 
-// ---- Settings you can tweak ----
-const FOCUS_A = { x: 0.48, y: 0.5 }; // which part of each image stays visible when cropped to 4:3
+const FOCUS_A = { x: 0.48, y: 0.5 };
 const FOCUS_B = { x: 0.5, y: 0.48 };
 const HOLD_START = 0.4;
 const SPIN = 3.8;
 const HOLD_END = 0.5;
-const START = { x: 0, y: -0.17, z: -0.04 }; // radians
+const START = { x: 0, y: -0.17, z: -0.04 };
 const END = { x: -0.08, y: 0.5, z: 0.14 };
 const SCREEN_RADIUS = 0.09;
 
-// Tablet dimensions
 const W = 4.2;
 const H = 3.24;
 const R = 0.24;
@@ -65,7 +61,7 @@ function makeTexture(
   maxAnisotropy: number
 ): THREE.CanvasTexture {
   const cw = 1536;
-  const ch = 1152; // 4:3
+  const ch = 1152;
   const canvas = document.createElement('canvas');
   canvas.width = cw;
   canvas.height = ch;
@@ -122,7 +118,6 @@ export default function TabletReveal({
       return o;
     };
 
-    // ---- Renderer, camera, lights ----
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: 'high-performance',
@@ -144,7 +139,6 @@ export default function TabletReveal({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
 
-    // three r155+ uses physically based light units, so intensities are ×π vs. old examples
     scene.add(new THREE.AmbientLight(0xffffff, 0.9 * Math.PI));
     const key = new THREE.DirectionalLight(0xffffff, 0.7 * Math.PI);
     key.position.set(3, 4, 6);
@@ -155,6 +149,7 @@ export default function TabletReveal({
 
     let lastWinW = typeof window !== 'undefined' ? window.innerWidth : 0;
     let lastWinH = typeof window !== 'undefined' ? window.innerHeight : 0;
+    let baseCameraZ = 10;
 
     const resize = () => {
       const w = mount.clientWidth || (typeof window !== 'undefined' ? window.innerWidth : 1);
@@ -167,7 +162,8 @@ export default function TabletReveal({
       const s = scale > 0 ? scale : 1;
       const fitH = ((H * 1.65) / 2 / t) / s;
       const fitW = ((W * 1.38) / 2 / (t * a)) / s;
-      camera.position.set(0, 0, Math.max(fitH, fitW));
+      baseCameraZ = Math.max(fitH, fitW);
+      camera.position.set(0, 0, baseCameraZ);
     };
 
     resize();
@@ -182,7 +178,6 @@ export default function TabletReveal({
 
     window.addEventListener('resize', handleWindowResize);
 
-    // ---- Tablet model ----
     const tablet = new THREE.Group();
     scene.add(tablet);
 
@@ -234,7 +229,6 @@ export default function TabletReveal({
     lens.rotation.y = Math.PI;
     tablet.add(lens);
 
-    // ---- Animation ----
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const textures: THREE.Texture[] = [];
     let t0 = performance.now();
@@ -266,14 +260,15 @@ export default function TabletReveal({
       const calm = reduced || p < 1 ? 0 : Math.min((elapsed - HOLD_START - SPIN) / 0.6, 1);
       const idle = Math.sin(elapsed * 1.0) * calm;
 
+      const spinArc = Math.sin(p * Math.PI);
+      camera.position.z = baseCameraZ * (1 + 0.08 * spinArc);
       tablet.rotation.y = yaw + idle * 0.01;
       tablet.rotation.x =
-        START.x + (END.x - START.x) * e - 0.08 * Math.sin(p * Math.PI) + idle * 0.005;
+        START.x + (END.x - START.x) * e - 0.08 * spinArc + idle * 0.005;
       tablet.rotation.z =
-        START.z + (END.z - START.z) * e + 0.07 * Math.sin(p * Math.PI * 2) + idle * 0.007;
-      tablet.position.y = 0.06 * Math.sin(p * Math.PI) + idle * 0.012;
+        START.z + (END.z - START.z) * e + 0.02 * Math.sin(p * Math.PI * 2) + idle * 0.007;
+      tablet.position.y = -0.12 * spinArc + idle * 0.012;
 
-      // swap the screen while the back of the tablet faces the camera
       if (yaw > Math.PI && !swapped) {
         swapped = true;
         show(1);
@@ -295,10 +290,8 @@ export default function TabletReveal({
         const ta = track(makeTexture(a, FOCUS_A, aniso));
         const tb = track(makeTexture(b, FOCUS_B, aniso));
         textures.push(ta, tb);
-        // Pre-upload textures to GPU to avoid mid-spin freeze
         renderer.initTexture(ta);
         renderer.initTexture(tb);
-        // Pre-compile scene shaders to eliminate first-frame drop
         renderer.compile(scene, camera);
         play();
         raf = requestAnimationFrame(frame);
@@ -310,7 +303,6 @@ export default function TabletReveal({
       })
       .catch((err) => console.error(err));
 
-    // ---- Cleanup ----
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);

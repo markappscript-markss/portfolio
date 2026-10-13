@@ -1,31 +1,213 @@
-{"timestamp":"00:00:02.570","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:07.732","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
-{"timestamp":"00:01:00.977","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:01:01.260","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:01:01.261","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:01:01.292","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:03:45.283","source":"Server","level":"LOG","message":"✓ Compiled in 3.3s"}
-{"timestamp":"00:03:49.293","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
-{"timestamp":"00:03:51.624","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:03:51.626","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:03:51.626","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:03:51.627","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:05:39.176","source":"Server","level":"LOG","message":"✓ Compiled in 390ms"}
-{"timestamp":"00:10:11.435","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
-{"timestamp":"00:10:13.260","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:10:13.261","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:10:13.261","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:10:13.262","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:14:31.269","source":"Server","level":"LOG","message":"✓ Compiled in 350ms"}
-{"timestamp":"00:15:07.206","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
-{"timestamp":"00:15:09.440","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:15:09.442","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:15:09.443","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:15:09.444","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:19:04.986","source":"Server","level":"LOG","message":"✓ Compiled in 306ms"}
-{"timestamp":"00:21:02.822","source":"Server","level":"LOG","message":"✓ Compiled in 1087ms"}
-{"timestamp":"00:29:06.811","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
-{"timestamp":"00:29:08.718","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:29:08.718","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
-{"timestamp":"00:29:08.719","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
-{"timestamp":"00:29:08.720","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:00:07.121","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:10.976","source":"Server","level":"LOG","message":"○ Compiling / ..."}
+{"timestamp":"00:00:13.175","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:00:13.654","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:00:13.699","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:00:13.699","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:00:13.707","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:03:41.689","source":"Server","level":"LOG","message":"✓ Compiled in 190ms"}
+{"timestamp":"00:03:52.163","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:03:52.662","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:03:52.663","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:03:52.663","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:03:52.665","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:04:59.635","source":"Server","level":"LOG","message":"✓ Compiled in 62ms"}
+{"timestamp":"00:05:19.799","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:05:20.120","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:05:20.120","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:05:20.120","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:05:20.121","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:07:48.930","source":"Server","level":"LOG","message":"✓ Compiled in 31ms"}
+{"timestamp":"00:08:09.171","source":"Server","level":"LOG","message":"✓ Compiled in 30ms"}
+{"timestamp":"00:08:25.764","source":"Server","level":"LOG","message":"✓ Compiled in 43ms"}
+{"timestamp":"00:21:04.275","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:21:04.722","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:21:04.723","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:21:04.723","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:21:04.723","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:24:44.033","source":"Server","level":"LOG","message":"✓ Compiled in 59ms"}
+{"timestamp":"00:24:57.065","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:24:57.535","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:24:57.535","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:24:57.535","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:24:57.536","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:25:06.659","source":"Server","level":"LOG","message":"✓ Compiled in 85ms"}
+{"timestamp":"00:25:33.925","source":"Server","level":"LOG","message":"✓ Compiled in 41ms"}
+{"timestamp":"00:28:18.918","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:28:19.360","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:28:19.360","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:28:19.361","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:28:19.361","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:41:26.368","source":"Server","level":"LOG","message":"✓ Compiled in 51ms"}
+{"timestamp":"00:42:15.484","source":"Server","level":"LOG","message":"✓ Compiled in 65ms"}
+{"timestamp":"00:45:06.735","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:45:07.179","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:45:07.180","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:45:07.180","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:45:07.180","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:46:23.776","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:46:24.226","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:46:24.228","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:46:24.229","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:46:24.229","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:52:46.330","source":"Server","level":"LOG","message":"✓ Compiled in 40ms"}
+{"timestamp":"00:53:01.132","source":"Server","level":"LOG","message":"✓ Compiled in 66ms"}
+{"timestamp":"00:53:20.748","source":"Server","level":"LOG","message":"✓ Compiled in 43ms"}
+{"timestamp":"00:53:35.294","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:53:35.828","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:53:35.828","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:53:35.829","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:53:35.829","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:53:50.409","source":"Server","level":"LOG","message":"✓ Compiled in 38ms"}
+{"timestamp":"00:54:15.215","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"00:54:40.540","source":"Server","level":"LOG","message":"✓ Compiled in 49ms"}
+{"timestamp":"00:55:09.394","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:55:09.949","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:55:09.949","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:55:09.949","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"00:55:09.950","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"00:59:45.223","source":"Server","level":"LOG","message":"✓ Compiled in 75ms"}
+{"timestamp":"01:01:35.453","source":"Server","level":"LOG","message":"✓ Compiled in 69ms"}
+{"timestamp":"01:07:27.825","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"01:07:28.310","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"01:07:28.311","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"01:07:28.312","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"01:07:28.312","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"01:10:18.650","source":"Server","level":"LOG","message":"✓ Compiled in 46ms"}
+{"timestamp":"01:57:24.033","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"01:57:24.585","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"01:57:24.586","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"01:57:24.587","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"01:57:24.587","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"01:59:22.549","source":"Server","level":"LOG","message":"✓ Compiled in 103ms"}
+{"timestamp":"01:59:41.721","source":"Server","level":"LOG","message":"✓ Compiled in 56ms"}
+{"timestamp":"02:10:37.653","source":"Server","level":"LOG","message":"✓ Compiled in 85ms"}
+{"timestamp":"02:10:55.969","source":"Server","level":"LOG","message":"✓ Compiled in 256ms"}
+{"timestamp":"02:11:01.946","source":"Browser","level":"ERROR","message":"Uncaught TypeError: Failed to execute 'arcTo' on 'CanvasRenderingContext2D': 5 arguments required, but only 4 present.\n    at canvasRoundRect (components/MacBookVideo.tsx:56:7)\n    at makeKeyboardTexture (components/MacBookVideo.tsx:67:5)\n    at MacBookVideo.useEffect (components/MacBookVideo.tsx:175:26)\n    at WorkOverlay (components/WorkOverlay.tsx:1168:17)\n    at Home (file://C:/Users/mark.poticar/Desktop/Mark Projects/portfolio/.next/dev/static/chunks/_2146dluxspwov._.js:102:215)\n  \u001b[90m54 |\u001b[0m   ctx.arcTo(x + w, y + h, x, y + h, r);\n  \u001b[90m55 |\u001b[0m   ctx.arcTo(x, y + h, x, y, r);\n\u001b[31m\u001b[1m>\u001b[0m \u001b[90m56 |\u001b[0m   ctx.arcTo(x, y + x, y, r);\n  \u001b[90m   |\u001b[0m       \u001b[31m\u001b[1m^\u001b[0m\n  \u001b[90m57 |\u001b[0m   ctx.closePath();\n  \u001b[90m58 |\u001b[0m }\n  \u001b[90m59 |\u001b[0m"}
+{"timestamp":"02:11:01.946","source":"Server","level":"ERROR","message":"[browser] \"\\u001b[31mUncaught TypeError: Failed to execute 'arcTo' on 'CanvasRenderingContext2D': 5 arguments required, but only 4 present.\\u001b[39m\\n\\u001b[31m    at canvasRoundRect (components/MacBookVideo.tsx:56:7)\\n    at makeKeyboardTexture (components/MacBookVideo.tsx:67:5)\\n    at MacBookVideo.useEffect (components/MacBookVideo.tsx:175:26)\\n    at WorkOverlay (components/WorkOverlay.tsx:1168:17)\\n    at Home (file://C:/Users/mark.poticar/Desktop/Mark Projects/portfolio/.next/dev/static/chunks/_2146dluxspwov._.js:102:215)\\u001b[39m\\n  \\u001b[90m54 |\\u001b[0m   ctx.arcTo(x + w, y + h, x, y + h, r);\\n  \\u001b[90m55 |\\u001b[0m   ctx.arcTo(x, y + h, x, y, r);\\n\\u001b[31m\\u001b[1m>\\u001b[0m \\u001b[90m56 |\\u001b[0m   ctx.arcTo(x, y + x, y, r);\\n  \\u001b[90m   |\\u001b[0m       \\u001b[31m\\u001b[1m^\\u001b[0m\\n  \\u001b[90m57 |\\u001b[0m   ctx.closePath();\\n  \\u001b[90m58 |\\u001b[0m }\\n  \\u001b[90m59 |\\u001b[0m\""}
+{"timestamp":"02:11:29.410","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload due to a runtime error."}
+{"timestamp":"02:11:29.497","source":"Server","level":"LOG","message":"✓ Compiled in 37ms"}
+{"timestamp":"02:11:29.879","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:11:30.336","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:11:30.347","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:11:30.347","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:11:30.354","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:13:58.903","source":"Server","level":"LOG","message":"✓ Compiled in 57ms"}
+{"timestamp":"02:14:35.804","source":"Server","level":"LOG","message":"✓ Compiled in 40ms"}
+{"timestamp":"02:14:57.835","source":"Server","level":"LOG","message":"✓ Compiled in 95ms"}
+{"timestamp":"02:15:17.890","source":"Server","level":"LOG","message":"✓ Compiled in 60ms"}
+{"timestamp":"02:15:36.925","source":"Browser","level":"ERROR","message":"The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.\n\nPrevious: [/macbook/demo.mp4, #ffffff]\nIncoming: [/macbook/demo.mp4, #ffffff, 0.5, 0.35] \n    at MacBookVideo (components/MacBookVideo.tsx:107:12)\n    at Set.forEach (<anonymous>)\n  \u001b[90m105 |\u001b[0m   \u001b[36mconst\u001b[0m replayRef = useRef<() => \u001b[36mvoid\u001b[0m>(() => {});\n  \u001b[90m106 |\u001b[0m\n\u001b[31m\u001b[1m>\u001b[0m \u001b[90m107 |\u001b[0m   useEffect(() => {\n  \u001b[90m    |\u001b[0m            \u001b[31m\u001b[1m^\u001b[0m\n  \u001b[90m108 |\u001b[0m     \u001b[36mconst\u001b[0m mount = mountRef.current;\n  \u001b[90m109 |\u001b[0m     \u001b[36mif\u001b[0m (!mount) \u001b[36mreturn\u001b[0m;\n  \u001b[90m110 |\u001b[0m (components/MacBookVideo.tsx:107:12)"}
+{"timestamp":"02:15:36.926","source":"Server","level":"ERROR","message":"[browser] \"The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.\\n\\nPrevious: [/macbook/demo.mp4, #ffffff]\\nIncoming: [/macbook/demo.mp4, #ffffff, 0.5, 0.35]\" \"\\n\\u001b[31m    at MacBookVideo (components/MacBookVideo.tsx:107:12)\\n    at Set.forEach (<anonymous>)\\u001b[39m\\n  \\u001b[90m105 |\\u001b[0m   \\u001b[36mconst\\u001b[0m replayRef = useRef<() => \\u001b[36mvoid\\u001b[0m>(() => {});\\n  \\u001b[90m106 |\\u001b[0m\\n\\u001b[31m\\u001b[1m>\\u001b[0m \\u001b[90m107 |\\u001b[0m   useEffect(() => {\\n  \\u001b[90m    |\\u001b[0m            \\u001b[31m\\u001b[1m^\\u001b[0m\\n  \\u001b[90m108 |\\u001b[0m     \\u001b[36mconst\\u001b[0m mount = mountRef.current;\\n  \\u001b[90m109 |\\u001b[0m     \\u001b[36mif\\u001b[0m (!mount) \\u001b[36mreturn\\u001b[0m;\\n  \\u001b[90m110 |\\u001b[0m\" \"\\u001b[2m(components/MacBookVideo.tsx:107:12)\\u001b[22m\""}
+{"timestamp":"02:15:41.063","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:15:41.509","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:15:41.509","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:15:41.509","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:15:41.510","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:16:45.194","source":"Server","level":"LOG","message":"✓ Compiled in 30ms"}
+{"timestamp":"02:16:49.070","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:16:49.687","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:16:49.688","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:16:49.688","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:16:49.689","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:17:12.351","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:17:12.829","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:17:12.829","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:17:12.829","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:17:12.830","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:18:53.633","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:18:54.117","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:18:54.117","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:18:54.117","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:18:54.118","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:19:27.987","source":"Server","level":"LOG","message":"✓ Compiled in 39ms"}
+{"timestamp":"02:22:16.149","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:22:16.625","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:22:16.625","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:22:16.625","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:22:16.625","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:26:38.508","source":"Server","level":"LOG","message":"✓ Compiled in 41ms"}
+{"timestamp":"02:26:50.750","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:26:51.280","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:26:51.280","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:26:51.280","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:26:51.280","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:27:09.989","source":"Server","level":"LOG","message":"✓ Compiled in 62ms"}
+{"timestamp":"02:29:58.216","source":"Server","level":"LOG","message":"✓ Compiled in 31ms"}
+{"timestamp":"02:30:11.800","source":"Server","level":"LOG","message":"✓ Compiled in 23ms"}
+{"timestamp":"02:30:24.935","source":"Server","level":"LOG","message":"✓ Compiled in 44ms"}
+{"timestamp":"02:32:18.498","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:32:18.978","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:32:18.978","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:32:18.979","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:32:18.979","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:35:51.659","source":"Server","level":"LOG","message":"✓ Compiled in 68ms"}
+{"timestamp":"02:38:00.654","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:38:01.118","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:38:01.119","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:38:01.120","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:38:01.121","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:39:06.257","source":"Server","level":"LOG","message":"✓ Compiled in 90ms"}
+{"timestamp":"02:39:11.626","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:39:12.068","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:39:12.069","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:39:12.069","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:39:12.069","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:39:29.675","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:39:30.132","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:39:30.133","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:39:30.133","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:39:30.133","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:44:16.189","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"02:44:16.249","source":"Browser","level":"ERROR","message":"The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.\n\nPrevious: [/macbook/demo.mp4, #ffffff, 1.05, 0.65]\nIncoming: [/macbook/demo.mp4, #ffffff, 0.55, 0.25, 1.15] \n    at MacBookVideo (components/MacBookVideo.tsx:107:12)\n    at Set.forEach (<anonymous>)\n  \u001b[90m105 |\u001b[0m   \u001b[36mconst\u001b[0m replayRef = useRef<() => \u001b[36mvoid\u001b[0m>(() => {});\n  \u001b[90m106 |\u001b[0m\n\u001b[31m\u001b[1m>\u001b[0m \u001b[90m107 |\u001b[0m   useEffect(() => {\n  \u001b[90m    |\u001b[0m            \u001b[31m\u001b[1m^\u001b[0m\n  \u001b[90m108 |\u001b[0m     \u001b[36mconst\u001b[0m mount = mountRef.current;\n  \u001b[90m109 |\u001b[0m     \u001b[36mif\u001b[0m (!mount) \u001b[36mreturn\u001b[0m;\n  \u001b[90m110 |\u001b[0m (components/MacBookVideo.tsx:107:12)"}
+{"timestamp":"02:44:16.249","source":"Server","level":"ERROR","message":"[browser] \"The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.\\n\\nPrevious: [/macbook/demo.mp4, #ffffff, 1.05, 0.65]\\nIncoming: [/macbook/demo.mp4, #ffffff, 0.55, 0.25, 1.15]\" \"\\n\\u001b[31m    at MacBookVideo (components/MacBookVideo.tsx:107:12)\\n    at Set.forEach (<anonymous>)\\u001b[39m\\n  \\u001b[90m105 |\\u001b[0m   \\u001b[36mconst\\u001b[0m replayRef = useRef<() => \\u001b[36mvoid\\u001b[0m>(() => {});\\n  \\u001b[90m106 |\\u001b[0m\\n\\u001b[31m\\u001b[1m>\\u001b[0m \\u001b[90m107 |\\u001b[0m   useEffect(() => {\\n  \\u001b[90m    |\\u001b[0m            \\u001b[31m\\u001b[1m^\\u001b[0m\\n  \\u001b[90m108 |\\u001b[0m     \\u001b[36mconst\\u001b[0m mount = mountRef.current;\\n  \\u001b[90m109 |\\u001b[0m     \\u001b[36mif\\u001b[0m (!mount) \\u001b[36mreturn\\u001b[0m;\\n  \\u001b[90m110 |\\u001b[0m\" \"\\u001b[2m(components/MacBookVideo.tsx:107:12)\\u001b[22m\""}
+{"timestamp":"02:44:36.626","source":"Server","level":"LOG","message":"✓ Compiled in 54ms"}
+{"timestamp":"02:48:21.205","source":"Server","level":"LOG","message":"✓ Compiled in 32ms"}
+{"timestamp":"02:48:33.927","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:48:34.363","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:48:34.364","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:48:34.364","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:48:34.364","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:49:32.057","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:49:32.508","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:49:32.508","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:49:32.508","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:49:32.509","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:52:25.609","source":"Server","level":"LOG","message":"✓ Compiled in 34ms"}
+{"timestamp":"02:52:47.424","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:52:47.880","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:52:47.880","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:52:47.881","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:52:47.881","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:57:34.295","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"02:57:34.770","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:57:34.770","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"02:57:34.771","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"02:57:34.771","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:00:37.986","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"03:00:38.469","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:00:38.470","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:00:38.470","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:00:38.470","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:02:13.231","source":"Server","level":"LOG","message":"✓ Compiled in 56ms"}
+{"timestamp":"03:02:24.449","source":"Server","level":"LOG","message":"✓ Compiled in 48ms"}
+{"timestamp":"03:02:34.461","source":"Server","level":"LOG","message":"✓ Compiled in 50ms"}
+{"timestamp":"03:04:16.809","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"03:04:17.280","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:04:17.280","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:04:17.281","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:04:17.281","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:08:29.256","source":"Server","level":"LOG","message":"✓ Compiled in 65ms"}
+{"timestamp":"03:12:11.461","source":"Server","level":"LOG","message":"✓ Compiled in 110ms"}
+{"timestamp":"03:15:49.369","source":"Server","level":"LOG","message":"✓ Compiled in 54ms"}
+{"timestamp":"03:16:14.417","source":"Server","level":"LOG","message":"✓ Compiled in 66ms"}
+{"timestamp":"03:16:17.467","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"03:16:17.913","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:16:17.914","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:16:17.914","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:16:17.914","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:25:04.445","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"03:25:04.922","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:25:04.922","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:25:04.923","source":"Browser","level":"WARN","message":"THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."}
+{"timestamp":"03:25:04.923","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mTHREE.Clock: This module has been deprecated. Please use THREE.Timer instead.\\u001b[39m\" \"\\u001b[2m(components/HeroScene3D.tsx:1371:19)\\u001b[22m\""}
+{"timestamp":"03:28:22.624","source":"Server","level":"LOG","message":"✓ Compiled in 43ms"}

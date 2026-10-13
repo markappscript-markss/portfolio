@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import TabletReveal from "@/components/TabletReveal";
+import MacBookVideo from "@/components/MacBookVideo";
 
 interface WorkOverlayProps {
   isOpen: boolean;
@@ -376,7 +377,7 @@ function TakeALookButton({
       onMouseUp={handleMouseUp}
       className={`group inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform ${
         disabled
-          ? "pointer-events-none cursor-default opacity-0 select-none"
+          ? "pointer-events-none cursor-default select-none"
           : "pointer-events-auto cursor-pointer"
       }`}
       aria-label="Take a look"
@@ -414,11 +415,16 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   const [isDeepDiveNav, setIsDeepDiveNav] = useState(false);
   const [canTakeALook, setCanTakeALook] = useState(false);
   const canTakeALookRef = useRef(false);
+  const isTransitioningRef = useRef(false);
   const heroSectionRef = useRef<HTMLDivElement>(null);
   const tabletContainerRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
   const blackSectionRef = useRef<HTMLDivElement>(null);
   const takeALookBtnWrapperRef = useRef<HTMLDivElement>(null);
+  const whereTitleRef = useRef<HTMLHeadingElement>(null);
+  const macbookContainerRef = useRef<HTMLDivElement>(null);
+  const whereTextRef = useRef<HTMLDivElement>(null);
+  const hasRevealedWhereRef = useRef(false);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -433,6 +439,108 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   }, [canTakeALook]);
 
   useEffect(() => {
+    if (!isDeepDive) {
+      hasRevealedWhereRef.current = false;
+      if (whereTitleRef.current) {
+        const words = whereTitleRef.current.querySelectorAll(".where-word");
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (macbookContainerRef.current) {
+        gsap.set(macbookContainerRef.current, { opacity: 0, y: 24 });
+      }
+      if (whereTextRef.current) {
+        gsap.set(whereTextRef.current, { opacity: 0, y: 20 });
+      }
+      return;
+    }
+
+    const titleEl = whereTitleRef.current;
+    const container = containerRef.current;
+    if (!titleEl || !container) return;
+
+    const words = titleEl.querySelectorAll(".where-word");
+    gsap.set(words, { yPercent: 115, opacity: 0 });
+    if (macbookContainerRef.current) {
+      gsap.set(macbookContainerRef.current, { opacity: 0, y: 24 });
+    }
+    if (whereTextRef.current) {
+      gsap.set(whereTextRef.current, { opacity: 0, y: 20 });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasRevealedWhereRef.current) {
+            hasRevealedWhereRef.current = true;
+            const tl = gsap.timeline();
+            tl.fromTo(
+              words,
+              { yPercent: 115, opacity: 0 },
+              {
+                yPercent: 0,
+                opacity: 1,
+                duration: 0.95,
+                stagger: 0.08,
+                ease: "power4.out",
+                force3D: true,
+              }
+            );
+            if (macbookContainerRef.current) {
+              tl.fromTo(
+                macbookContainerRef.current,
+                { opacity: 0, y: 24 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.9,
+                  ease: "power3.out",
+                  force3D: true,
+                },
+                "-=0.35"
+              );
+            }
+            if (whereTextRef.current) {
+              tl.fromTo(
+                whereTextRef.current,
+                { opacity: 0, y: 20 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.85,
+                  ease: "power3.out",
+                  force3D: true,
+                },
+                "-=0.1"
+              );
+            }
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.15,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    observer.observe(titleEl);
+
+    return () => {
+      observer.disconnect();
+      if (whereTitleRef.current) {
+        const words = whereTitleRef.current.querySelectorAll(".where-word");
+        gsap.killTweensOf(words);
+      }
+      if (macbookContainerRef.current) {
+        gsap.killTweensOf(macbookContainerRef.current);
+      }
+      if (whereTextRef.current) {
+        gsap.killTweensOf(whereTextRef.current);
+      }
+    };
+  }, [isDeepDive]);
+
+  useEffect(() => {
     let targetScroll = 0;
     let currentScroll = 0;
     let rafId: number | null = null;
@@ -440,7 +548,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     const update = () => {
       const container = containerRef.current;
-      if (!isDeepDiveRef.current || !container) {
+      if (!isDeepDiveRef.current || isTransitioningRef.current || !container) {
         isRunning = false;
         return;
       }
@@ -458,7 +566,12 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     };
 
     const handleWheel = (e: WheelEvent) => {
-      if (!isDeepDiveRef.current || !containerRef.current) return;
+      if (!isDeepDiveRef.current || isTransitioningRef.current || !containerRef.current) {
+        if (isTransitioningRef.current || isOpen) {
+          e.preventDefault();
+        }
+        return;
+      }
       const container = containerRef.current;
       const maxScroll = container.scrollHeight - container.clientHeight;
       if (maxScroll <= 0) return;
@@ -503,8 +616,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       onTakeALook();
       return;
     }
-    if (!canTakeALookRef.current || isDeepDiveRef.current) return;
+    if (isTransitioningRef.current || !canTakeALookRef.current || isDeepDiveRef.current) return;
 
+    isTransitioningRef.current = true;
     setCanTakeALook(false);
     canTakeALookRef.current = false;
 
@@ -513,6 +627,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     setIsDeepDiveNav(true);
 
     if (containerRef.current) {
+      containerRef.current.style.overflowY = "hidden";
+      containerRef.current.scrollTop = 0;
       containerRef.current.focus();
     }
 
@@ -541,6 +657,12 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         paddingBottom: "0.5rem",
         duration: 1.15,
         ease: "power3.inOut",
+        onComplete: () => {
+          isTransitioningRef.current = false;
+          if (containerRef.current) {
+            containerRef.current.style.overflowY = "auto";
+          }
+        },
       });
     }
 
@@ -549,7 +671,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.to(tabletContainerRef.current, {
         scale: 0.91,
         x: targetX,
-        y: isLarge ? 58 : 38,
+        y: isLarge ? 12 : 8,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -559,7 +681,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (rightContentRef.current) {
       gsap.killTweensOf(rightContentRef.current);
       gsap.to(rightContentRef.current, {
-        y: isLarge ? 32 : 20,
+        y: isLarge ? 12 : 8,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -584,31 +706,22 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (blackSectionRef.current) {
       gsap.killTweensOf(blackSectionRef.current);
-      gsap.fromTo(
-        blackSectionRef.current,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1.15,
-          ease: "power3.inOut",
-          force3D: true,
-        }
-      );
+      gsap.set(blackSectionRef.current, { y: 0, opacity: 1 });
     }
   };
 
   const handleBackToExplore = () => {
+    if (isTransitioningRef.current) return;
+
+    isTransitioningRef.current = true;
+    isDeepDiveRef.current = false;
     setIsDeepDiveNav(false);
 
     if (containerRef.current) {
-      if (containerRef.current.scrollTop > 0) {
-        gsap.to(containerRef.current, {
-          scrollTop: 0,
-          duration: 0.85,
-          ease: "power3.inOut",
-        });
-      }
+      gsap.killTweensOf(containerRef.current);
+      containerRef.current.style.overflowY = "hidden";
+      containerRef.current.scrollTo({ top: 0, behavior: "instant" });
+      containerRef.current.scrollTop = 0;
     }
 
     const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
@@ -617,20 +730,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (blackSectionRef.current) {
       gsap.killTweensOf(blackSectionRef.current);
-      gsap.to(blackSectionRef.current, {
-        y: 60,
-        opacity: 0,
-        duration: 0.95,
-        ease: "power3.inOut",
-        force3D: true,
-        onComplete: () => {
-          setIsDeepDive(false);
-          isDeepDiveRef.current = false;
-        },
-      });
-    } else {
-      setIsDeepDive(false);
-      isDeepDiveRef.current = false;
+      gsap.set(blackSectionRef.current, { y: 0, opacity: 1 });
     }
 
     const header = document.getElementById("header-nav");
@@ -655,6 +755,22 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         paddingBottom: "3rem",
         duration: 1.15,
         ease: "power3.inOut",
+        onComplete: () => {
+          setIsDeepDive(false);
+          isDeepDiveRef.current = false;
+          isTransitioningRef.current = false;
+          setCanTakeALook(true);
+          canTakeALookRef.current = true;
+          if (containerRef.current) {
+            containerRef.current.scrollTop = 0;
+            containerRef.current.style.overflowY = "hidden";
+          }
+          if (takeALookBtnWrapperRef.current) {
+            takeALookBtnWrapperRef.current.style.display = "block";
+            takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+            gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 1, y: 0 });
+          }
+        },
       });
     }
 
@@ -682,6 +798,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (takeALookBtnWrapperRef.current) {
       takeALookBtnWrapperRef.current.style.display = "block";
+      takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.fromTo(
         takeALookBtnWrapperRef.current,
@@ -693,9 +810,10 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
           ease: "power2.out",
           delay: 0.45,
           onComplete: () => {
-            if (!isDeepDiveRef.current) {
-              setCanTakeALook(true);
-              canTakeALookRef.current = true;
+            setCanTakeALook(true);
+            canTakeALookRef.current = true;
+            if (takeALookBtnWrapperRef.current) {
+              takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
             }
           },
         }
@@ -738,6 +856,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (!isDeepDiveRef.current && takeALookBtnWrapperRef.current) {
       takeALookBtnWrapperRef.current.style.display = "block";
+      takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.fromTo(
         takeALookBtnWrapperRef.current,
@@ -752,6 +871,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             if (!isDeepDiveRef.current) {
               setCanTakeALook(true);
               canTakeALookRef.current = true;
+              if (takeALookBtnWrapperRef.current) {
+                takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+              }
             }
           },
         }
@@ -965,8 +1087,10 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         data-lenis-prevent-wheel
         data-lenis-prevent-touch
         aria-hidden={!isOpen}
-        className="fixed inset-0 z-40 bg-white overflow-y-auto overscroll-contain pointer-events-auto no-scrollbar touch-pan-y outline-none"
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+        className={`fixed inset-0 z-40 bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${
+          isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
+        }`}
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div
           ref={heroSectionRef}
@@ -975,9 +1099,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
           {active && (
             <div
               ref={tabletContainerRef}
-              className="h-[74vh] sm:h-[76vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform translate-y-3 sm:translate-y-4 pointer-events-none"
+              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform translate-y-2 sm:translate-y-3 pointer-events-none"
             >
-              <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.12} />
+              <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.26} />
             </div>
           )}
 
@@ -1018,19 +1142,19 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
       <div
         ref={blackSectionRef}
-        className={`w-full relative z-30 ${
+        className={`w-full bg-neutral-950 text-white relative z-30 -mt-px ${
           isDeepDive ? "block" : "hidden"
         }`}
       >
         <div className="w-full bg-neutral-950 text-white">
           <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-white/10 select-none">
+            <div className="flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none">
               <div>
                 <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
                   PLATFORM
                 </span>
                 <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  WEB & INTERACTIVE 3D
+                  WEB
                 </p>
               </div>
               <div>
@@ -1038,7 +1162,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
                   ROLE
                 </span>
                 <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  AI-ASSISTED DEVELOPER
+                  FRONT AND BACK END DEVELOPER
                 </p>
               </div>
               <div>
@@ -1046,30 +1170,22 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
                   STACK
                 </span>
                 <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  NEXT.JS / THREE / GSAP
-                </p>
-              </div>
-              <div>
-                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                  FOCUS
-                </span>
-                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  FULL-STACK & MOTION
+                  NEXT | THREE | GSAP
                 </p>
               </div>
             </div>
 
             <div className="mt-12 sm:mt-16 max-w-4xl">
-              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-neutral-200 leading-relaxed tracking-tight select-none">
+              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none">
                 <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
-                complete ground-up reconstruction of my digital workspace. Rebuilt to showcase
-                high-performance 3D spatial scenes, reactive kinetic typography, and fluid
-                micro-interactions engineered with precision code.
+                complete rebuild of my personal site, designed around one idea: a site that feels like
+                a space instead of a page. It’s a ground-up rethink of how my work is presented, with
+                interaction and motion shaping the experience as much as the content does. Every part of
+                it responds to the visitor, and the details are paced to feel natural rather than flashy.
               </p>
-              <p className="mt-6 text-sm sm:text-base md:text-lg text-neutral-400 leading-relaxed font-sans max-w-3xl select-none">
-                From front-end spatial shaders to robust Next.js server components, every pixel and
-                motion curve was handcrafted to deliver a seamless, zero-compromise experience across
-                devices.
+              <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
+                Built with Next.js and three.js, with close attention paid to motion, timing and how
+                everything holds up from desktop to mobile.
               </p>
             </div>
           </div>
@@ -1077,6 +1193,57 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
         <div className="w-full bg-white text-neutral-950 min-h-[60vh] sm:min-h-screen">
           <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24">
+            <div className="mb-6 sm:mb-8">
+              <h2
+                ref={whereTitleRef}
+                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none"
+              >
+                <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                  <span className="where-word inline-block will-change-transform opacity-0">
+                    Where
+                  </span>
+                </span>
+                <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                  <span className="where-word inline-block will-change-transform opacity-0">
+                    It
+                  </span>
+                </span>
+                <span className="inline-block overflow-hidden py-1">
+                  <span className="where-word inline-block will-change-transform opacity-0">
+                    Started
+                  </span>
+                </span>
+              </h2>
+            </div>
+
+            {isDeepDive && (
+              <div className="relative w-full flex flex-col md:block select-none mb-12 sm:mb-16">
+                <div
+                  ref={whereTextRef}
+                  className="relative md:absolute md:top-14 lg:top-20 xl:top-24 md:left-0 z-10 w-full md:max-w-[215px] lg:max-w-[230px] xl:max-w-[255px] pointer-events-auto opacity-0 will-change-transform mb-8 md:mb-0"
+                >
+                  <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-neutral-900 leading-[1.65] tracking-tight select-none">
+                    Monotone and overly dark, the original UI suffered from stuttering animations that created unnecessary friction instead of making a strong visual statement.
+                  </p>
+                  <div className="mt-6 pt-4 border-t border-neutral-300">
+                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-500 font-medium">
+                      STACK
+                    </span>
+                    <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-neutral-950 uppercase font-mono">
+                      Next.js, FramerMotion
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  ref={macbookContainerRef}
+                  className="w-full opacity-0 will-change-transform h-[54vh] sm:h-[64vh] md:h-[76vh] flex items-center justify-center"
+                >
+                  <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} />
+                </div>
+              </div>
+            )}
+
             {children}
           </div>
         </div>
