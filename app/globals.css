@@ -121,6 +121,8 @@ body {
   -webkit-backface-visibility: hidden;
 }
 
-.animate-marquee:hover {
+.animate-marquee:has(.marquee-card:hover),
+.animate-marquee.is-paused {
   animation-play-state: paused;
 }
+

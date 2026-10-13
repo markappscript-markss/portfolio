@@ -19,37 +19,54 @@ interface WorkOverlayProps {
   children?: React.ReactNode;
 }
 
-function MarqueeCard({ src, index }: { src: string; index: number }) {
+function MarqueeCard({
+  src,
+  index,
+  onHoverChange,
+}: {
+  src: string;
+  index: number;
+  onHoverChange?: (isHovered: boolean) => void;
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const hoverShadowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (imgRef.current) {
       gsap.set(imgRef.current, { filter: "blur(2px)", scale: 1 });
     }
     if (cardRef.current) {
-      gsap.set(cardRef.current, {
-        scale: 1,
-        boxShadow: "0 14px 38px rgba(0, 0, 0, 0.07)",
-        zIndex: 1,
-      });
+      gsap.set(cardRef.current, { scale: 1, zIndex: 1 });
+    }
+    if (hoverShadowRef.current) {
+      gsap.set(hoverShadowRef.current, { opacity: 0 });
     }
     return () => {
       if (cardRef.current) gsap.killTweensOf(cardRef.current);
       if (imgRef.current) gsap.killTweensOf(imgRef.current);
+      if (hoverShadowRef.current) gsap.killTweensOf(hoverShadowRef.current);
     };
   }, []);
 
   const handleMouseEnter = () => {
+    onHoverChange?.(true);
     if (cardRef.current) {
       gsap.killTweensOf(cardRef.current);
+      gsap.set(cardRef.current, { zIndex: 25 });
       gsap.to(cardRef.current, {
         scale: 1.055,
-        zIndex: 25,
-        boxShadow: "0 28px 65px -10px rgba(0, 0, 0, 0.22)",
         duration: 0.45,
         ease: "power2.out",
         force3D: true,
+      });
+    }
+    if (hoverShadowRef.current) {
+      gsap.killTweensOf(hoverShadowRef.current);
+      gsap.to(hoverShadowRef.current, {
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out",
       });
     }
     if (imgRef.current) {
@@ -65,15 +82,27 @@ function MarqueeCard({ src, index }: { src: string; index: number }) {
   };
 
   const handleMouseLeave = () => {
+    onHoverChange?.(false);
     if (cardRef.current) {
       gsap.killTweensOf(cardRef.current);
       gsap.to(cardRef.current, {
         scale: 1,
-        zIndex: 1,
-        boxShadow: "0 14px 38px rgba(0, 0, 0, 0.07)",
         duration: 0.45,
         ease: "power2.out",
         force3D: true,
+        onComplete: () => {
+          if (cardRef.current) {
+            gsap.set(cardRef.current, { zIndex: 1 });
+          }
+        },
+      });
+    }
+    if (hoverShadowRef.current) {
+      gsap.killTweensOf(hoverShadowRef.current);
+      gsap.to(hoverShadowRef.current, {
+        opacity: 0,
+        duration: 0.35,
+        ease: "power2.out",
       });
     }
     if (imgRef.current) {
@@ -93,28 +122,31 @@ function MarqueeCard({ src, index }: { src: string; index: number }) {
       ref={cardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="relative flex-shrink-0 w-[340px] sm:w-[460px] md:w-[580px] lg:w-[680px] xl:w-[760px] 2xl:w-[820px] aspect-[1900/900] rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200/90 bg-neutral-100 shadow-[0_14px_38px_rgba(0,0,0,0.07)] cursor-pointer will-change-transform"
+      className="marquee-card relative flex-shrink-0 w-[340px] sm:w-[460px] md:w-[580px] lg:w-[680px] xl:w-[760px] 2xl:w-[820px] aspect-[1900/900] cursor-pointer will-change-transform select-none"
       style={{
         transformOrigin: "center center",
-        transform: "translateZ(0)",
-        backfaceVisibility: "hidden",
-        WebkitBackfaceVisibility: "hidden",
       }}
     >
-      <img
-        ref={imgRef}
-        src={src}
-        alt={`Redesign frame ${(index % 4) + 1}`}
-        loading="lazy"
-        draggable={false}
-        className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
-        style={{
-          filter: "blur(2px)",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-        }}
+      <div
+        ref={hoverShadowRef}
+        className="absolute inset-0 rounded-2xl sm:rounded-3xl shadow-[0_28px_65px_-10px_rgba(0,0,0,0.24)] pointer-events-none opacity-0 will-change-[opacity]"
       />
+      <div className="relative w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200/90 bg-neutral-100 shadow-[0_14px_38px_rgba(0,0,0,0.07)]">
+        <img
+          ref={imgRef}
+          src={src}
+          alt={`Redesign frame ${(index % 4) + 1}`}
+          loading="lazy"
+          draggable={false}
+          className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
+          style={{
+            filter: "blur(2px)",
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -670,6 +702,17 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   const hasRevealedLandedTextRef = useRef(false);
   const landedTextRef = useRef<HTMLDivElement>(null);
   const marqueeContainerRef = useRef<HTMLDivElement>(null);
+  const marqueeTrackRef = useRef<HTMLDivElement>(null);
+
+  const handleCardHoverChange = (isHovered: boolean) => {
+    if (marqueeTrackRef.current) {
+      if (isHovered) {
+        marqueeTrackRef.current.classList.add("is-paused");
+      } else {
+        marqueeTrackRef.current.classList.remove("is-paused");
+      }
+    }
+  };
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -1877,9 +1920,17 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
               >
                 <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 md:w-48 z-20 bg-gradient-to-r from-white to-transparent" />
                 <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 md:w-48 z-20 bg-gradient-to-l from-white to-transparent" />
-                <div className="animate-marquee flex gap-5 sm:gap-7 md:gap-9 items-center py-6 sm:py-8">
+                <div
+                  ref={marqueeTrackRef}
+                  className="animate-marquee flex gap-5 sm:gap-7 md:gap-9 items-center py-6 sm:py-8"
+                >
                   {[...MARQUEE_IMAGES, ...MARQUEE_IMAGES, ...MARQUEE_IMAGES, ...MARQUEE_IMAGES].map((src, index) => (
-                    <MarqueeCard key={`${src}-${index}`} src={src} index={index} />
+                    <MarqueeCard
+                      key={`${src}-${index}`}
+                      src={src}
+                      index={index}
+                      onHoverChange={handleCardHoverChange}
+                    />
                   ))}
                 </div>
               </div>
