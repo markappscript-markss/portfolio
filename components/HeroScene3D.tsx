@@ -359,8 +359,32 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
   const arrowRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
 
+  const resetHoverState = () => {
+    if (btnRef.current) {
+      gsap.killTweensOf(btnRef.current);
+      gsap.set(btnRef.current, {
+        y: 0,
+        scale: 1,
+        borderColor: "rgba(255, 255, 255, 0.15)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
+      });
+    }
+    if (lineRef.current) {
+      gsap.killTweensOf(lineRef.current);
+      gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+    }
+    if (arrowRef.current) {
+      gsap.killTweensOf(arrowRef.current);
+      gsap.set(arrowRef.current, { rotate: 0, x: 0, y: 0 });
+    }
+    if (textRef.current) {
+      gsap.killTweensOf(textRef.current);
+      gsap.set(textRef.current, { color: "rgba(255, 255, 255, 0.88)" });
+    }
+  };
+
   useEffect(() => {
-    if (lineRef.current) gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left" });
+    resetHoverState();
     return () => {
       if (btnRef.current) gsap.killTweensOf(btnRef.current);
       if (lineRef.current) gsap.killTweensOf(lineRef.current);
@@ -373,7 +397,7 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
     if (btnRef.current) {
       gsap.killTweensOf(btnRef.current);
       gsap.to(btnRef.current, {
-        y: -1.5,
+        y: -2,
         borderColor: "rgba(255, 255, 255, 0.4)",
         boxShadow: "0 6px 18px rgba(0, 0, 0, 0.25)",
         duration: 0.28,
@@ -381,19 +405,39 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
       });
     }
     if (lineRef.current) {
+      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
       gsap.killTweensOf(lineRef.current);
-      gsap.fromTo(
-        lineRef.current,
-        { scaleX: 0, transformOrigin: "left" },
-        { scaleX: 1, duration: 0.32, ease: "power2.out" }
-      );
+      if (currentScale <= 0.05) {
+        gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+        gsap.to(lineRef.current, {
+          scaleX: 1,
+          duration: 0.32,
+          ease: "power2.out",
+        });
+      } else {
+        gsap.to(lineRef.current, {
+          scaleX: 0,
+          duration: 0.12 * currentScale,
+          ease: "power1.in",
+          onComplete: () => {
+            if (lineRef.current) {
+              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+              gsap.to(lineRef.current, {
+                scaleX: 1,
+                duration: 0.32,
+                ease: "power2.out",
+              });
+            }
+          },
+        });
+      }
     }
     if (arrowRef.current) {
       gsap.killTweensOf(arrowRef.current);
       gsap.to(arrowRef.current, {
         rotate: -45,
         x: 3,
-        y: -1.5,
+        y: -2,
         duration: 0.28,
         ease: "power2.out",
       });
@@ -419,13 +463,42 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
       });
     }
     if (lineRef.current) {
+      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
       gsap.killTweensOf(lineRef.current);
-      gsap.to(lineRef.current, {
-        scaleX: 0,
-        transformOrigin: "right",
-        duration: 0.26,
-        ease: "power2.inOut",
-      });
+      if (currentScale >= 0.95) {
+        gsap.set(lineRef.current, { transformOrigin: "right center" });
+        gsap.to(lineRef.current, {
+          scaleX: 0,
+          duration: 0.26,
+          ease: "power2.out",
+          onComplete: () => {
+            if (lineRef.current) {
+              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+            }
+          },
+        });
+      } else {
+        gsap.to(lineRef.current, {
+          scaleX: 1,
+          duration: 0.15 * (1 - currentScale),
+          ease: "power1.out",
+          onComplete: () => {
+            if (lineRef.current) {
+              gsap.set(lineRef.current, { transformOrigin: "right center" });
+              gsap.to(lineRef.current, {
+                scaleX: 0,
+                duration: 0.26,
+                ease: "power2.out",
+                onComplete: () => {
+                  if (lineRef.current) {
+                    gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+                  }
+                },
+              });
+            }
+          },
+        });
+      }
     }
     if (arrowRef.current) {
       gsap.killTweensOf(arrowRef.current);
@@ -444,6 +517,11 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
         duration: 0.2,
       });
     }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    resetHoverState();
+    onClick();
   };
 
   const handleMouseDown = () => {
@@ -471,28 +549,32 @@ function ExploreWorkButton({ onClick }: { onClick: () => void }) {
       ref={btnRef}
       type="button"
       id="btn-explore-work"
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      className="group pointer-events-auto mt-2.5 sm:mt-3 self-center inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neutral-950 text-white/90 border border-white/15 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-sm cursor-pointer select-none will-change-transform"
+      className="group relative pointer-events-auto mt-2.5 sm:mt-3 self-center inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neutral-950 text-white/90 border border-white/15 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-sm cursor-pointer select-none will-change-transform before:absolute before:-inset-1.5 before:content-[''] before:rounded-full before:pointer-events-auto"
     >
-      <div className="relative flex flex-col items-start">
-        <span ref={textRef} className="block tracking-wider text-white/90 whitespace-nowrap">
+      <div className="relative flex flex-col items-start pointer-events-none">
+        <span ref={textRef} className="block tracking-wider text-white/90 whitespace-nowrap pointer-events-none">
           EXPLORE WORK
         </span>
-        <div className="relative w-full h-[1.5px] mt-0.5 overflow-hidden rounded-[1px]">
+        <div className="relative w-full h-[2px] mt-0.5 overflow-hidden rounded-[1px] pointer-events-none">
           <div className="absolute inset-0 bg-white/20" />
           <div
             ref={lineRef}
-            className="absolute inset-0 bg-white origin-left will-change-transform"
+            className="absolute inset-0 bg-white scale-x-0 origin-left will-change-transform pointer-events-none"
+            style={{
+              transformOrigin: "left center",
+              transform: "scaleX(0)",
+            }}
           />
         </div>
       </div>
       <span
         ref={arrowRef}
-        className="inline-block shrink-0 text-[11px] sm:text-sm font-light text-white will-change-transform"
+        className="inline-block shrink-0 text-[11px] sm:text-sm font-light text-white will-change-transform pointer-events-none"
       >
         →
       </span>

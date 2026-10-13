@@ -218,12 +218,12 @@ function HeaderLogo() {
   };
 
   return (
-    <Magnetic strength={0.2}>
+    <Magnetic strength={0.2} className="justify-center">
       <button
         ref={btnRef}
         type="button"
         onClick={handleClick}
-        className="flex items-baseline select-none cursor-pointer text-left will-change-transform"
+        className="flex items-baseline justify-center text-center select-none cursor-pointer will-change-transform min-w-[125px] sm:min-w-[160px]"
         aria-label="Toggle logo title"
       >
         <span
@@ -268,7 +268,7 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 w-full h-16 sm:h-20 bg-transparent px-4 sm:px-12 flex items-center justify-between pointer-events-none opacity-0 border-0 outline-none shadow-none"
     >
-      <div className="pointer-events-auto">
+      <div className="pointer-events-auto flex items-center justify-center">
         <HeaderLogo />
       </div>
 
