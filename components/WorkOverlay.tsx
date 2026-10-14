@@ -4,151 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import TabletReveal from "@/components/TabletReveal";
 import MacBookVideo from "@/components/MacBookVideo";
-
-const MARQUEE_IMAGES = [
-  "/images/back1.webp",
-  "/images/back2.webp",
-  "/images/back3.webp",
-  "/images/back4.webp",
-];
+import IPhone3DScene from "@/components/iPhone3DScene";
 
 interface WorkOverlayProps {
   isOpen: boolean;
   onClose?: () => void;
   onTakeALook?: () => void;
   children?: React.ReactNode;
-}
-
-function MarqueeCard({
-  src,
-  index,
-  onHoverChange,
-}: {
-  src: string;
-  index: number;
-  onHoverChange?: (isHovered: boolean) => void;
-}) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const hoverShadowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (imgRef.current) {
-      gsap.set(imgRef.current, { filter: "blur(2px)", scale: 1 });
-    }
-    if (cardRef.current) {
-      gsap.set(cardRef.current, { scale: 1, zIndex: 1 });
-    }
-    if (hoverShadowRef.current) {
-      gsap.set(hoverShadowRef.current, { opacity: 0 });
-    }
-    return () => {
-      if (cardRef.current) gsap.killTweensOf(cardRef.current);
-      if (imgRef.current) gsap.killTweensOf(imgRef.current);
-      if (hoverShadowRef.current) gsap.killTweensOf(hoverShadowRef.current);
-    };
-  }, []);
-
-  const handleMouseEnter = () => {
-    onHoverChange?.(true);
-    if (cardRef.current) {
-      gsap.killTweensOf(cardRef.current);
-      gsap.set(cardRef.current, { zIndex: 25 });
-      gsap.to(cardRef.current, {
-        scale: 1.055,
-        duration: 0.45,
-        ease: "power2.out",
-        force3D: true,
-      });
-    }
-    if (hoverShadowRef.current) {
-      gsap.killTweensOf(hoverShadowRef.current);
-      gsap.to(hoverShadowRef.current, {
-        opacity: 1,
-        duration: 0.4,
-        ease: "power2.out",
-      });
-    }
-    if (imgRef.current) {
-      gsap.killTweensOf(imgRef.current);
-      gsap.to(imgRef.current, {
-        filter: "blur(0px)",
-        scale: 1.03,
-        duration: 0.45,
-        ease: "power2.out",
-        force3D: true,
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    onHoverChange?.(false);
-    if (cardRef.current) {
-      gsap.killTweensOf(cardRef.current);
-      gsap.to(cardRef.current, {
-        scale: 1,
-        duration: 0.45,
-        ease: "power2.out",
-        force3D: true,
-        onComplete: () => {
-          if (cardRef.current) {
-            gsap.set(cardRef.current, { zIndex: 1 });
-          }
-        },
-      });
-    }
-    if (hoverShadowRef.current) {
-      gsap.killTweensOf(hoverShadowRef.current);
-      gsap.to(hoverShadowRef.current, {
-        opacity: 0,
-        duration: 0.35,
-        ease: "power2.out",
-      });
-    }
-    if (imgRef.current) {
-      gsap.killTweensOf(imgRef.current);
-      gsap.to(imgRef.current, {
-        filter: "blur(2px)",
-        scale: 1,
-        duration: 0.45,
-        ease: "power2.out",
-        force3D: true,
-      });
-    }
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="marquee-card relative flex-shrink-0 w-[340px] sm:w-[460px] md:w-[580px] lg:w-[680px] xl:w-[760px] 2xl:w-[820px] aspect-[1900/900] cursor-pointer will-change-transform select-none"
-      style={{
-        transformOrigin: "center center",
-      }}
-    >
-      <div
-        ref={hoverShadowRef}
-        className="absolute inset-0 rounded-2xl sm:rounded-3xl shadow-[0_28px_65px_-10px_rgba(0,0,0,0.24)] pointer-events-none opacity-0 will-change-[opacity]"
-      />
-      <div className="relative w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200/90 bg-neutral-100 shadow-[0_14px_38px_rgba(0,0,0,0.07)]">
-        <img
-          ref={imgRef}
-          src={src}
-          alt={`Redesign frame ${(index % 4) + 1}`}
-          loading="lazy"
-          draggable={false}
-          className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
-          style={{
-            filter: "blur(2px)",
-            transform: "translateZ(0)",
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-          }}
-        />
-      </div>
-    </div>
-  );
 }
 
 function WorkOverlayBackButton({
@@ -431,8 +293,11 @@ function TakeALookButton({
   const lineRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
+  const isHoveredRef = useRef(false);
+  const mousePosRef = useRef<{ x: number; y: number } | null>(null);
 
   const resetHoverState = () => {
+    isHoveredRef.current = false;
     if (btnRef.current) {
       gsap.killTweensOf(btnRef.current);
       gsap.set(btnRef.current, {
@@ -467,13 +332,78 @@ function TakeALookButton({
   }, []);
 
   useEffect(() => {
+    const handlePointerMove = (e: PointerEvent) => {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+      if (!disabled && btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+        const isInside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+        if (isInside) {
+          if (!isHoveredRef.current) {
+            handleMouseEnter();
+          }
+        } else {
+          if (isHoveredRef.current) {
+            handleMouseLeave();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+    };
+  }, [disabled]);
+
+  useEffect(() => {
     if (disabled) {
       resetHoverState();
+      return;
     }
+
+    let rafId: number;
+    const startTime = performance.now();
+
+    const checkCursorOverButton = () => {
+      if (disabled || isHoveredRef.current) return;
+      if (btnRef.current) {
+        if (btnRef.current.matches(":hover")) {
+          handleMouseEnter();
+          return;
+        }
+        if (mousePosRef.current) {
+          const rect = btnRef.current.getBoundingClientRect();
+          if (
+            mousePosRef.current.x >= rect.left &&
+            mousePosRef.current.x <= rect.right &&
+            mousePosRef.current.y >= rect.top &&
+            mousePosRef.current.y <= rect.bottom
+          ) {
+            handleMouseEnter();
+            return;
+          }
+        }
+      }
+      if (performance.now() - startTime < 1200) {
+        rafId = requestAnimationFrame(checkCursorOverButton);
+      }
+    };
+
+    rafId = requestAnimationFrame(checkCursorOverButton);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
   }, [disabled]);
 
   const handleMouseEnter = () => {
     if (disabled) return;
+    if (isHoveredRef.current) return;
+    isHoveredRef.current = true;
     if (btnRef.current) {
       gsap.killTweensOf(btnRef.current);
       gsap.to(btnRef.current, {
@@ -532,6 +462,8 @@ function TakeALookButton({
   };
 
   const handleMouseLeave = () => {
+    if (!isHoveredRef.current) return;
+    isHoveredRef.current = false;
     if (disabled) return;
     if (btnRef.current) {
       gsap.killTweensOf(btnRef.current);
@@ -637,6 +569,11 @@ function TakeALookButton({
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onMouseMove={() => {
+        if (!disabled && !isHoveredRef.current) {
+          handleMouseEnter();
+        }
+      }}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={`group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform before:absolute before:-inset-1.5 before:content-[''] before:rounded-full before:pointer-events-auto ${
@@ -701,18 +638,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   const hasRevealedLandedRef = useRef(false);
   const hasRevealedLandedTextRef = useRef(false);
   const landedTextRef = useRef<HTMLDivElement>(null);
-  const marqueeContainerRef = useRef<HTMLDivElement>(null);
-  const marqueeTrackRef = useRef<HTMLDivElement>(null);
-
-  const handleCardHoverChange = (isHovered: boolean) => {
-    if (marqueeTrackRef.current) {
-      if (isHovered) {
-        marqueeTrackRef.current.classList.add("is-paused");
-      } else {
-        marqueeTrackRef.current.classList.remove("is-paused");
-      }
-    }
-  };
+  const [isIPhoneRevealed, setIsIPhoneRevealed] = useState(false);
+  const landedTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -731,6 +658,11 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       hasRevealedWhereRef.current = false;
       hasRevealedLandedRef.current = false;
       hasRevealedLandedTextRef.current = false;
+      setIsIPhoneRevealed(false);
+      if (landedTimelineRef.current) {
+        landedTimelineRef.current.kill();
+        landedTimelineRef.current = null;
+      }
       if (whereTitleRef.current) {
         const words = whereTitleRef.current.querySelectorAll(".where-word");
         gsap.set(words, { yPercent: 115, opacity: 0 });
@@ -744,9 +676,6 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       }
       if (whereTextRef.current) {
         gsap.set(whereTextRef.current, { opacity: 0, y: 20 });
-      }
-      if (marqueeContainerRef.current) {
-        gsap.set(marqueeContainerRef.current, { opacity: 0, y: 28 });
       }
       if (landedTextRef.current) {
         gsap.set(landedTextRef.current, { opacity: 0, y: 24 });
@@ -771,9 +700,6 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     }
     if (whereTextRef.current) {
       gsap.set(whereTextRef.current, { opacity: 0, y: 20 });
-    }
-    if (marqueeContainerRef.current) {
-      gsap.set(marqueeContainerRef.current, { opacity: 0, y: 28 });
     }
     if (landedTextEl) {
       gsap.set(landedTextEl, { opacity: 0, y: 24 });
@@ -830,33 +756,23 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             hasRevealedLandedRef.current = true;
             hasRevealedLandedTextRef.current = true;
             const landedWords = landedTitleEl.querySelectorAll(".landed-word");
-            const tl = gsap.timeline();
+            if (landedTimelineRef.current) {
+              landedTimelineRef.current.kill();
+            }
+            const tl = gsap.timeline({ delay: 0.1 });
+            landedTimelineRef.current = tl;
             tl.fromTo(
               landedWords,
               { yPercent: 115, opacity: 0 },
               {
                 yPercent: 0,
                 opacity: 1,
-                duration: 0.95,
+                duration: 0.65,
                 stagger: 0.08,
-                ease: "power4.out",
+                ease: "power3.out",
                 force3D: true,
               }
             );
-            if (marqueeContainerRef.current) {
-              tl.fromTo(
-                marqueeContainerRef.current,
-                { opacity: 0, y: 28 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.85,
-                  ease: "power3.out",
-                  force3D: true,
-                },
-                "-=0.35"
-              );
-            }
             if (landedTextRef.current) {
               tl.fromTo(
                 landedTextRef.current,
@@ -864,26 +780,19 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
                 {
                   opacity: 1,
                   y: 0,
-                  duration: 0.85,
-                  ease: "power3.out",
+                  duration: 0.6,
+                  ease: "power2.out",
                   force3D: true,
                 },
                 "-=0.2"
               );
             }
-          }
-          if (landedTextEl && entry.target === landedTextEl && entry.isIntersecting && !hasRevealedLandedTextRef.current) {
-            hasRevealedLandedTextRef.current = true;
-            gsap.fromTo(
-              landedTextEl,
-              { opacity: 0, y: 20 },
-              {
-                opacity: 1,
-                y: 0,
-                duration: 0.85,
-                ease: "power3.out",
-                force3D: true,
-              }
+            tl.call(
+              () => {
+                setIsIPhoneRevealed(true);
+              },
+              undefined,
+              "-=0.15"
             );
           }
         });
@@ -899,12 +808,13 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (landedTitleEl) {
       observer.observe(landedTitleEl);
     }
-    if (landedTextEl) {
-      observer.observe(landedTextEl);
-    }
 
     return () => {
       observer.disconnect();
+      if (landedTimelineRef.current) {
+        landedTimelineRef.current.kill();
+        landedTimelineRef.current = null;
+      }
       if (whereTitleRef.current) {
         const words = whereTitleRef.current.querySelectorAll(".where-word");
         gsap.killTweensOf(words);
@@ -918,9 +828,6 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       }
       if (whereTextRef.current) {
         gsap.killTweensOf(whereTextRef.current);
-      }
-      if (marqueeContainerRef.current) {
-        gsap.killTweensOf(marqueeContainerRef.current);
       }
       if (landedTextRef.current) {
         gsap.killTweensOf(landedTextRef.current);
@@ -1129,6 +1036,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     setIsDeepDive(true);
     isDeepDiveRef.current = true;
     setIsDeepDiveNav(true);
+    setIsIPhoneRevealed(false);
 
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
@@ -1284,6 +1192,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             setIsDeepDive(false);
             isDeepDiveRef.current = false;
             setIsDeepDiveNav(false);
+            setIsIPhoneRevealed(false);
             setCanTakeALook(true);
             canTakeALookRef.current = true;
 
@@ -1352,6 +1261,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         onComplete: () => {
           setIsDeepDive(false);
           isDeepDiveRef.current = false;
+          setIsIPhoneRevealed(false);
           isTransitioningRef.current = false;
           setCanTakeALook(true);
           canTakeALookRef.current = true;
@@ -1393,16 +1303,17 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (takeALookBtnWrapperRef.current) {
       takeALookBtnWrapperRef.current.style.display = "block";
       takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+      takeALookBtnWrapperRef.current.style.visibility = "visible";
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.fromTo(
         takeALookBtnWrapperRef.current,
-        { autoAlpha: 0, y: 16 },
+        { opacity: 0, y: 16 },
         {
-          autoAlpha: 1,
+          opacity: 1,
           y: 0,
-          duration: 0.65,
+          duration: 0.55,
           ease: "power2.out",
-          delay: 0.45,
+          delay: 0.25,
           onComplete: () => {
             setCanTakeALook(true);
             canTakeALookRef.current = true;
@@ -1430,6 +1341,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (isDeepDiveRef.current) return;
 
+    setCanTakeALook(true);
+    canTakeALookRef.current = true;
+
     if (rightContentRef.current) {
       const items = rightContentRef.current.querySelectorAll(".reveal-text");
       gsap.killTweensOf(items);
@@ -1451,23 +1365,20 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (!isDeepDiveRef.current && takeALookBtnWrapperRef.current) {
       takeALookBtnWrapperRef.current.style.display = "block";
       takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+      takeALookBtnWrapperRef.current.style.visibility = "visible";
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.fromTo(
         takeALookBtnWrapperRef.current,
-        { autoAlpha: 0, y: 20 },
+        { opacity: 0, y: 20 },
         {
-          autoAlpha: 1,
+          opacity: 1,
           y: 0,
-          duration: 0.6,
+          duration: 0.55,
           ease: "power2.out",
-          delay: 0.35,
+          delay: 0.18,
           onComplete: () => {
-            if (!isDeepDiveRef.current) {
-              setCanTakeALook(true);
-              canTakeALookRef.current = true;
-              if (takeALookBtnWrapperRef.current) {
-                takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
-              }
+            if (takeALookBtnWrapperRef.current) {
+              takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
             }
           },
         }
@@ -1710,7 +1621,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       >
         <div
           ref={heroSectionRef}
-          className="relative w-full min-h-screen flex flex-col items-center justify-center pt-20 sm:pt-24 pb-12 overflow-hidden"
+          className="relative w-full min-h-screen flex flex-col items-center justify-center pt-20 sm:pt-24 pb-12 overflow-hidden bg-white"
         >
           {active && (
             <div
@@ -1807,26 +1718,21 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
           </div>
         </div>
 
-        <div className="w-full bg-white text-neutral-950 relative z-20 shadow-[0_30px_70px_rgba(0,0,0,0.22)]">
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-8 sm:pb-12">
-            <div className="mb-6 sm:mb-8">
+        <div className="w-full bg-white text-neutral-950 relative z-20 shadow-[0_30px_70px_rgba(0,0,0,0.22)] min-h-[90vh]">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-28 sm:pt-36 md:pt-48 lg:pt-52 pb-20 sm:pb-28 md:pb-36 lg:pb-40">
+            <div className="mb-8 sm:mb-10 md:mb-12">
               <h2
                 ref={whereTitleRef}
-                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none"
+                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none whitespace-nowrap"
               >
                 <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
                   <span className="where-word inline-block will-change-transform opacity-0">
-                    Where
-                  </span>
-                </span>
-                <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                  <span className="where-word inline-block will-change-transform opacity-0">
-                    It
+                    The
                   </span>
                 </span>
                 <span className="inline-block overflow-hidden py-1">
                   <span className="where-word inline-block will-change-transform opacity-0">
-                    Started
+                    Prototype
                   </span>
                 </span>
               </h2>
@@ -1886,70 +1792,63 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
             <div
               ref={nextSectionRef}
-              className="relative z-20 w-full bg-white text-neutral-950 min-h-screen shadow-[0_-35px_80px_rgba(0,0,0,0.28)] will-change-transform flex flex-col justify-between"
+              className="relative z-20 w-full bg-[#0f172a] text-white h-screen min-h-screen max-h-screen overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
+              style={{ backgroundColor: "#0f172a" }}
             >
-              <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 pt-10 sm:pt-14 pb-2 sm:pb-3">
-                <div>
-                  <h2
-                    ref={landedTitleRef}
-                    className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none"
-                  >
-                    <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                      <span className="landed-word inline-block will-change-transform opacity-0">
-                        Where
-                      </span>
-                    </span>
-                    <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                      <span className="landed-word inline-block will-change-transform opacity-0">
-                        it
-                      </span>
-                    </span>
-                    <span className="inline-block overflow-hidden py-1">
-                      <span className="landed-word inline-block will-change-transform opacity-0">
-                        landed
-                      </span>
-                    </span>
-                  </h2>
-                </div>
-              </div>
+              <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 min-h-0">
+                  <div className="md:col-span-7 lg:col-span-7 flex flex-col items-end justify-center h-full min-h-0 pointer-events-none">
+                    <div className="w-full max-w-[580px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[780px] flex-1 min-h-0 relative select-none pointer-events-none flex items-center justify-end">
+                      <IPhone3DScene
+                        videoSrc="/images/iphone/ipon_smooth.webm"
+                        zoom={1.01}
+                        cropBlackBars={true}
+                        autoPlayOnVisible={false}
+                        triggerReveal={isIPhoneRevealed}
+                        interactive={false}
+                        phoneScale={2.05}
+                        cameraFov={37}
+                        offsetY={-0.38}
+                        offsetX={0.22}
+                        lineColor={0xc4c9cf}
+                        className="w-full h-full relative pointer-events-none"
+                      />
+                    </div>
+                  </div>
 
-              <div
-                ref={marqueeContainerRef}
-                className="relative z-10 w-full overflow-x-clip overflow-y-visible py-8 sm:py-12 my-auto opacity-0 will-change-transform select-none"
-                style={{ overflowX: "clip", overflowY: "visible" }}
-              >
-                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 md:w-48 z-20 bg-gradient-to-r from-white to-transparent" />
-                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 md:w-48 z-20 bg-gradient-to-l from-white to-transparent" />
-                <div
-                  ref={marqueeTrackRef}
-                  className="animate-marquee flex gap-5 sm:gap-7 md:gap-9 items-center py-6 sm:py-8"
-                >
-                  {[...MARQUEE_IMAGES, ...MARQUEE_IMAGES, ...MARQUEE_IMAGES, ...MARQUEE_IMAGES].map((src, index) => (
-                    <MarqueeCard
-                      key={`${src}-${index}`}
-                      src={src}
-                      index={index}
-                      onHoverChange={handleCardHoverChange}
-                    />
-                  ))}
-                </div>
-              </div>
+                  <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
+                    <h2
+                      ref={landedTitleRef}
+                      className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
+                    >
+                      <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                        <span className="landed-word inline-block will-change-transform opacity-0">
+                          The
+                        </span>
+                      </span>
+                      <span className="inline-block overflow-hidden py-1">
+                        <span className="landed-word inline-block will-change-transform opacity-0">
+                          Redesign
+                        </span>
+                      </span>
+                    </h2>
 
-              <div
-                ref={landedTextRef}
-                className="relative z-0 max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 pt-2 pb-8 sm:pb-12 opacity-0 will-change-transform flex flex-col items-center text-center bg-transparent pointer-events-auto"
-              >
-                <div className="max-w-xl sm:max-w-2xl mx-auto flex flex-col items-center text-center bg-transparent">
-                  <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-neutral-900 leading-[1.65] tracking-tight select-none text-center bg-transparent">
-                    The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
-                  </p>
-                  <div className="mt-4 pt-3 border-t border-neutral-300 flex flex-col items-center text-center min-w-[220px] bg-transparent">
-                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-500 font-medium bg-transparent">
-                      STACK
-                    </span>
-                    <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-neutral-950 uppercase font-mono bg-transparent">
-                      Next.js, Three.js, GSAP
-                    </p>
+                    <div
+                      ref={landedTextRef}
+                      className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
+                    >
+                      <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
+                        The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
+                      </p>
+                      <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
+                        <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
+                          STACK
+                        </span>
+                        <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-white uppercase font-mono bg-transparent">
+                          Next.js, Three.js, GSAP
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
