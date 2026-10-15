@@ -135,6 +135,9 @@ export default function IPhone3DScene({
       renderer.outputColorSpace = THREE.SRGBColorSpace;
     }
     renderer.setClearColor(0x000000, 0);
+    renderer.domElement.style.display = "block";
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
     container.appendChild(renderer.domElement);
 
     const handleResize = () => {
@@ -157,6 +160,11 @@ export default function IPhone3DScene({
 
     handleResize();
     window.addEventListener("resize", handleResize);
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
 
     const phone = new THREE.Group();
     scene.add(phone);
@@ -388,6 +396,7 @@ export default function IPhone3DScene({
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       video.removeEventListener("loadedmetadata", updateFit);
       video.removeEventListener("canplay", updateFit);
       cancelAnimationFrame(rafIdRef.current);

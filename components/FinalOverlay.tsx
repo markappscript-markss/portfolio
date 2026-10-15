@@ -295,14 +295,14 @@ export default function FinalOverlay({
               <div className="h-8 sm:h-12" aria-hidden="true" />
 
               <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-8">
-                <div className="flex items-center justify-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
+                <div className="flex items-center justify-center gap-3 sm:gap-3.5 mb-4 sm:mb-5">
                   <a
                     href="mailto:markappscript@gmail.com"
-                    className="font-mono text-xs sm:text-sm tracking-widest text-white transition-colors duration-200 hover:text-[#ff2222] cursor-pointer"
+                    className="font-mono text-sm sm:text-base md:text-lg tracking-wider text-white transition-colors duration-200 hover:text-[#ff2222] cursor-pointer"
                   >
                     markappscript@gmail.com
                   </a>
-                  <span className="text-white/40 text-xs select-none">•</span>
+                  <span className="text-white/40 text-sm sm:text-base select-none">•</span>
                   <a
                     href="https://www.linkedin.com/in/mark-bryan-poticar-7954041b4"
                     target="_blank"
@@ -310,17 +310,17 @@ export default function FinalOverlay({
                     aria-label="LinkedIn Profile"
                     className="inline-flex items-center justify-center text-white transition-colors duration-200 hover:text-[#ff2222] cursor-pointer"
                   >
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24">
                       <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
                     </svg>
                   </a>
                 </div>
 
-                <h1 className="text-[clamp(2.5rem,8.5vw,9.5rem)] font-black tracking-tight leading-none text-white transition-colors duration-200 hover:text-[#ff2222] cursor-default">
+                <h1 className="text-[clamp(2.25rem,6.2vw,6.5rem)] font-black tracking-tight leading-none text-white transition-colors duration-200 hover:text-[#ff2222] cursor-default">
                   markappscript
                 </h1>
 
-                <div className="flex items-center justify-center gap-2 mt-4 sm:mt-5 font-mono text-xs sm:text-sm tracking-widest uppercase text-white">
+                <div className="flex items-center justify-center gap-2.5 mt-5 sm:mt-6 font-mono text-sm sm:text-base md:text-lg tracking-widest uppercase text-white">
                   <span className="transition-colors duration-200 hover:text-[#ff2222] cursor-default">
                     PH,
                   </span>

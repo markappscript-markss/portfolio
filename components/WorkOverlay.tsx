@@ -6,7 +6,6 @@ import TabletReveal from "@/components/TabletReveal";
 import MacBookVideo from "@/components/MacBookVideo";
 import IPhone3DScene from "@/components/iPhone3DScene";
 import SeeNextIndicator from "@/components/SeeNextIndicator";
-import WorkOverlayBackButton from "@/components/WorkOverlayBackButton";
 
 interface WorkOverlayProps {
   isOpen: boolean;
@@ -301,11 +300,10 @@ function TakeALookButton({
       }}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      className={`group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform before:absolute before:-inset-1.5 before:content-[''] before:rounded-full before:pointer-events-auto ${
-        disabled
-          ? "pointer-events-none cursor-default select-none"
-          : "pointer-events-auto cursor-pointer"
-      }`}
+      className={`group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white text-neutral-900 border border-neutral-900/20 text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase shadow-[0_2px_8px_rgba(0,0,0,0.06)] select-none will-change-transform before:absolute before:-inset-1.5 before:content-[''] before:rounded-full before:pointer-events-auto ${disabled
+        ? "pointer-events-none cursor-default select-none"
+        : "pointer-events-auto cursor-pointer"
+        }`}
       aria-label="Take a look"
       aria-hidden={disabled}
     >
@@ -737,8 +735,6 @@ export default function WorkOverlay({
         if (
           isOpen &&
           !isDeepDiveRef.current &&
-          !isTransitioningRef.current &&
-          canTakeALookRef.current &&
           !isTriggeringNextWorkRef.current &&
           e.deltaY > 15
         ) {
@@ -820,8 +816,6 @@ export default function WorkOverlay({
       if (
         !isOpen ||
         isDeepDiveRef.current ||
-        isTransitioningRef.current ||
-        !canTakeALookRef.current ||
         isTriggeringNextWorkRef.current
       ) {
         return;
@@ -889,6 +883,52 @@ export default function WorkOverlay({
     }, 1000);
   };
 
+  const getResponsiveSettings = () => {
+    if (typeof window === "undefined") {
+      return {
+        scale: 0.91,
+        x: "-10.8vw",
+        y: 12,
+        contentY: 12,
+        heroHeight: "53vh",
+      };
+    }
+    const w = window.innerWidth;
+    if (w >= 1440) {
+      return {
+        scale: 0.91,
+        x: "-10.8vw",
+        y: 12,
+        contentY: 12,
+        heroHeight: "53vh",
+      };
+    } else if (w >= 1024) {
+      return {
+        scale: 0.91,
+        x: "-10.8vw",
+        y: 12,
+        contentY: 12,
+        heroHeight: "53vh",
+      };
+    } else if (w >= 768) {
+      return {
+        scale: 0.88,
+        x: "-6.6vw",
+        y: 8,
+        contentY: 8,
+        heroHeight: "55vh",
+      };
+    } else {
+      return {
+        scale: w < 480 ? 0.72 : 0.8,
+        x: "0px",
+        y: 4,
+        contentY: 4,
+        heroHeight: "55vh",
+      };
+    }
+  };
+
   const handleTakeALook = () => {
     if (onTakeALook) {
       onTakeALook();
@@ -905,15 +945,17 @@ export default function WorkOverlay({
     setIsDeepDiveNav(true);
     setIsIPhoneRevealed(false);
 
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("portfolio-deepdive-enter"));
+    }
+
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
       containerRef.current.scrollTop = 0;
       containerRef.current.focus();
     }
 
-    const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
-    const isTablet = typeof window !== "undefined" && window.innerWidth >= 768;
-    const targetX = isLarge ? "-10.8vw" : isTablet ? "-6.6vw" : "0px";
+    const responsive = getResponsiveSettings();
 
     const header = document.getElementById("header-nav");
     if (header) {
@@ -938,9 +980,9 @@ export default function WorkOverlay({
     if (heroSectionRef.current) {
       gsap.killTweensOf(heroSectionRef.current);
       gsap.to(heroSectionRef.current, {
-        height: isLarge ? "53vh" : "55vh",
-        minHeight: isLarge ? "53vh" : "55vh",
-        maxHeight: isLarge ? "53vh" : "55vh",
+        height: responsive.heroHeight,
+        minHeight: responsive.heroHeight,
+        maxHeight: responsive.heroHeight,
         paddingTop: "1.5rem",
         paddingBottom: "0.5rem",
         duration: 1.15,
@@ -957,9 +999,9 @@ export default function WorkOverlay({
     if (tabletContainerRef.current) {
       gsap.killTweensOf(tabletContainerRef.current);
       gsap.to(tabletContainerRef.current, {
-        scale: 0.91,
-        x: targetX,
-        y: isLarge ? 12 : 8,
+        scale: responsive.scale,
+        x: responsive.x,
+        y: responsive.y,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -969,7 +1011,7 @@ export default function WorkOverlay({
     if (rightContentRef.current) {
       gsap.killTweensOf(rightContentRef.current);
       gsap.to(rightContentRef.current, {
-        y: isLarge ? 12 : 8,
+        y: responsive.contentY,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -1031,6 +1073,9 @@ export default function WorkOverlay({
             setIsIPhoneRevealed(false);
             setCanTakeALook(true);
             canTakeALookRef.current = true;
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("portfolio-deepdive-exit"));
+            }
 
             if (heroSectionRef.current) {
               gsap.killTweensOf(heroSectionRef.current);
@@ -1080,7 +1125,17 @@ export default function WorkOverlay({
               takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
               takeALookBtnWrapperRef.current.style.visibility = "visible";
               gsap.killTweensOf(takeALookBtnWrapperRef.current);
-              gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 1, y: 0 });
+              gsap.fromTo(
+                takeALookBtnWrapperRef.current,
+                { autoAlpha: 0, y: 12 },
+                {
+                  autoAlpha: 1,
+                  y: 0,
+                  duration: 0.45,
+                  ease: "power2.out",
+                  delay: 0.1,
+                }
+              );
             }
 
             if (fadeOverlayRef.current) {
@@ -1109,6 +1164,9 @@ export default function WorkOverlay({
 
     isDeepDiveRef.current = false;
     setIsDeepDiveNav(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("portfolio-deepdive-exit"));
+    }
 
     if (blackSectionRef.current) {
       gsap.killTweensOf(blackSectionRef.current);
@@ -1160,9 +1218,7 @@ export default function WorkOverlay({
             containerRef.current.style.overflowY = "hidden";
           }
           if (takeALookBtnWrapperRef.current) {
-            takeALookBtnWrapperRef.current.style.display = "block";
             takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
-            gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 1, y: 0 });
           }
         },
       });
@@ -1208,6 +1264,58 @@ export default function WorkOverlay({
       );
     }
   };
+
+  useEffect(() => {
+    const handleDeepDiveBack = () => {
+      if (isOpen && isDeepDiveRef.current) {
+        handleBackToExplore();
+      }
+    };
+    window.addEventListener("portfolio-deepdive-back", handleDeepDiveBack);
+    return () => {
+      window.removeEventListener("portfolio-deepdive-back", handleDeepDiveBack);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) return;
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleWindowResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (!tabletContainerRef.current || !heroSectionRef.current || isTransitioningRef.current) return;
+        const responsive = getResponsiveSettings();
+        gsap.to(tabletContainerRef.current, {
+          scale: responsive.scale,
+          x: responsive.x,
+          y: responsive.y,
+          duration: 0.35,
+          ease: "power2.out",
+        });
+        gsap.to(heroSectionRef.current, {
+          height: responsive.heroHeight,
+          minHeight: responsive.heroHeight,
+          maxHeight: responsive.heroHeight,
+          duration: 0.35,
+          ease: "power2.out",
+        });
+        if (rightContentRef.current) {
+          gsap.to(rightContentRef.current, {
+            y: responsive.contentY,
+            duration: 0.35,
+            ease: "power2.out",
+          });
+        }
+      }, 100);
+    };
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, [isOpen, isDeepDive]);
 
   const handleTabletSpinComplete = () => {
     if (!tabletContainerRef.current) return;
@@ -1438,6 +1546,9 @@ export default function WorkOverlay({
       setIsDeepDive(false);
       isDeepDiveRef.current = false;
       setIsDeepDiveNav(false);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("portfolio-deepdive-exit"));
+      }
 
       if (backBtnContainerRef.current) {
         gsap.killTweensOf(backBtnContainerRef.current);
@@ -1561,20 +1672,6 @@ export default function WorkOverlay({
 
   return (
     <>
-      <div
-        ref={backBtnContainerRef}
-        className={`fixed left-4 sm:left-12 top-4 sm:top-6 z-50 ${
-          hideBackButton ? "pointer-events-none" : "pointer-events-auto"
-        }`}
-        style={{ opacity: 0, visibility: "hidden" }}
-      >
-        <WorkOverlayBackButton
-          id="btn-back-work"
-          onClick={isDeepDiveNav ? handleBackToExplore : handleBack}
-          isDeepDive={isDeepDiveNav}
-          isVisible={isOpen && !hideBackButton}
-        />
-      </div>
 
       <div
         ref={fadeOverlayRef}
@@ -1609,255 +1706,253 @@ export default function WorkOverlay({
           data-lenis-prevent-wheel
           data-lenis-prevent-touch
           aria-hidden={!isOpen}
-          className={`w-full h-full bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${
-            isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
-          }`}
+          className={`w-full h-full bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
+            }`}
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-        <div
-          ref={heroSectionRef}
-          className="relative w-full min-h-screen h-screen flex flex-col items-center justify-center overflow-hidden bg-white"
-        >
-          {active && (
+          <div
+            ref={heroSectionRef}
+            className="relative w-full min-h-screen h-screen flex flex-col items-center justify-center overflow-hidden bg-white"
+          >
+            {active && (
+              <div
+                ref={tabletContainerRef}
+                className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
+              >
+                <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.26} />
+              </div>
+            )}
+
             <div
-              ref={tabletContainerRef}
-              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
+              className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0 pointer-events-auto"
             >
-              <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.26} />
+              <div
+                ref={rightContentRef}
+                className="relative flex flex-col items-center text-center"
+              >
+                <h2 className="reveal-text opacity-0 font-black tracking-tight text-neutral-950 text-center text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl leading-[1.08] select-none">
+                  <span className="block whitespace-nowrap">Portfolio,</span>
+                  <span className="block whitespace-nowrap">
+                    <span className="text-red-600">Reloaded</span>.
+                  </span>
+                </h2>
+                <p className="reveal-text opacity-0 mt-3 sm:mt-4 text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-600 font-sans font-medium tracking-tight select-none">
+                  Same me. Completely rebuilt.
+                </p>
+
+                <div
+                  ref={takeALookBtnWrapperRef}
+                  style={{
+                    opacity: 0,
+                    visibility: "hidden",
+                    transform: "translateY(24px)",
+                    pointerEvents: "none",
+                    display: "none",
+                  }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-6 sm:pt-8 whitespace-nowrap z-30"
+                >
+                  <TakeALookButton
+                    onClick={handleTakeALook}
+                    disabled={!canTakeALook || isDeepDive}
+                  />
+                </div>
+              </div>
             </div>
-          )}
+
+            <SeeNextIndicator
+              id="see-next-work-1"
+              isVisible={isOpen && active && !isDeepDive}
+              onClick={handleSeeNext}
+            />
+          </div>
 
           <div
-            className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0 pointer-events-auto"
+            ref={blackSectionRef}
+            className={`w-full bg-white relative z-30 -mt-px ${isDeepDive ? "block" : "hidden"
+              }`}
           >
-            <div
-              ref={rightContentRef}
-              className="relative flex flex-col items-center text-center"
-            >
-              <h2 className="reveal-text opacity-0 font-black tracking-tight text-neutral-950 text-center text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl leading-[1.08] select-none">
-                <span className="block whitespace-nowrap">Portfolio,</span>
-                <span className="block whitespace-nowrap">
-                  <span className="text-red-600">Reloaded</span>.
-                </span>
-              </h2>
-              <p className="reveal-text opacity-0 mt-3 sm:mt-4 text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-600 font-sans font-medium tracking-tight select-none">
-                Same me. Completely rebuilt.
-              </p>
-
-              <div
-                ref={takeALookBtnWrapperRef}
-                style={{
-                  opacity: 0,
-                  visibility: "hidden",
-                  transform: "translateY(24px)",
-                  pointerEvents: "none",
-                  display: "none",
-                }}
-                className="absolute top-full left-1/2 -translate-x-1/2 pt-6 sm:pt-8 whitespace-nowrap z-30"
-              >
-                <TakeALookButton
-                  onClick={handleTakeALook}
-                  disabled={!canTakeALook || isDeepDive}
-                />
-              </div>
-            </div>
-          </div>
-
-          <SeeNextIndicator
-            id="see-next-work-1"
-            isVisible={isOpen && active && !isDeepDive}
-            onClick={handleSeeNext}
-          />
-        </div>
-
-      <div
-        ref={blackSectionRef}
-        className={`w-full bg-white relative z-30 -mt-px ${
-          isDeepDive ? "block" : "hidden"
-        }`}
-      >
-        <div className="w-full bg-neutral-950 text-white">
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24">
-            <div className="flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none">
-              <div>
-                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                  PLATFORM
-                </span>
-                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  WEB
-                </p>
-              </div>
-              <div>
-                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                  ROLE
-                </span>
-                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  FRONT AND BACK END DEVELOPER
-                </p>
-              </div>
-              <div>
-                <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
-                  STACK
-                </span>
-                <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
-                  NEXT | THREE | GSAP
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-12 sm:mt-16 max-w-4xl">
-              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none">
-                <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
-                complete rebuild of my personal site, designed around one idea: a site that feels like
-                a space instead of a page. It’s a ground-up rethink of how my work is presented, with
-                interaction and motion shaping the experience as much as the content does. Every part of
-                it responds to the visitor, and the details are paced to feel natural rather than flashy.
-              </p>
-              <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
-                Built with Next.js and three.js, with close attention paid to motion, timing and how
-                everything holds up from desktop to mobile.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full bg-white text-neutral-950 relative z-20 shadow-[0_30px_70px_rgba(0,0,0,0.22)] min-h-[90vh]">
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-28 sm:pt-36 md:pt-48 lg:pt-52 pb-20 sm:pb-28 md:pb-36 lg:pb-40">
-            <div className="mb-8 sm:mb-10 md:mb-12">
-              <h2
-                ref={whereTitleRef}
-                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none whitespace-nowrap"
-              >
-                <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                  <span className="where-word inline-block will-change-transform opacity-0">
-                    The
-                  </span>
-                </span>
-                <span className="inline-block overflow-hidden py-1">
-                  <span className="where-word inline-block will-change-transform opacity-0">
-                    Prototype
-                  </span>
-                </span>
-              </h2>
-            </div>
-
-            {isDeepDive && (
-              <div className="relative w-full flex flex-col md:block select-none mb-4 sm:mb-6">
-                <div
-                  ref={whereTextRef}
-                  className="relative md:absolute md:top-14 lg:top-20 xl:top-24 md:left-0 z-10 w-full md:max-w-[215px] lg:max-w-[230px] xl:max-w-[255px] pointer-events-auto opacity-0 will-change-transform mb-8 md:mb-0"
-                >
-                  <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-neutral-900 leading-[1.65] tracking-tight select-none">
-                    Monotone and overly dark, the original UI suffered from stuttering animations that created unnecessary friction instead of making a strong visual statement.
-                  </p>
-                  <div className="mt-6 pt-4 border-t border-neutral-300">
-                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-500 font-medium">
+            <div className="w-full bg-neutral-950 text-white">
+              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24">
+                <div className="flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none">
+                  <div>
+                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                      PLATFORM
+                    </span>
+                    <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                      WEB
+                    </p>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
+                      ROLE
+                    </span>
+                    <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                      FRONT AND BACK END DEVELOPER
+                    </p>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
                       STACK
                     </span>
-                    <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-neutral-950 uppercase font-mono">
-                      Next.js, FramerMotion
+                    <p className="mt-1.5 text-xs sm:text-sm md:text-base font-bold tracking-wider text-white uppercase font-mono">
+                      NEXT | THREE | GSAP
                     </p>
                   </div>
                 </div>
 
-                <div
-                  ref={macbookContainerRef}
-                  className="w-full opacity-0 will-change-transform h-[50vh] sm:h-[58vh] md:h-[68vh] flex items-center justify-center"
-                >
-                  <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} />
+                <div className="mt-12 sm:mt-16 max-w-4xl">
+                  <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none">
+                    <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
+                    complete rebuild of my personal site, designed around one idea: a site that feels like
+                    a space instead of a page. It’s a ground-up rethink of how my work is presented, with
+                    interaction and motion shaping the experience as much as the content does. Every part of
+                    it responds to the visitor, and the details are paced to feel natural rather than flashy.
+                  </p>
+                  <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
+                    Built with Next.js and three.js, with close attention paid to motion, timing and how
+                    everything holds up from desktop to mobile.
+                  </p>
                 </div>
               </div>
-            )}
-
-            {children}
-          </div>
-        </div>
-
-        {isDeepDive && (
-          <>
-            <div
-              ref={videoSectionRef}
-              className="relative w-full aspect-[1892/790] overflow-hidden z-10 bg-neutral-950 will-change-transform"
-              style={{ aspectRatio: "1892 / 790" }}
-            >
-              <video
-                ref={parallaxVideoRef}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover block will-change-transform"
-              >
-                <source src="/videos/videoportfolio.webm" type="video/webm" />
-                <source src="/videos/videoportfolio.mp4" type="video/mp4" />
-              </video>
             </div>
 
-            <div
-              ref={nextSectionRef}
-              className="relative z-20 w-full bg-[#0f172a] text-white h-screen min-h-screen max-h-screen overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
-              style={{ backgroundColor: "#0f172a" }}
-            >
-              <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 min-h-0">
-                  <div className="md:col-span-7 lg:col-span-7 flex flex-col items-end justify-center h-full min-h-0 pointer-events-none">
-                    <div className="w-full max-w-[580px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[780px] flex-1 min-h-0 relative select-none pointer-events-none flex items-center justify-end">
-                      <IPhone3DScene
-                        videoSrc="/images/iphone/ipon_smooth.webm"
-                        zoom={1.01}
-                        cropBlackBars={true}
-                        autoPlayOnVisible={false}
-                        triggerReveal={isIPhoneRevealed}
-                        interactive={false}
-                        phoneScale={2.05}
-                        cameraFov={37}
-                        offsetY={-0.38}
-                        offsetX={0.22}
-                        lineColor={0xc4c9cf}
-                        className="w-full h-full relative pointer-events-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
-                    <h2
-                      ref={landedTitleRef}
-                      className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
-                    >
-                      <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                        <span className="landed-word inline-block will-change-transform opacity-0">
-                          The
-                        </span>
+            <div className="w-full bg-white text-neutral-950 relative z-20 shadow-[0_30px_70px_rgba(0,0,0,0.22)] min-h-[90vh]">
+              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-28 sm:pt-36 md:pt-48 lg:pt-52 pb-20 sm:pb-28 md:pb-36 lg:pb-40">
+                <div className="mb-8 sm:mb-10 md:mb-12">
+                  <h2
+                    ref={whereTitleRef}
+                    className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none whitespace-nowrap"
+                  >
+                    <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                      <span className="where-word inline-block will-change-transform opacity-0">
+                        The
                       </span>
-                      <span className="inline-block overflow-hidden py-1">
-                        <span className="landed-word inline-block will-change-transform opacity-0">
-                          Redesign
-                        </span>
+                    </span>
+                    <span className="inline-block overflow-hidden py-1">
+                      <span className="where-word inline-block will-change-transform opacity-0">
+                        Prototype
                       </span>
-                    </h2>
+                    </span>
+                  </h2>
+                </div>
 
+                {isDeepDive && (
+                  <div className="relative w-full flex flex-col md:block select-none mb-4 sm:mb-6">
                     <div
-                      ref={landedTextRef}
-                      className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
+                      ref={whereTextRef}
+                      className="relative md:absolute md:top-14 lg:top-20 xl:top-24 md:left-0 z-10 w-full md:max-w-[215px] lg:max-w-[230px] xl:max-w-[255px] pointer-events-auto opacity-0 will-change-transform mb-8 md:mb-0"
                     >
-                      <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
-                        The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
+                      <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-neutral-900 leading-[1.65] tracking-tight select-none">
+                        Monotone and overly dark, the original UI suffered from stuttering animations that created unnecessary friction instead of making a strong visual statement.
                       </p>
-                      <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
-                        <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
+                      <div className="mt-6 pt-4 border-t border-neutral-300">
+                        <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-500 font-medium">
                           STACK
                         </span>
-                        <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-white uppercase font-mono bg-transparent">
-                          Next.js, Three.js, GSAP
+                        <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-neutral-950 uppercase font-mono">
+                          Next.js, FramerMotion
                         </p>
+                      </div>
+                    </div>
+
+                    <div
+                      ref={macbookContainerRef}
+                      className="w-full opacity-0 will-change-transform h-[50vh] sm:h-[58vh] md:h-[68vh] flex items-center justify-center"
+                    >
+                      <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} />
+                    </div>
+                  </div>
+                )}
+
+                {children}
+              </div>
+            </div>
+
+            {isDeepDive && (
+              <>
+                <div
+                  ref={videoSectionRef}
+                  className="relative w-full aspect-[1892/790] overflow-hidden z-10 bg-neutral-950 will-change-transform"
+                  style={{ aspectRatio: "1892 / 790" }}
+                >
+                  <video
+                    ref={parallaxVideoRef}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover block will-change-transform"
+                  >
+                    <source src="/videos/videoportfolio.webm" type="video/webm" />
+                    <source src="/videos/videoportfolio.mp4" type="video/mp4" />
+                  </video>
+                </div>
+
+                <div
+                  ref={nextSectionRef}
+                  className="relative z-20 w-full bg-[#0f172a] text-white h-screen min-h-screen max-h-screen overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
+                  style={{ backgroundColor: "#0f172a" }}
+                >
+                  <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 min-h-0">
+                      <div className="md:col-span-7 lg:col-span-7 flex flex-col items-end justify-center h-full min-h-0 pointer-events-none">
+                        <div className="w-full max-w-[580px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[780px] flex-1 min-h-0 relative select-none pointer-events-none flex items-center justify-end">
+                          <IPhone3DScene
+                            videoSrc="/images/iphone/ipon_smooth.webm"
+                            zoom={1.01}
+                            cropBlackBars={true}
+                            autoPlayOnVisible={false}
+                            triggerReveal={isIPhoneRevealed}
+                            interactive={false}
+                            phoneScale={2.05}
+                            cameraFov={37}
+                            offsetY={-0.38}
+                            offsetX={0.22}
+                            lineColor={0xc4c9cf}
+                            className="w-full h-full relative pointer-events-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
+                        <h2
+                          ref={landedTitleRef}
+                          className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
+                        >
+                          <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                            <span className="landed-word inline-block will-change-transform opacity-0">
+                              The
+                            </span>
+                          </span>
+                          <span className="inline-block overflow-hidden py-1">
+                            <span className="landed-word inline-block will-change-transform opacity-0">
+                              Redesign
+                            </span>
+                          </span>
+                        </h2>
+
+                        <div
+                          ref={landedTextRef}
+                          className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
+                        >
+                          <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
+                            The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
+                          </p>
+                          <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
+                            <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
+                              STACK
+                            </span>
+                            <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-white uppercase font-mono bg-transparent">
+                              Next.js, Three.js, GSAP
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </>
-        )}
+              </>
+            )}
           </div>
         </div>
       </div>
