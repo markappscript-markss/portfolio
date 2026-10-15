@@ -1814,7 +1814,7 @@ export default function HeroScene3D() {
           boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65)",
         }}
       >
-        <span className="font-mono text-[9px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase text-neutral-600">
+        <span className="text-center font-mono text-[9px] sm:text-xs font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase text-neutral-600">
           AVAILABLE FOR WORK
         </span>
         <span className="text-xs sm:text-xl font-black italic tracking-tight text-neutral-900 mt-0.5 sm:mt-1">
