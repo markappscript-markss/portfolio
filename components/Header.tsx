@@ -7,17 +7,20 @@ import Magnetic from "@/components/animations/Magnetic";
 interface HeaderProps {
   activeView?: "main" | "about" | "work";
   onViewChange?: (view: "main" | "about" | "work") => void;
+  isDarkBackground?: boolean;
 }
 
 function HeaderNavItem({
   id,
   label,
   isActive,
+  isDarkBackground = false,
   onClick,
 }: {
   id: string;
   label: string;
   isActive: boolean;
+  isDarkBackground?: boolean;
   onClick: () => void;
 }) {
   const activeLineRef = useRef<HTMLDivElement>(null);
@@ -121,22 +124,35 @@ function HeaderNavItem({
     >
       <span
         ref={textRef}
-        className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors duration-200 will-change-transform ${isActive
-          ? "text-neutral-950 font-bold"
-          : "text-neutral-500 group-hover:text-neutral-950 font-medium"
-          }`}
+        className={`font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors duration-200 ease-out will-change-transform ${
+          isActive
+            ? isDarkBackground
+              ? "text-white font-bold"
+              : "text-neutral-950 font-bold"
+            : isDarkBackground
+            ? "text-neutral-400 group-hover:text-white font-medium"
+            : "text-neutral-500 group-hover:text-neutral-950 font-medium"
+        }`}
       >
         {label}
       </span>
       <div className="relative w-full h-[2.5px] sm:h-[3px] mt-1 overflow-hidden rounded-[1px]">
-        <div className="absolute inset-0 bg-neutral-900/20" />
+        <div
+          className={`absolute inset-0 transition-colors duration-200 ease-out ${
+            isDarkBackground ? "bg-white/20" : "bg-neutral-900/20"
+          }`}
+        />
         <div
           ref={hoverLineRef}
-          className="absolute inset-0 bg-neutral-900/85 origin-left will-change-transform pointer-events-none"
+          className={`absolute inset-0 origin-left will-change-transform pointer-events-none transition-colors duration-200 ease-out ${
+            isDarkBackground ? "bg-white/80" : "bg-neutral-900/85"
+          }`}
         />
         <div
           ref={activeLineRef}
-          className="absolute inset-0 bg-neutral-950 origin-left will-change-transform pointer-events-none"
+          className={`absolute inset-0 origin-left will-change-transform pointer-events-none transition-colors duration-200 ease-out ${
+            isDarkBackground ? "bg-white" : "bg-neutral-950"
+          }`}
         />
       </div>
     </button>
@@ -145,7 +161,7 @@ function HeaderNavItem({
 
 const GLITCH_GLYPHS = "!<>-_\\/[]{}—=+*^?#_01";
 
-function HeaderLogo() {
+function HeaderLogo({ isDarkBackground = false }: { isDarkBackground?: boolean }) {
   const [isAlt, setIsAlt] = useState(false);
   const [text, setText] = useState<{ prefix: string; suffix: string }>({
     prefix: "markappscript",
@@ -227,14 +243,22 @@ function HeaderLogo() {
         aria-label="Toggle logo title"
       >
         <span
-          className={`font-bold tracking-tight text-xs sm:text-base text-black transition-all ${isGlitching ? "drop-shadow-[1.5px_0_0_rgba(147,51,234,0.8)]" : ""
-            }`}
+          className={`font-bold tracking-tight text-xs sm:text-base transition-colors duration-200 ease-out ${
+            isDarkBackground ? "text-white" : "text-black"
+          } ${isGlitching ? "drop-shadow-[1.5px_0_0_rgba(147,51,234,0.8)]" : ""}`}
         >
           {text.prefix}
         </span>
         <span
-          className={`font-bold tracking-tight text-xs sm:text-base transition-all ${isAlt ? "text-black" : "text-purple-600"
-            } ${isGlitching ? "drop-shadow-[-1.5px_0_0_rgba(6,182,212,0.8)]" : ""}`}
+          className={`font-bold tracking-tight text-xs sm:text-base transition-colors duration-200 ease-out ${
+            isAlt
+              ? isDarkBackground
+                ? "text-white"
+                : "text-black"
+              : isDarkBackground
+              ? "text-purple-400"
+              : "text-purple-600"
+          } ${isGlitching ? "drop-shadow-[-1.5px_0_0_rgba(6,182,212,0.8)]" : ""}`}
         >
           {text.suffix}
         </span>
@@ -243,11 +267,15 @@ function HeaderLogo() {
   );
 }
 
-export default function Header({ activeView = "main", onViewChange }: HeaderProps) {
+export default function Header({
+  activeView = "main",
+  onViewChange,
+  isDarkBackground = false,
+}: HeaderProps) {
   const headerRef = useRef<HTMLElement>(null);
 
   const handleMainClick = () => {
-    if (activeView !== "about") return;
+    if (activeView === "main") return;
     onViewChange?.("main");
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("portfolio-trigger-main"));
@@ -269,7 +297,7 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
       className="fixed top-0 left-0 right-0 z-50 w-full h-16 sm:h-20 bg-transparent px-4 sm:px-12 flex items-center justify-between pointer-events-none opacity-0 border-0 outline-none shadow-none"
     >
       <div className="pointer-events-auto flex items-center justify-center">
-        <HeaderLogo />
+        <HeaderLogo isDarkBackground={isDarkBackground} />
       </div>
 
       <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 flex items-center gap-6 sm:gap-10 select-none">
@@ -277,21 +305,31 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
           id="nav-btn-main"
           label="MAIN"
           isActive={activeView === "main"}
+          isDarkBackground={isDarkBackground}
           onClick={handleMainClick}
         />
         <HeaderNavItem
           id="nav-btn-about"
           label="ABOUT"
           isActive={activeView === "about"}
+          isDarkBackground={isDarkBackground}
           onClick={handleAboutClick}
         />
       </div>
 
-      <div className="pointer-events-auto flex items-center gap-3 sm:gap-5 text-sm text-neutral-800">
+      <div
+        className={`pointer-events-auto flex items-center gap-3 sm:gap-5 text-sm transition-colors duration-200 ease-out ${
+          isDarkBackground ? "text-neutral-300" : "text-neutral-800"
+        }`}
+      >
         <Magnetic strength={0.15}>
           <a
             href="mailto:markappscript@gmail.com"
-            className="hidden sm:inline-block font-mono text-xs sm:text-sm font-semibold text-neutral-700 hover:text-black tracking-tight transition-colors"
+            className={`hidden sm:inline-block font-mono text-xs sm:text-sm font-semibold tracking-tight transition-colors duration-200 ease-out ${
+              isDarkBackground
+                ? "text-neutral-300 hover:text-white"
+                : "text-neutral-700 hover:text-black"
+            }`}
           >
             markappscript@gmail.com
           </a>
@@ -304,27 +342,15 @@ export default function Header({ activeView = "main", onViewChange }: HeaderProp
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn Profile"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-700 hover:text-[#0a66c2] hover:bg-neutral-900/5 transition-all"
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-out ${
+                isDarkBackground
+                  ? "text-neutral-300 hover:text-[#0a66c2] hover:bg-white/10"
+                  : "text-neutral-700 hover:text-[#0a66c2] hover:bg-neutral-900/5"
+              }`}
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
               </svg>
-            </a>
-          </Magnetic>
-
-          <Magnetic strength={0.2}>
-            <a
-              href="https://v2.onlinejobs.ph/jobseekers/info/4228954"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="OnlineJobs.ph Profile"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-700 hover:bg-neutral-900/5 transition-all group"
-            >
-              <img
-                src="/images/onlinejobs-icon.png"
-                alt="OnlineJobs.ph"
-                className="w-4 h-4 sm:w-[18px] sm:h-[18px] object-contain opacity-75 group-hover:opacity-100 group-hover:scale-110 transition-all"
-              />
             </a>
           </Magnetic>
         </div>

@@ -5,281 +5,16 @@ import gsap from "gsap";
 import TabletReveal from "@/components/TabletReveal";
 import MacBookVideo from "@/components/MacBookVideo";
 import IPhone3DScene from "@/components/iPhone3DScene";
+import SeeNextIndicator from "@/components/SeeNextIndicator";
+import WorkOverlayBackButton from "@/components/WorkOverlayBackButton";
 
 interface WorkOverlayProps {
   isOpen: boolean;
   onClose?: () => void;
   onTakeALook?: () => void;
+  onNextWork?: () => void;
+  hideBackButton?: boolean;
   children?: React.ReactNode;
-}
-
-function WorkOverlayBackButton({
-  id = "btn-back-work",
-  onClick,
-  isDeepDive = false,
-  isVisible = false,
-}: {
-  id?: string;
-  onClick: () => void;
-  isDeepDive?: boolean;
-  isVisible?: boolean;
-}) {
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const arrowRef = useRef<HTMLSpanElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
-
-  const resetHoverState = () => {
-    if (btnRef.current) {
-      gsap.killTweensOf(btnRef.current);
-      gsap.set(btnRef.current, {
-        y: 0,
-        scale: 1,
-        borderColor: isDeepDive ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.15)",
-        boxShadow: isDeepDive
-          ? "0 4px 20px rgba(0, 0, 0, 0.15)"
-          : "0 2px 8px rgba(0, 0, 0, 0.12)",
-      });
-    }
-    if (lineRef.current) {
-      gsap.killTweensOf(lineRef.current);
-      gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-    }
-    if (arrowRef.current) {
-      gsap.killTweensOf(arrowRef.current);
-      gsap.set(arrowRef.current, { rotate: 0, x: 0, y: 0 });
-    }
-    if (textRef.current) {
-      gsap.killTweensOf(textRef.current);
-      gsap.set(textRef.current, {
-        color: isDeepDive ? "rgba(0, 0, 0, 0.88)" : "rgba(255, 255, 255, 0.88)",
-      });
-    }
-  };
-
-  useEffect(() => {
-    resetHoverState();
-    return () => {
-      if (btnRef.current) gsap.killTweensOf(btnRef.current);
-      if (lineRef.current) gsap.killTweensOf(lineRef.current);
-      if (arrowRef.current) gsap.killTweensOf(arrowRef.current);
-      if (textRef.current) gsap.killTweensOf(textRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    resetHoverState();
-  }, [isDeepDive, isVisible]);
-
-  const handleMouseEnter = () => {
-    if (btnRef.current) {
-      gsap.killTweensOf(btnRef.current);
-      gsap.to(btnRef.current, {
-        y: -2,
-        borderColor: isDeepDive ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)",
-        boxShadow: isDeepDive
-          ? "0 8px 24px rgba(0, 0, 0, 0.18)"
-          : "0 6px 18px rgba(0, 0, 0, 0.25)",
-        duration: 0.28,
-        ease: "power2.out",
-      });
-    }
-    if (lineRef.current) {
-      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
-      gsap.killTweensOf(lineRef.current);
-      if (currentScale <= 0.05) {
-        gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-        gsap.to(lineRef.current, {
-          scaleX: 1,
-          duration: 0.32,
-          ease: "power2.out",
-        });
-      } else {
-        gsap.to(lineRef.current, {
-          scaleX: 0,
-          duration: 0.12 * currentScale,
-          ease: "power1.in",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-              gsap.to(lineRef.current, {
-                scaleX: 1,
-                duration: 0.32,
-                ease: "power2.out",
-              });
-            }
-          },
-        });
-      }
-    }
-    if (arrowRef.current) {
-      gsap.killTweensOf(arrowRef.current);
-      gsap.to(arrowRef.current, {
-        rotate: 45,
-        x: -3,
-        y: -2,
-        duration: 0.28,
-        ease: "power2.out",
-      });
-    }
-    if (textRef.current) {
-      gsap.killTweensOf(textRef.current);
-      gsap.to(textRef.current, {
-        color: isDeepDive ? "#000000" : "#ffffff",
-        duration: 0.2,
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (btnRef.current) {
-      gsap.killTweensOf(btnRef.current);
-      gsap.to(btnRef.current, {
-        y: 0,
-        borderColor: isDeepDive ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.15)",
-        boxShadow: isDeepDive
-          ? "0 4px 20px rgba(0, 0, 0, 0.15)"
-          : "0 2px 8px rgba(0, 0, 0, 0.12)",
-        duration: 0.24,
-        ease: "power2.out",
-      });
-    }
-    if (lineRef.current) {
-      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
-      gsap.killTweensOf(lineRef.current);
-      if (currentScale >= 0.95) {
-        gsap.set(lineRef.current, { transformOrigin: "right center" });
-        gsap.to(lineRef.current, {
-          scaleX: 0,
-          duration: 0.26,
-          ease: "power2.out",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-            }
-          },
-        });
-      } else {
-        gsap.to(lineRef.current, {
-          scaleX: 1,
-          duration: 0.15 * (1 - currentScale),
-          ease: "power1.out",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { transformOrigin: "right center" });
-              gsap.to(lineRef.current, {
-                scaleX: 0,
-                duration: 0.26,
-                ease: "power2.out",
-                onComplete: () => {
-                  if (lineRef.current) {
-                    gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-                  }
-                },
-              });
-            }
-          },
-        });
-      }
-    }
-    if (arrowRef.current) {
-      gsap.killTweensOf(arrowRef.current);
-      gsap.to(arrowRef.current, {
-        rotate: 0,
-        x: 0,
-        y: 0,
-        duration: 0.24,
-        ease: "power2.out",
-      });
-    }
-    if (textRef.current) {
-      gsap.killTweensOf(textRef.current);
-      gsap.to(textRef.current, {
-        color: isDeepDive ? "rgba(0, 0, 0, 0.88)" : "rgba(255, 255, 255, 0.88)",
-        duration: 0.2,
-      });
-    }
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    resetHoverState();
-    onClick();
-  };
-
-  const handleMouseDown = () => {
-    if (btnRef.current) {
-      gsap.to(btnRef.current, {
-        scale: 0.97,
-        duration: 0.1,
-        ease: "power2.out",
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (btnRef.current) {
-      gsap.to(btnRef.current, {
-        scale: 1,
-        duration: 0.15,
-        ease: "power2.out",
-      });
-    }
-  };
-
-  return (
-    <button
-      ref={btnRef}
-      type="button"
-      id={id}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      className={`group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[9px] sm:text-xs font-mono font-medium tracking-wider uppercase cursor-pointer select-none will-change-transform before:absolute before:-inset-1.5 before:content-[''] before:rounded-full before:pointer-events-auto ${
-        isDeepDive
-          ? "bg-white text-neutral-950 border-2 border-neutral-950/20 shadow-[0_4px_20px_rgba(0,0,0,0.15)]"
-          : "bg-neutral-950 text-white/90 border border-white/15 shadow-sm"
-      }`}
-      aria-label={isDeepDive ? "Back to explore" : "Back to main view"}
-    >
-      <span
-        ref={arrowRef}
-        className={`inline-block shrink-0 text-[11px] sm:text-sm font-light will-change-transform pointer-events-none ${
-          isDeepDive ? "text-neutral-950" : "text-white"
-        }`}
-      >
-        ←
-      </span>
-      <div className="relative flex flex-col items-start pointer-events-none">
-        <span
-          ref={textRef}
-          className={`block tracking-wider whitespace-nowrap pointer-events-none ${
-            isDeepDive ? "text-neutral-950" : "text-white/90"
-          }`}
-        >
-          {isDeepDive ? "BACK TO EXPLORE" : "BACK"}
-        </span>
-        <div className="relative w-full h-[2px] mt-0.5 overflow-hidden rounded-[1px] pointer-events-none">
-          <div
-            className={`absolute inset-0 ${
-              isDeepDive ? "bg-neutral-950/15" : "bg-white/20"
-            }`}
-          />
-          <div
-            ref={lineRef}
-            className={`absolute inset-0 scale-x-0 will-change-transform pointer-events-none ${
-              isDeepDive ? "bg-neutral-950" : "bg-white"
-            }`}
-            style={{
-              transformOrigin: "left center",
-              transform: "scaleX(0)",
-            }}
-          />
-        </div>
-      </div>
-    </button>
-  );
 }
 
 function TakeALookButton({
@@ -295,6 +30,16 @@ function TakeALookButton({
   const textRef = useRef<HTMLSpanElement>(null);
   const isHoveredRef = useRef(false);
   const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+  const lineProgress = useRef({ head: 0, tail: 0 });
+
+  const renderLine = () => {
+    if (!lineRef.current) return;
+    const head = Math.max(0, Math.min(100, lineProgress.current.head));
+    const tail = Math.max(0, Math.min(100, lineProgress.current.tail));
+    const right = 100 - head;
+    const left = tail;
+    lineRef.current.style.clipPath = `inset(0 ${right}% 0 ${left}%)`;
+  };
 
   const resetHoverState = () => {
     isHoveredRef.current = false;
@@ -307,10 +52,10 @@ function TakeALookButton({
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
       });
     }
-    if (lineRef.current) {
-      gsap.killTweensOf(lineRef.current);
-      gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-    }
+    gsap.killTweensOf(lineProgress.current);
+    lineProgress.current.head = 0;
+    lineProgress.current.tail = 0;
+    renderLine();
     if (arrowRef.current) {
       gsap.killTweensOf(arrowRef.current);
       gsap.set(arrowRef.current, { rotate: 0, x: 0, y: 0 });
@@ -322,10 +67,11 @@ function TakeALookButton({
   };
 
   useEffect(() => {
+    renderLine();
     resetHoverState();
     return () => {
       if (btnRef.current) gsap.killTweensOf(btnRef.current);
-      if (lineRef.current) gsap.killTweensOf(lineRef.current);
+      gsap.killTweensOf(lineProgress.current);
       if (arrowRef.current) gsap.killTweensOf(arrowRef.current);
       if (textRef.current) gsap.killTweensOf(textRef.current);
     };
@@ -414,34 +160,26 @@ function TakeALookButton({
         ease: "power2.out",
       });
     }
-    if (lineRef.current) {
-      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
-      gsap.killTweensOf(lineRef.current);
-      if (currentScale <= 0.05) {
-        gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-        gsap.to(lineRef.current, {
-          scaleX: 1,
-          duration: 0.32,
-          ease: "power2.out",
-        });
-      } else {
-        gsap.to(lineRef.current, {
-          scaleX: 0,
-          duration: 0.12 * currentScale,
-          ease: "power1.in",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-              gsap.to(lineRef.current, {
-                scaleX: 1,
-                duration: 0.32,
-                ease: "power2.out",
-              });
-            }
-          },
-        });
-      }
+
+    gsap.killTweensOf(lineProgress.current);
+
+    if (lineProgress.current.tail >= 98 || (lineProgress.current.head >= 99 && lineProgress.current.tail >= 95)) {
+      lineProgress.current.head = 0;
+      lineProgress.current.tail = 0;
+      renderLine();
     }
+
+    const remainingHead = 100 - lineProgress.current.head;
+    const dur = Math.max(0.18, 0.34 * (remainingHead / 100));
+
+    gsap.to(lineProgress.current, {
+      head: 100,
+      tail: 0,
+      duration: dur,
+      ease: "power2.out",
+      onUpdate: renderLine,
+    });
+
     if (arrowRef.current) {
       gsap.killTweensOf(arrowRef.current);
       gsap.to(arrowRef.current, {
@@ -475,44 +213,31 @@ function TakeALookButton({
         ease: "power2.out",
       });
     }
-    if (lineRef.current) {
-      const currentScale = Number(gsap.getProperty(lineRef.current, "scaleX")) || 0;
-      gsap.killTweensOf(lineRef.current);
-      if (currentScale >= 0.95) {
-        gsap.set(lineRef.current, { transformOrigin: "right center" });
-        gsap.to(lineRef.current, {
-          scaleX: 0,
-          duration: 0.26,
-          ease: "power2.out",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-            }
-          },
-        });
-      } else {
-        gsap.to(lineRef.current, {
-          scaleX: 1,
-          duration: 0.15 * (1 - currentScale),
-          ease: "power1.out",
-          onComplete: () => {
-            if (lineRef.current) {
-              gsap.set(lineRef.current, { transformOrigin: "right center" });
-              gsap.to(lineRef.current, {
-                scaleX: 0,
-                duration: 0.26,
-                ease: "power2.out",
-                onComplete: () => {
-                  if (lineRef.current) {
-                    gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
-                  }
-                },
-              });
-            }
-          },
-        });
-      }
+
+    gsap.killTweensOf(lineProgress.current);
+
+    if (lineProgress.current.head < 5) {
+      lineProgress.current.head = 0;
+      lineProgress.current.tail = 0;
+      renderLine();
+      return;
     }
+
+    const dur = 0.32;
+
+    gsap.to(lineProgress.current, {
+      head: 100,
+      tail: 100,
+      duration: dur,
+      ease: "power2.inOut",
+      onUpdate: renderLine,
+      onComplete: () => {
+        lineProgress.current.head = 0;
+        lineProgress.current.tail = 0;
+        renderLine();
+      },
+    });
+
     if (arrowRef.current) {
       gsap.killTweensOf(arrowRef.current);
       gsap.to(arrowRef.current, {
@@ -592,10 +317,9 @@ function TakeALookButton({
           <div className="absolute inset-0 bg-neutral-900/15" />
           <div
             ref={lineRef}
-            className="absolute inset-0 bg-neutral-950 scale-x-0 origin-left will-change-transform pointer-events-none"
+            className="absolute inset-0 bg-neutral-950 will-change-transform pointer-events-none"
             style={{
-              transformOrigin: "left center",
-              transform: "scaleX(0)",
+              clipPath: "inset(0 100% 0 0%)",
             }}
           />
         </div>
@@ -610,10 +334,33 @@ function TakeALookButton({
   );
 }
 
-export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: WorkOverlayProps) {
+export const WORK_OVERLAY_CURVE_CONFIG = {
+  openDuration: 0.95,
+  openEase: "power3.out",
+  curveFlattenDelay: 0.08,
+  curveFlattenDuration: 0.85,
+  curveFlattenEase: "power2.inOut",
+  closeDuration: 0.85,
+  closeEase: "power3.inOut",
+  closeCurveDuration: 0.45,
+  closeCurveEase: "power2.out",
+};
+
+export default function WorkOverlay({
+  isOpen,
+  onClose,
+  onTakeALook,
+  onNextWork,
+  hideBackButton = false,
+  children,
+}: WorkOverlayProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const curvePathRef = useRef<SVGPathElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(false);
   const onCloseRef = useRef(onClose);
+  const onNextWorkRef = useRef(onNextWork);
+  const isTriggeringNextWorkRef = useRef(false);
   const [active, setActive] = useState(false);
   const [isDeepDive, setIsDeepDive] = useState(false);
   const isDeepDiveRef = useRef(false);
@@ -621,6 +368,11 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   const [canTakeALook, setCanTakeALook] = useState(false);
   const canTakeALookRef = useRef(false);
   const isTransitioningRef = useRef(false);
+  const backBtnContainerRef = useRef<HTMLDivElement>(null);
+  const triggerWhereRevealRef = useRef<(() => void) | null>(null);
+  const triggerLandedRevealRef = useRef<(() => void) | null>(null);
+  const openTlRef = useRef<gsap.core.Timeline | null>(null);
+  const closeTlRef = useRef<gsap.core.Timeline | null>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
   const tabletContainerRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
@@ -646,8 +398,31 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   });
 
   useEffect(() => {
+    onNextWorkRef.current = onNextWork;
+  });
+
+  useEffect(() => {
     isDeepDiveRef.current = isDeepDive;
   }, [isDeepDive]);
+
+  useEffect(() => {
+    if (!backBtnContainerRef.current) return;
+    if (hideBackButton) {
+      gsap.killTweensOf(backBtnContainerRef.current);
+      gsap.to(backBtnContainerRef.current, {
+        autoAlpha: 0,
+        duration: 0.25,
+        ease: "power2.out",
+      });
+    } else if (isOpen) {
+      gsap.killTweensOf(backBtnContainerRef.current);
+      gsap.to(backBtnContainerRef.current, {
+        autoAlpha: 1,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    }
+  }, [hideBackButton, isOpen]);
 
   useEffect(() => {
     canTakeALookRef.current = canTakeALook;
@@ -705,95 +480,109 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.set(landedTextEl, { opacity: 0, y: 24 });
     }
 
+    const triggerWhereReveal = () => {
+      if (hasRevealedWhereRef.current) return;
+      hasRevealedWhereRef.current = true;
+      const tl = gsap.timeline();
+      tl.fromTo(
+        words,
+        { yPercent: 115, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.95,
+          stagger: 0.08,
+          ease: "power4.out",
+          force3D: true,
+        }
+      );
+      if (macbookContainerRef.current) {
+        tl.fromTo(
+          macbookContainerRef.current,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            ease: "power3.out",
+            force3D: true,
+          },
+          "-=0.35"
+        );
+      }
+      if (whereTextRef.current) {
+        tl.fromTo(
+          whereTextRef.current,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            force3D: true,
+          },
+          "-=0.1"
+        );
+      }
+    };
+
+    const triggerLandedReveal = () => {
+      if (hasRevealedLandedRef.current) return;
+      hasRevealedLandedRef.current = true;
+      hasRevealedLandedTextRef.current = true;
+      if (!landedTitleEl) return;
+      const landedWords = landedTitleEl.querySelectorAll(".landed-word");
+      if (landedTimelineRef.current) {
+        landedTimelineRef.current.kill();
+      }
+      const tl = gsap.timeline({ delay: 0.1 });
+      landedTimelineRef.current = tl;
+      tl.fromTo(
+        landedWords,
+        { yPercent: 115, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: "power3.out",
+          force3D: true,
+        }
+      );
+      if (landedTextRef.current) {
+        tl.fromTo(
+          landedTextRef.current,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+            force3D: true,
+          },
+          "-=0.2"
+        );
+      }
+      tl.call(
+        () => {
+          setIsIPhoneRevealed(true);
+        },
+        undefined,
+        "-=0.15"
+      );
+    };
+
+    triggerWhereRevealRef.current = triggerWhereReveal;
+    triggerLandedRevealRef.current = triggerLandedReveal;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.target === titleEl && entry.isIntersecting && !hasRevealedWhereRef.current) {
-            hasRevealedWhereRef.current = true;
-            const tl = gsap.timeline();
-            tl.fromTo(
-              words,
-              { yPercent: 115, opacity: 0 },
-              {
-                yPercent: 0,
-                opacity: 1,
-                duration: 0.95,
-                stagger: 0.08,
-                ease: "power4.out",
-                force3D: true,
-              }
-            );
-            if (macbookContainerRef.current) {
-              tl.fromTo(
-                macbookContainerRef.current,
-                { opacity: 0, y: 24 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.9,
-                  ease: "power3.out",
-                  force3D: true,
-                },
-                "-=0.35"
-              );
-            }
-            if (whereTextRef.current) {
-              tl.fromTo(
-                whereTextRef.current,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.85,
-                  ease: "power3.out",
-                  force3D: true,
-                },
-                "-=0.1"
-              );
-            }
+          if (entry.target === titleEl && entry.isIntersecting) {
+            triggerWhereReveal();
           }
-          if (landedTitleEl && entry.target === landedTitleEl && entry.isIntersecting && !hasRevealedLandedRef.current) {
-            hasRevealedLandedRef.current = true;
-            hasRevealedLandedTextRef.current = true;
-            const landedWords = landedTitleEl.querySelectorAll(".landed-word");
-            if (landedTimelineRef.current) {
-              landedTimelineRef.current.kill();
-            }
-            const tl = gsap.timeline({ delay: 0.1 });
-            landedTimelineRef.current = tl;
-            tl.fromTo(
-              landedWords,
-              { yPercent: 115, opacity: 0 },
-              {
-                yPercent: 0,
-                opacity: 1,
-                duration: 0.65,
-                stagger: 0.08,
-                ease: "power3.out",
-                force3D: true,
-              }
-            );
-            if (landedTextRef.current) {
-              tl.fromTo(
-                landedTextRef.current,
-                { opacity: 0, y: 20 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.6,
-                  ease: "power2.out",
-                  force3D: true,
-                },
-                "-=0.2"
-              );
-            }
-            tl.call(
-              () => {
-                setIsIPhoneRevealed(true);
-              },
-              undefined,
-              "-=0.15"
-            );
+          if (landedTitleEl && entry.target === landedTitleEl && entry.isIntersecting) {
+            triggerLandedReveal();
           }
         });
       },
@@ -811,6 +600,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     return () => {
       observer.disconnect();
+      triggerWhereRevealRef.current = null;
+      triggerLandedRevealRef.current = null;
       if (landedTimelineRef.current) {
         landedTimelineRef.current.kill();
         landedTimelineRef.current = null;
@@ -892,6 +683,20 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
           });
         }
       }
+
+      if (!hasRevealedWhereRef.current && whereTitleRef.current) {
+        const rect = whereTitleRef.current.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
+          triggerWhereRevealRef.current?.();
+        }
+      }
+
+      if (!hasRevealedLandedRef.current && landedTitleRef.current) {
+        const rect = landedTitleRef.current.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
+          triggerLandedRevealRef.current?.();
+        }
+      }
     };
 
     let lastFrameTime = 0;
@@ -928,6 +733,23 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       if (!isDeepDiveRef.current || isTransitioningRef.current || !containerRef.current) {
         if (isTransitioningRef.current || isOpen) {
           e.preventDefault();
+        }
+        if (
+          isOpen &&
+          !isDeepDiveRef.current &&
+          !isTransitioningRef.current &&
+          canTakeALookRef.current &&
+          !isTriggeringNextWorkRef.current &&
+          e.deltaY > 15
+        ) {
+          isTriggeringNextWorkRef.current = true;
+          onNextWorkRef.current?.();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("portfolio-view-work2"));
+          }
+          setTimeout(() => {
+            isTriggeringNextWorkRef.current = false;
+          }, 1000);
         }
         return;
       }
@@ -989,12 +811,43 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       }
     }
 
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (
+        !isOpen ||
+        isDeepDiveRef.current ||
+        isTransitioningRef.current ||
+        !canTakeALookRef.current ||
+        isTriggeringNextWorkRef.current
+      ) {
+        return;
+      }
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+      if (deltaY > 40) {
+        isTriggeringNextWorkRef.current = true;
+        onNextWorkRef.current?.();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("portfolio-view-work2"));
+        }
+        setTimeout(() => {
+          isTriggeringNextWorkRef.current = false;
+        }, 1000);
+      }
+    };
+
     const container = containerRef.current;
     if (container) {
       container.addEventListener("scroll", handleNativeScroll, { passive: true });
     }
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("resize", handleResize);
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       if (container) {
@@ -1002,6 +855,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       }
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
       if (rafId !== null) cancelAnimationFrame(rafId);
       if (videoSectionRef.current) gsap.set(videoSectionRef.current, { y: 0 });
       if (parallaxVideoRef.current) gsap.set(parallaxVideoRef.current, { y: 0, scale: 1 });
@@ -1020,6 +875,18 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("portfolio-trigger-main"));
     }
+  };
+
+  const handleSeeNext = () => {
+    if (isTriggeringNextWorkRef.current || isDeepDiveRef.current) return;
+    isTriggeringNextWorkRef.current = true;
+    onNextWorkRef.current?.();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("portfolio-view-work2"));
+    }
+    setTimeout(() => {
+      isTriggeringNextWorkRef.current = false;
+    }, 1000);
   };
 
   const handleTakeALook = () => {
@@ -1054,8 +921,17 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.to(header, {
         yPercent: -100,
         autoAlpha: 0,
-        duration: 0.85,
-        ease: "power3.inOut",
+        duration: 0.95,
+        ease: "power2.inOut",
+      });
+    }
+
+    if (backBtnContainerRef.current) {
+      gsap.killTweensOf(backBtnContainerRef.current);
+      gsap.to(backBtnContainerRef.current, {
+        y: 0,
+        duration: 0.95,
+        ease: "power2.inOut",
       });
     }
 
@@ -1125,70 +1001,30 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
   const handleBackToExplore = () => {
     if (isTransitioningRef.current) return;
 
+    const currentScrollTop = containerRef.current?.scrollTop || 0;
+    const isScrolledDown = currentScrollTop > 20;
+
     isTransitioningRef.current = true;
-    const isScrolledDown = (containerRef.current?.scrollTop ?? 0) > 20;
 
     const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
     const isTablet = typeof window !== "undefined" && window.innerWidth >= 768;
     const targetX = isLarge ? "-13vw" : isTablet ? "-8vw" : "0px";
 
-    if (isScrolledDown) {
-      if (fadeOverlayRef.current) {
-        gsap.killTweensOf(fadeOverlayRef.current);
-        gsap.to(fadeOverlayRef.current, {
+    if (isScrolledDown && fadeOverlayRef.current) {
+      gsap.killTweensOf(fadeOverlayRef.current);
+      gsap.fromTo(
+        fadeOverlayRef.current,
+        { autoAlpha: 0 },
+        {
           autoAlpha: 1,
-          duration: 0.28,
+          duration: 0.35,
           ease: "power2.inOut",
           onComplete: () => {
             if (containerRef.current) {
               containerRef.current.scrollTop = 0;
               containerRef.current.style.overflowY = "hidden";
             }
-            if (heroSectionRef.current) {
-              gsap.set(heroSectionRef.current, {
-                minHeight: "100vh",
-                height: "100vh",
-                maxHeight: "none",
-                paddingTop: "5rem",
-                paddingBottom: "3rem",
-              });
-            }
-            if (tabletContainerRef.current) {
-              gsap.set(tabletContainerRef.current, {
-                scale: 1,
-                x: targetX,
-                y: 0,
-              });
-            }
-            if (rightContentRef.current) {
-              gsap.set(rightContentRef.current, {
-                y: 0,
-                opacity: 1,
-              });
-            }
-            if (blackSectionRef.current) {
-              gsap.set(blackSectionRef.current, {
-                y: 0,
-                opacity: 1,
-              });
-            }
-            if (takeALookBtnWrapperRef.current) {
-              takeALookBtnWrapperRef.current.style.display = "block";
-              takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
-              gsap.set(takeALookBtnWrapperRef.current, {
-                autoAlpha: 1,
-                y: 0,
-              });
-            }
-            if (videoSectionRef.current) {
-              gsap.set(videoSectionRef.current, { y: 0 });
-            }
-            if (parallaxVideoRef.current) {
-              gsap.set(parallaxVideoRef.current, { y: 0, scale: 1 });
-            }
-            if (nextSectionRef.current) {
-              gsap.set(nextSectionRef.current, { y: 0 });
-            }
+
             setIsDeepDive(false);
             isDeepDiveRef.current = false;
             setIsDeepDiveNav(false);
@@ -1196,16 +1032,63 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             setCanTakeALook(true);
             canTakeALookRef.current = true;
 
+            if (heroSectionRef.current) {
+              gsap.killTweensOf(heroSectionRef.current);
+              gsap.set(heroSectionRef.current, {
+                minHeight: "100vh",
+                height: "100vh",
+                maxHeight: "none",
+                paddingTop: "0rem",
+                paddingBottom: "0rem",
+              });
+            }
+
+            if (tabletContainerRef.current) {
+              gsap.killTweensOf(tabletContainerRef.current);
+              gsap.set(tabletContainerRef.current, {
+                scale: 1,
+                x: targetX,
+                y: 0,
+                opacity: 1,
+              });
+            }
+
+            if (rightContentRef.current) {
+              gsap.killTweensOf(rightContentRef.current);
+              gsap.set(rightContentRef.current, { y: 0, opacity: 1 });
+            }
+
+            if (blackSectionRef.current) {
+              gsap.killTweensOf(blackSectionRef.current);
+              gsap.set(blackSectionRef.current, { y: 0, opacity: 1 });
+            }
+
             const header = document.getElementById("header-nav");
             if (header) {
+              gsap.killTweensOf(header);
               gsap.set(header, { yPercent: 0, autoAlpha: 1 });
+            }
+
+            if (backBtnContainerRef.current) {
+              const targetY = typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 72;
+              gsap.killTweensOf(backBtnContainerRef.current);
+              gsap.set(backBtnContainerRef.current, { y: targetY });
+            }
+
+            if (takeALookBtnWrapperRef.current) {
+              takeALookBtnWrapperRef.current.style.display = "block";
+              takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+              takeALookBtnWrapperRef.current.style.visibility = "visible";
+              gsap.killTweensOf(takeALookBtnWrapperRef.current);
+              gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 1, y: 0 });
             }
 
             if (fadeOverlayRef.current) {
               gsap.to(fadeOverlayRef.current, {
                 autoAlpha: 0,
-                duration: 0.32,
+                duration: 0.4,
                 ease: "power2.out",
+                delay: 0.05,
                 onComplete: () => {
                   isTransitioningRef.current = false;
                 },
@@ -1214,22 +1097,18 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
               isTransitioningRef.current = false;
             }
           },
-        });
-      } else {
-        isTransitioningRef.current = false;
-      }
+        }
+      );
       return;
+    }
+
+    if (containerRef.current) {
+      containerRef.current.style.overflowY = "hidden";
+      containerRef.current.scrollTop = 0;
     }
 
     isDeepDiveRef.current = false;
     setIsDeepDiveNav(false);
-
-    if (containerRef.current) {
-      gsap.killTweensOf(containerRef.current);
-      containerRef.current.style.overflowY = "hidden";
-      containerRef.current.scrollTo({ top: 0, behavior: "instant" });
-      containerRef.current.scrollTop = 0;
-    }
 
     if (blackSectionRef.current) {
       gsap.killTweensOf(blackSectionRef.current);
@@ -1242,9 +1121,20 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       gsap.to(header, {
         yPercent: 0,
         autoAlpha: 1,
-        duration: 0.9,
-        ease: "power3.out",
-        delay: 0.15,
+        duration: 0.95,
+        ease: "power2.inOut",
+        delay: 0.05,
+      });
+    }
+
+    if (backBtnContainerRef.current) {
+      const targetY = typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 72;
+      gsap.killTweensOf(backBtnContainerRef.current);
+      gsap.to(backBtnContainerRef.current, {
+        y: targetY,
+        duration: 0.95,
+        ease: "power2.inOut",
+        delay: 0.05,
       });
     }
 
@@ -1254,8 +1144,8 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         minHeight: "100vh",
         height: "100vh",
         maxHeight: "none",
-        paddingTop: "5rem",
-        paddingBottom: "3rem",
+        paddingTop: "0rem",
+        paddingBottom: "0rem",
         duration: 1.15,
         ease: "power3.inOut",
         onComplete: () => {
@@ -1302,25 +1192,18 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (takeALookBtnWrapperRef.current) {
       takeALookBtnWrapperRef.current.style.display = "block";
-      takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+      takeALookBtnWrapperRef.current.style.pointerEvents = "none";
       takeALookBtnWrapperRef.current.style.visibility = "visible";
       gsap.killTweensOf(takeALookBtnWrapperRef.current);
       gsap.fromTo(
         takeALookBtnWrapperRef.current,
-        { opacity: 0, y: 16 },
+        { autoAlpha: 0, y: 16 },
         {
-          opacity: 1,
+          autoAlpha: 1,
           y: 0,
-          duration: 0.55,
+          duration: 0.5,
           ease: "power2.out",
-          delay: 0.25,
-          onComplete: () => {
-            setCanTakeALook(true);
-            canTakeALookRef.current = true;
-            if (takeALookBtnWrapperRef.current) {
-              takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
-            }
-          },
+          delay: 0.35,
         }
       );
     }
@@ -1418,11 +1301,26 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
 
     if (!isMountedRef.current) {
       isMountedRef.current = true;
-      gsap.set(containerRef.current, {
-        yPercent: isOpen ? 0 : 100,
-        autoAlpha: isOpen ? 1 : 0,
-        display: isOpen ? "block" : "none",
-      });
+      if (wrapperRef.current) {
+        gsap.set(wrapperRef.current, {
+          yPercent: isOpen ? 0 : 100,
+          y: isOpen ? 0 : 160,
+          autoAlpha: isOpen ? 1 : 0,
+          display: isOpen ? "block" : "none",
+        });
+      }
+      if (curvePathRef.current) {
+        curvePathRef.current.setAttribute(
+          "d",
+          isOpen
+            ? "M 0 100 Q 50 100 100 100 L 100 100 L 0 100 Z"
+            : "M 0 100 Q 50 0 100 100 L 100 100 L 0 100 Z"
+        );
+      }
+      if (backBtnContainerRef.current) {
+        const initialY = typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 72;
+        gsap.set(backBtnContainerRef.current, { y: initialY, autoAlpha: isOpen ? 1 : 0 });
+      }
       if (!isOpen) return;
     }
 
@@ -1430,6 +1328,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       document.body.style.overflow = "hidden";
       setCanTakeALook(false);
       canTakeALookRef.current = false;
+      isTriggeringNextWorkRef.current = false;
       if (takeALookBtnWrapperRef.current) {
         gsap.killTweensOf(takeALookBtnWrapperRef.current);
         gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 0, y: 24 });
@@ -1440,23 +1339,69 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         gsap.killTweensOf(fadeOverlayRef.current);
         gsap.set(fadeOverlayRef.current, { autoAlpha: 0 });
       }
-      gsap.killTweensOf(containerRef.current);
-      gsap.set(containerRef.current, { display: "block", autoAlpha: 1 });
-      gsap.fromTo(
-        containerRef.current,
-        { yPercent: 100 },
-        {
-          yPercent: 0,
-          duration: 0.75,
-          ease: "power4.out",
-          force3D: true,
-          onComplete: () => {
-            if (containerRef.current) {
-              gsap.set(containerRef.current, { clearProps: "transform" });
-            }
-            setActive(true);
+
+      if (wrapperRef.current) {
+        gsap.killTweensOf(wrapperRef.current);
+        gsap.set(wrapperRef.current, { display: "block", autoAlpha: 1 });
+      }
+      if (curvePathRef.current) {
+        gsap.killTweensOf(curvePathRef.current);
+        curvePathRef.current.setAttribute("d", "M 0 100 Q 50 0 100 100 L 100 100 L 0 100 Z");
+      }
+
+      if (backBtnContainerRef.current) {
+        const initialY = typeof window !== "undefined" && window.innerWidth < 640 ? 64 : 72;
+        gsap.killTweensOf(backBtnContainerRef.current);
+        gsap.set(backBtnContainerRef.current, { y: initialY });
+        gsap.fromTo(
+          backBtnContainerRef.current,
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.4, delay: 0.35, ease: "power2.out" }
+        );
+      }
+
+      closeTlRef.current?.kill();
+
+      const curveObj = { val: 0 };
+      const openTl = gsap.timeline({
+        onComplete: () => {
+          setActive(true);
+        },
+      });
+      openTlRef.current = openTl;
+
+      if (wrapperRef.current) {
+        openTl.fromTo(
+          wrapperRef.current,
+          { yPercent: 100, y: 160 },
+          {
+            yPercent: 0,
+            y: 0,
+            duration: WORK_OVERLAY_CURVE_CONFIG.openDuration,
+            ease: WORK_OVERLAY_CURVE_CONFIG.openEase,
+            force3D: true,
+            autoRound: false,
           },
-        }
+          0
+        );
+      }
+
+      openTl.to(
+        curveObj,
+        {
+          val: 100,
+          duration: WORK_OVERLAY_CURVE_CONFIG.curveFlattenDuration,
+          ease: WORK_OVERLAY_CURVE_CONFIG.curveFlattenEase,
+          onUpdate: () => {
+            if (curvePathRef.current) {
+              curvePathRef.current.setAttribute(
+                "d",
+                `M 0 100 Q 50 ${curveObj.val} 100 100 L 100 100 L 0 100 Z`
+              );
+            }
+          },
+        },
+        WORK_OVERLAY_CURVE_CONFIG.curveFlattenDelay
       );
 
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -1494,6 +1439,11 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       isDeepDiveRef.current = false;
       setIsDeepDiveNav(false);
 
+      if (backBtnContainerRef.current) {
+        gsap.killTweensOf(backBtnContainerRef.current);
+        gsap.to(backBtnContainerRef.current, { autoAlpha: 0, duration: 0.25, ease: "power2.in" });
+      }
+
       if (tabletContainerRef.current) {
         gsap.to(tabletContainerRef.current, {
           opacity: 0,
@@ -1515,20 +1465,27 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
         takeALookBtnWrapperRef.current.style.display = "none";
         takeALookBtnWrapperRef.current.style.pointerEvents = "none";
       }
-      gsap.killTweensOf(containerRef.current);
-      gsap.to(containerRef.current, {
-        yPercent: 100,
-        duration: 0.5,
-        ease: "power3.in",
-        force3D: true,
+
+      openTlRef.current?.kill();
+
+      const closeTl = gsap.timeline({
         onComplete: () => {
           if (fadeOverlayRef.current) {
             gsap.killTweensOf(fadeOverlayRef.current);
             gsap.set(fadeOverlayRef.current, { autoAlpha: 0 });
           }
+          if (wrapperRef.current) {
+            gsap.set(wrapperRef.current, { autoAlpha: 0, display: "none", yPercent: 100, y: 160 });
+          }
+          if (curvePathRef.current) {
+            curvePathRef.current.setAttribute("d", "M 0 100 Q 50 0 100 100 L 100 100 L 0 100 Z");
+          }
+          if (backBtnContainerRef.current) {
+            gsap.set(backBtnContainerRef.current, { autoAlpha: 0 });
+          }
           if (containerRef.current) {
-            gsap.set(containerRef.current, { autoAlpha: 0, display: "none" });
             containerRef.current.style.top = "";
+            containerRef.current.scrollTop = 0;
           }
           if (heroSectionRef.current) {
             gsap.set(heroSectionRef.current, {
@@ -1536,7 +1493,7 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             });
           }
           if (tabletContainerRef.current) {
-            gsap.set(tabletContainerRef.current, { x: 0, scale: 1, y: 0 });
+            gsap.set(tabletContainerRef.current, { x: 0, scale: 1, y: 0, opacity: 0 });
           }
           if (rightContentRef.current) {
             const items = rightContentRef.current.querySelectorAll(".reveal-text");
@@ -1559,44 +1516,63 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
           setActive(false);
         },
       });
+      closeTlRef.current = closeTl;
+
+      if (curvePathRef.current) {
+        gsap.killTweensOf(curvePathRef.current);
+      }
+
+      const closeCurveObj = { val: 100 };
+      closeTl.to(
+        closeCurveObj,
+        {
+          val: 0,
+          duration: WORK_OVERLAY_CURVE_CONFIG.closeCurveDuration,
+          ease: WORK_OVERLAY_CURVE_CONFIG.closeCurveEase,
+          onUpdate: () => {
+            if (curvePathRef.current) {
+              curvePathRef.current.setAttribute(
+                "d",
+                `M 0 100 Q 50 ${closeCurveObj.val} 100 100 L 100 100 L 0 100 Z`
+              );
+            }
+          },
+        },
+        0
+      );
+
+      if (wrapperRef.current) {
+        gsap.killTweensOf(wrapperRef.current);
+        closeTl.to(
+          wrapperRef.current,
+          {
+            yPercent: 100,
+            y: 160,
+            duration: WORK_OVERLAY_CURVE_CONFIG.closeDuration,
+            ease: WORK_OVERLAY_CURVE_CONFIG.closeEase,
+            force3D: true,
+            autoRound: false,
+          },
+          0
+        );
+      }
     }
   }, [isOpen]);
 
   return (
     <>
       <div
-        className={`fixed left-4 sm:left-12 top-20 sm:top-24 z-50 transition-opacity duration-300 ease-out ${
-          isOpen && !isDeepDiveNav
-            ? "opacity-100 pointer-events-auto delay-100"
-            : "opacity-0 pointer-events-none delay-0 invisible"
+        ref={backBtnContainerRef}
+        className={`fixed left-4 sm:left-12 top-4 sm:top-6 z-50 ${
+          hideBackButton ? "pointer-events-none" : "pointer-events-auto"
         }`}
-        style={{
-          display: isOpen && !isDeepDiveNav ? "block" : "none",
-        }}
+        style={{ opacity: 0, visibility: "hidden" }}
       >
         <WorkOverlayBackButton
           id="btn-back-work"
-          onClick={handleBack}
-          isDeepDive={false}
-          isVisible={isOpen && !isDeepDiveNav}
-        />
-      </div>
-
-      <div
-        className={`fixed left-4 sm:left-12 top-4 sm:top-6 z-50 transition-opacity duration-300 ease-out ${
-          isOpen && isDeepDiveNav
-            ? "opacity-100 pointer-events-auto delay-100"
-            : "opacity-0 pointer-events-none delay-0 invisible"
-        }`}
-        style={{
-          display: isOpen && isDeepDiveNav ? "block" : "none",
-        }}
-      >
-        <WorkOverlayBackButton
-          id="btn-back-to-explore"
-          onClick={handleBackToExplore}
-          isDeepDive={true}
-          isVisible={isOpen && isDeepDiveNav}
+          onClick={isDeepDiveNav ? handleBackToExplore : handleBack}
+          isDeepDive={isDeepDiveNav}
+          isVisible={isOpen && !hideBackButton}
         />
       </div>
 
@@ -1607,36 +1583,57 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
       />
 
       <div
-        ref={containerRef}
-        id="work-overlay"
-        tabIndex={-1}
-        data-lenis-prevent
-        data-lenis-prevent-wheel
-        data-lenis-prevent-touch
+        ref={wrapperRef}
+        id="work-overlay-wrapper"
         aria-hidden={!isOpen}
-        className={`fixed inset-0 z-40 bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${
-          isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
-        }`}
-        style={{ WebkitOverflowScrolling: "touch" }}
+        className="fixed inset-0 z-40 pointer-events-none overflow-visible select-none"
+        style={{ display: "none" }}
       >
+        <svg
+          className="absolute -top-[99px] sm:-top-[139px] left-0 w-full h-[100px] sm:h-[140px] fill-white pointer-events-none overflow-visible z-10"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            ref={curvePathRef}
+            d="M 0 100 Q 50 0 100 100 L 100 100 L 0 100 Z"
+          />
+        </svg>
+
+        <div
+          ref={containerRef}
+          id="work-overlay"
+          tabIndex={-1}
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          aria-hidden={!isOpen}
+          className={`w-full h-full bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${
+            isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
+          }`}
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
         <div
           ref={heroSectionRef}
-          className="relative w-full min-h-screen flex flex-col items-center justify-center pt-20 sm:pt-24 pb-12 overflow-hidden bg-white"
+          className="relative w-full min-h-screen h-screen flex flex-col items-center justify-center overflow-hidden bg-white"
         >
           {active && (
             <div
               ref={tabletContainerRef}
-              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform translate-y-2 sm:translate-y-3 pointer-events-none"
+              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
             >
               <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.26} />
             </div>
           )}
 
           <div
-            ref={rightContentRef}
-            className="w-full md:w-auto md:absolute md:top-1/2 md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 translate-y-3 sm:translate-y-4 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0"
+            className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0 pointer-events-auto"
           >
-            <div className="relative flex flex-col items-center text-center">
+            <div
+              ref={rightContentRef}
+              className="relative flex flex-col items-center text-center"
+            >
               <h2 className="reveal-text opacity-0 font-black tracking-tight text-neutral-950 text-center text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl leading-[1.08] select-none">
                 <span className="block whitespace-nowrap">Portfolio,</span>
                 <span className="block whitespace-nowrap">
@@ -1665,6 +1662,12 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
               </div>
             </div>
           </div>
+
+          <SeeNextIndicator
+            id="see-next-work-1"
+            isVisible={isOpen && active && !isDeepDive}
+            onClick={handleSeeNext}
+          />
         </div>
 
       <div
@@ -1855,8 +1858,9 @@ export default function WorkOverlay({ isOpen, onClose, onTakeALook, children }: 
             </div>
           </>
         )}
+          </div>
+        </div>
       </div>
-    </div>
     </>
   );
 }
