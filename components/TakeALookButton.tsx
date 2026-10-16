@@ -8,6 +8,8 @@ export interface TakeALookButtonProps {
   disabled?: boolean;
   id?: string;
   className?: string;
+  label?: string;
+  ariaLabel?: string;
 }
 
 export default function TakeALookButton({
@@ -15,6 +17,8 @@ export default function TakeALookButton({
   disabled = false,
   id = "btn-take-a-look",
   className = "",
+  label = "TAKE A LOOK",
+  ariaLabel = "Take a look",
 }: TakeALookButtonProps) {
   const btnRef = useRef<HTMLButtonElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -298,12 +302,12 @@ export default function TakeALookButton({
           ? "pointer-events-none cursor-default select-none"
           : "pointer-events-auto cursor-pointer"
       } ${className}`}
-      aria-label="Take a look"
+      aria-label={ariaLabel}
       aria-hidden={disabled}
     >
       <div className="relative flex flex-col items-start pointer-events-none">
         <span ref={textRef} className="block tracking-wider text-neutral-900 whitespace-nowrap pointer-events-none">
-          TAKE A LOOK
+          {label}
         </span>
         <div className="relative w-full h-[2px] mt-0.5 overflow-hidden rounded-[1px] pointer-events-none">
           <div className="absolute inset-0 bg-neutral-900/15" />

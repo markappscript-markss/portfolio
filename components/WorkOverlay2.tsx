@@ -6,6 +6,7 @@ import { WORK_OVERLAY_CURVE_CONFIG } from "./WorkOverlay";
 import SeeNextIndicator from "./SeeNextIndicator";
 import MacBookOpening from "@/components/MacBookOpening";
 import TakeALookButton from "@/components/TakeALookButton";
+import TabletOutline3D from "@/components/TabletOutline3D";
 
 interface WorkOverlay2Props {
   isOpen: boolean;
@@ -16,6 +17,42 @@ interface WorkOverlay2Props {
   isHidden?: boolean;
   children?: React.ReactNode;
 }
+
+const EMPLOYEE_CARDS = [
+  {
+    src: "/images/lmsemp.webp",
+    alt: "Employee View - Balances and Overview",
+  },
+  {
+    src: "/images/lmsemp2.webp",
+    alt: "Employee View - Leave Filing",
+  },
+  {
+    src: "/images/lmsemp3.webp",
+    alt: "Employee View - Team Schedule",
+  },
+];
+
+const ACCORDION_ITEMS = [
+  {
+    num: "01",
+    label: "APPROVALS QUEUE",
+    src: "/images/lmsman.webp",
+    alt: "Manager View - Pending Approval Requests",
+  },
+  {
+    num: "02",
+    label: "DAILY AVAILABILITY",
+    src: "/images/lmsman2.webp",
+    alt: "Manager View - Team Availability Per Day",
+  },
+  {
+    num: "03",
+    label: "TEAM BALANCES",
+    src: "/images/lmsman3.webp",
+    alt: "Manager View - Team Members and Leave Balances",
+  },
+];
 
 export default function WorkOverlay2({
   isOpen,
@@ -38,6 +75,25 @@ export default function WorkOverlay2({
   const backBtnContainerRef = useRef<HTMLDivElement>(null);
   const fadeOverlayRef = useRef<HTMLDivElement>(null);
   const blackSectionRef = useRef<HTMLDivElement>(null);
+  const employeeSectionRef = useRef<HTMLDivElement>(null);
+  const employeeTitleRef = useRef<HTMLHeadingElement>(null);
+  const employeeTextRef = useRef<HTMLDivElement>(null);
+  const employeeCardsRef = useRef<HTMLDivElement>(null);
+  const hasRevealedEmployeeRef = useRef(false);
+  const [activeEmpCard, setActiveEmpCard] = useState(0);
+
+  const managerSectionRef = useRef<HTMLDivElement>(null);
+  const managerTitleRef = useRef<HTMLHeadingElement>(null);
+  const managerTextRef = useRef<HTMLDivElement>(null);
+  const managerAccordionRef = useRef<HTMLDivElement>(null);
+  const hasRevealedManagerRef = useRef(false);
+  const [activeAccordion, setActiveAccordion] = useState(0);
+
+  const tabletSectionRef = useRef<HTMLDivElement>(null);
+  const tabletWrapperRef = useRef<HTMLDivElement>(null);
+  const adminTitleRef = useRef<HTMLHeadingElement>(null);
+  const adminTextRef = useRef<HTMLDivElement>(null);
+  const hasRevealedTabletRef = useRef(false);
 
   const [isDeepDive, setIsDeepDive] = useState(false);
   const isDeepDiveRef = useRef(false);
@@ -187,6 +243,9 @@ export default function WorkOverlay2({
     setIsDeepDive(true);
     isDeepDiveRef.current = true;
     setIsDeepDiveNav(true);
+    hasRevealedEmployeeRef.current = false;
+    hasRevealedManagerRef.current = false;
+    hasRevealedTabletRef.current = false;
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("portfolio-deepdive-enter"));
@@ -309,6 +368,9 @@ export default function WorkOverlay2({
             setIsDeepDive(false);
             isDeepDiveRef.current = false;
             setIsDeepDiveNav(false);
+            hasRevealedEmployeeRef.current = false;
+            hasRevealedManagerRef.current = false;
+            hasRevealedTabletRef.current = false;
             setCanTakeALook(true);
             canTakeALookRef.current = true;
             if (typeof window !== "undefined") {
@@ -438,6 +500,9 @@ export default function WorkOverlay2({
           setIsDeepDive(false);
           isDeepDiveRef.current = false;
           isTransitioningRef.current = false;
+          hasRevealedEmployeeRef.current = false;
+          hasRevealedManagerRef.current = false;
+          hasRevealedTabletRef.current = false;
           setCanTakeALook(true);
           canTakeALookRef.current = true;
           if (containerRef.current) {
@@ -563,6 +628,412 @@ export default function WorkOverlay2({
     return () => {
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", handleWindowResize);
+    };
+  }, [isOpen, isDeepDive]);
+
+  const handleCardClick = (clickedIdx?: number) => {
+    setActiveEmpCard((prev) => {
+      if (clickedIdx !== undefined && clickedIdx !== prev) {
+        return clickedIdx;
+      }
+      return (prev + 1) % EMPLOYEE_CARDS.length;
+    });
+  };
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      hasRevealedEmployeeRef.current = false;
+      if (employeeTitleRef.current) {
+        const words = employeeTitleRef.current.querySelectorAll(".emp-word");
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (employeeTextRef.current) {
+        const paragraphs = employeeTextRef.current.querySelectorAll("p");
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      if (employeeCardsRef.current) {
+        gsap.set(employeeCardsRef.current, { opacity: 0, y: 70, scale: 0.9 });
+      }
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const words = employeeTitleRef.current?.querySelectorAll(".emp-word");
+    if (!hasRevealedEmployeeRef.current) {
+      if (words && words.length) {
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (employeeTextRef.current) {
+        const paragraphs = employeeTextRef.current.querySelectorAll("p");
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      if (employeeCardsRef.current) {
+        gsap.set(employeeCardsRef.current, { opacity: 0, y: 70, scale: 0.9 });
+      }
+    }
+
+    const triggerReveal = () => {
+      if (hasRevealedEmployeeRef.current) return;
+      hasRevealedEmployeeRef.current = true;
+
+      const tl = gsap.timeline();
+      if (employeeCardsRef.current) {
+        tl.fromTo(
+          employeeCardsRef.current,
+          { opacity: 0, y: 70, scale: 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: "power3.out", force3D: true },
+          0
+        );
+      }
+      if (words && words.length) {
+        tl.fromTo(
+          words,
+          { yPercent: 115, opacity: 0 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.95,
+            stagger: 0.09,
+            ease: "power4.out",
+            force3D: true,
+          },
+          0.1
+        );
+      }
+      if (employeeTextRef.current) {
+        const paragraphs = employeeTextRef.current.querySelectorAll("p");
+        tl.fromTo(
+          paragraphs,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 0.9, stagger: 0.18, ease: "power3.out", force3D: true },
+          0.2
+        );
+      }
+    };
+
+    const handleScrollCheck = () => {
+      if (hasRevealedEmployeeRef.current) return;
+      const target = employeeCardsRef.current || employeeTitleRef.current;
+      if (!target || !container) return;
+      const targetRect = target.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      if (targetRect.top - containerRect.top < containerRect.height * 0.78) {
+        triggerReveal();
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            triggerReveal();
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    if (employeeTitleRef.current) observer.observe(employeeTitleRef.current);
+    if (employeeCardsRef.current) observer.observe(employeeCardsRef.current);
+
+    container.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCheck();
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScrollCheck);
+    };
+  }, [isOpen, isDeepDive]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      hasRevealedManagerRef.current = false;
+      if (managerTitleRef.current) {
+        const words = managerTitleRef.current.querySelectorAll(".man-word");
+        gsap.set(words, { yPercent: 125, opacity: 0, rotate: 3 });
+      }
+      if (managerTextRef.current) {
+        const paragraphs = managerTextRef.current.querySelectorAll("p");
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      if (managerAccordionRef.current) {
+        gsap.set(managerAccordionRef.current, { opacity: 0, y: 90, scale: 0.93 });
+        const panels = managerAccordionRef.current.querySelectorAll(".accordion-panel");
+        if (panels.length) gsap.set(panels, { opacity: 0, y: 50 });
+      }
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const words = managerTitleRef.current?.querySelectorAll(".man-word");
+    const paragraphs = managerTextRef.current?.querySelectorAll("p");
+    const accordion = managerAccordionRef.current;
+    const panels = accordion?.querySelectorAll(".accordion-panel");
+
+    if (!hasRevealedManagerRef.current) {
+      if (words && words.length) {
+        gsap.set(words, { yPercent: 125, opacity: 0, rotate: 3 });
+      }
+      if (paragraphs && paragraphs.length) {
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      if (accordion) {
+        gsap.set(accordion, { opacity: 0, y: 90, scale: 0.93 });
+      }
+      if (panels && panels.length) {
+        gsap.set(panels, { opacity: 0, y: 50 });
+      }
+    }
+
+    const triggerReveal = () => {
+      if (hasRevealedManagerRef.current) return;
+      hasRevealedManagerRef.current = true;
+
+      const tl = gsap.timeline();
+
+      if (managerAccordionRef.current) {
+        tl.fromTo(
+          managerAccordionRef.current,
+          { opacity: 0, y: 90, scale: 0.93 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.1,
+            ease: "power3.out",
+            force3D: true,
+          },
+          0
+        );
+      }
+
+      if (panels && panels.length) {
+        tl.fromTo(
+          panels,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            stagger: 0.1,
+            ease: "power2.out",
+            force3D: true,
+          },
+          0.1
+        );
+      }
+
+      if (words && words.length) {
+        tl.fromTo(
+          words,
+          { yPercent: 125, opacity: 0, rotate: 3 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            rotate: 0,
+            duration: 1.0,
+            stagger: 0.1,
+            ease: "power4.out",
+            force3D: true,
+          },
+          0.12
+        );
+      }
+
+      if (paragraphs && paragraphs.length) {
+        tl.fromTo(
+          paragraphs,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            stagger: 0.16,
+            ease: "power3.out",
+            force3D: true,
+          },
+          0.26
+        );
+      }
+    };
+
+    const handleScrollCheck = () => {
+      if (hasRevealedManagerRef.current) return;
+      const target = managerAccordionRef.current || managerTitleRef.current;
+      if (!target || !container) return;
+
+      const targetRect = target.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      if (targetRect.top - containerRect.top < containerRect.height * 0.78) {
+        triggerReveal();
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            triggerReveal();
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    if (managerTitleRef.current) observer.observe(managerTitleRef.current);
+    if (managerAccordionRef.current) observer.observe(managerAccordionRef.current);
+
+    container.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCheck();
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScrollCheck);
+    };
+  }, [isOpen, isDeepDive]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      hasRevealedTabletRef.current = false;
+      if (tabletWrapperRef.current) {
+        gsap.set(tabletWrapperRef.current, { opacity: 0, y: 50, scale: 0.94 });
+      }
+      if (adminTitleRef.current) {
+        const words = adminTitleRef.current.querySelectorAll(".admin-word");
+        gsap.set(words, { yPercent: 125, opacity: 0, rotate: 3 });
+      }
+      if (adminTextRef.current) {
+        const paragraphs = adminTextRef.current.querySelectorAll("p, .admin-cta");
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const words = adminTitleRef.current?.querySelectorAll(".admin-word");
+    const paragraphs = adminTextRef.current?.querySelectorAll("p, .admin-cta");
+
+    if (!hasRevealedTabletRef.current) {
+      if (tabletWrapperRef.current) {
+        gsap.set(tabletWrapperRef.current, { opacity: 0, y: 50, scale: 0.94 });
+      }
+      if (words && words.length) {
+        gsap.set(words, { yPercent: 125, opacity: 0, rotate: 3 });
+      }
+      if (paragraphs && paragraphs.length) {
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+    }
+
+    const triggerReveal = () => {
+      if (hasRevealedTabletRef.current) return;
+      hasRevealedTabletRef.current = true;
+
+      const tl = gsap.timeline();
+
+      if (tabletWrapperRef.current) {
+        tl.fromTo(
+          tabletWrapperRef.current,
+          { opacity: 0, y: 50, scale: 0.94 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.15,
+            ease: "power3.out",
+            force3D: true,
+          },
+          0
+        );
+      }
+
+      if (words && words.length) {
+        tl.fromTo(
+          words,
+          { yPercent: 125, opacity: 0, rotate: 3 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            rotate: 0,
+            duration: 1.0,
+            stagger: 0.1,
+            ease: "power4.out",
+            force3D: true,
+          },
+          0.12
+        );
+      }
+
+      if (paragraphs && paragraphs.length) {
+        tl.fromTo(
+          paragraphs,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            stagger: 0.16,
+            ease: "power3.out",
+            force3D: true,
+          },
+          0.28
+        );
+      }
+    };
+
+    const handleScrollCheck = () => {
+      if (hasRevealedTabletRef.current) return;
+      const target = tabletWrapperRef.current || tabletSectionRef.current;
+      if (!target || !container) return;
+
+      const targetRect = target.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      if (targetRect.top - containerRect.top < containerRect.height * 0.8) {
+        triggerReveal();
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            triggerReveal();
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    if (tabletWrapperRef.current) observer.observe(tabletWrapperRef.current);
+    if (adminTitleRef.current) observer.observe(adminTitleRef.current);
+
+    container.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCheck();
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScrollCheck);
     };
   }, [isOpen, isDeepDive]);
 
@@ -761,7 +1232,6 @@ export default function WorkOverlay2({
         },
       });
       openTlRef.current = openTl;
-      // Unlock scroll navigation shortly after the slide-in, not after every reveal animation.
       openTl.call(
         () => {
           isTransitioningRef.current = false;
@@ -1022,11 +1492,11 @@ export default function WorkOverlay2({
 
           <div
             ref={blackSectionRef}
-            className={`w-full bg-neutral-950 text-white relative z-30 -mt-px min-h-[120vh] ${isDeepDive ? "block" : "hidden"
+            className={`w-full relative z-30 -mt-px ${isDeepDive ? "block" : "hidden"
               }`}
           >
-            <div className="w-full bg-neutral-950 text-white pb-32">
-              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-16 sm:pb-24">
+            <div className="w-full bg-neutral-950 text-white">
+              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-28 sm:pb-36">
                 <div className="flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none">
                   <div>
                     <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
@@ -1061,6 +1531,249 @@ export default function WorkOverlay2({
                   <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
                     Includes role-based views, instant status notifications, and full audit logs so HR and team leads always know who’s in and who’s out.
                   </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              ref={employeeSectionRef}
+              className="w-full bg-[#F4EFE6] text-neutral-950 relative z-20 min-h-screen py-24 sm:py-32 lg:py-36 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]"
+            >
+              <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center">
+                  <div
+                    ref={employeeCardsRef}
+                    className="lg:col-span-7 xl:col-span-7 flex flex-col items-center lg:items-start w-full will-change-transform py-6 opacity-0"
+                  >
+                    <div
+                      className="relative w-full max-w-[920px] xl:max-w-[1020px] aspect-[1901/905] select-none cursor-pointer"
+                      onClick={() => handleCardClick()}
+                    >
+                      {EMPLOYEE_CARDS.map((card, idx) => {
+                        const slot =
+                          (idx - activeEmpCard + EMPLOYEE_CARDS.length) % EMPLOYEE_CARDS.length;
+
+                        let slotClasses = "";
+                        if (slot === 0) {
+                          slotClasses =
+                            "z-30 scale-100 translate-x-0 translate-y-0 opacity-100 shadow-[0_35px_80px_rgba(0,0,0,0.28)] ring-1 ring-black/10";
+                        } else if (slot === 1) {
+                          slotClasses =
+                            "z-20 scale-[0.96] translate-x-6 sm:translate-x-10 lg:translate-x-14 xl:translate-x-16 -translate-y-6 sm:-translate-y-9 lg:-translate-y-12 opacity-85 hover:opacity-100 shadow-[0_24px_55px_rgba(0,0,0,0.18)] ring-1 ring-black/10";
+                        } else {
+                          slotClasses =
+                            "z-10 scale-[0.92] -translate-x-6 sm:-translate-x-10 lg:-translate-x-14 xl:-translate-x-16 translate-y-6 sm:translate-y-9 lg:translate-y-12 opacity-70 hover:opacity-95 shadow-[0_18px_40px_rgba(0,0,0,0.14)] ring-1 ring-black/10";
+                        }
+
+                        return (
+                          <div
+                            key={card.src}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCardClick(idx);
+                            }}
+                            className={`absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden bg-neutral-900 border border-neutral-950/15 cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform ${slotClasses}`}
+                          >
+                            <img
+                              src={card.src}
+                              alt={card.alt}
+                              className="w-full h-full object-cover select-none pointer-events-none"
+                              loading="lazy"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
+                    <h2
+                      ref={employeeTitleRef}
+                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                    >
+                      <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
+                        <span className="emp-word inline-block will-change-transform opacity-0">
+                          Employee
+                        </span>
+                      </span>
+                      <span className="inline-block overflow-hidden py-1">
+                        <span className="emp-word inline-block will-change-transform opacity-0">
+                          View
+                        </span>
+                      </span>
+                    </h2>
+
+                    <div
+                      ref={employeeTextRef}
+                      className="mt-6 sm:mt-7 space-y-4 max-w-2xl"
+                    >
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Gives employees a simple way to file for time off and check how many leave days they have left, without having to message HR.
+                      </p>
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Shows a live view of which teammates are currently out, making it easy to plan around the team&apos;s schedule before submitting a request.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              ref={managerSectionRef}
+              className="w-full bg-[#EADFC9] text-neutral-950 relative z-20 min-h-[110vh] pt-24 sm:pt-32 lg:pt-36 xl:pt-40 pb-36 sm:pb-48 lg:pb-56 xl:pb-64 flex items-center justify-center"
+            >
+              <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 xl:gap-14 w-full">
+                  <div className="w-full lg:w-[32%] xl:w-[27%] shrink-0 flex flex-col justify-center text-left">
+                    <h2
+                      ref={managerTitleRef}
+                      className="font-black tracking-tight text-neutral-950 text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl leading-[1.02] select-none"
+                    >
+                      <span className="block overflow-hidden py-0.5 sm:py-1">
+                        <span className="man-word inline-block will-change-transform opacity-0">
+                          Manager
+                        </span>
+                      </span>
+                      <span className="block overflow-hidden py-0.5 sm:py-1">
+                        <span className="man-word inline-block will-change-transform opacity-0">
+                          View
+                        </span>
+                      </span>
+                    </h2>
+
+                    <div
+                      ref={managerTextRef}
+                      className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                    >
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Covers everything in the employee view, plus the tools needed to run a team&apos;s day-to-day schedule and handle incoming requests.
+                      </p>
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Team leads can approve or reject time off, check daily availability at a glance, and view remaining leave balances for everyone on their roster.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-full lg:w-[68%] xl:w-[73%] flex-1 min-w-0">
+                    <div
+                      ref={managerAccordionRef}
+                      className="w-full flex items-stretch gap-3 sm:gap-4 lg:gap-4 h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] select-none will-change-transform opacity-0"
+                    >
+                      {ACCORDION_ITEMS.map((item, index) => {
+                        const isExpanded = activeAccordion === index;
+
+                        return (
+                          <div
+                            key={item.num}
+                            onClick={() => setActiveAccordion(index)}
+                            className={`accordion-panel relative rounded-2xl sm:rounded-3xl lg:rounded-[28px] overflow-hidden transition-[flex] duration-700 ease-[cubic-bezier(0.25,1,0.35,1)] transform-gpu border-[2px] border-neutral-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)] ${isExpanded
+                              ? "flex-[1_1_0%] cursor-default bg-white"
+                              : "flex-[0_0_64px] sm:flex-[0_0_74px] lg:flex-[0_0_84px] xl:flex-[0_0_92px] cursor-pointer bg-[#141b27] group hover:border-neutral-950"
+                              }`}
+                          >
+                            <img
+                              src={item.src}
+                              alt={item.alt}
+                              className={`absolute top-0 left-0 h-full min-w-[1200px] w-full max-w-none object-cover object-left-top select-none pointer-events-none transition-opacity duration-500 ease-out transform-gpu rounded-[22px] sm:rounded-[26px] ${isExpanded
+                                ? "opacity-100"
+                                : "opacity-15"
+                                }`}
+                              loading="lazy"
+                            />
+
+                            <div
+                              className={`absolute inset-0 z-10 w-full h-full flex flex-col items-center justify-between py-6 sm:py-8 px-1 transition-opacity duration-500 ease-out ${isExpanded
+                                ? "opacity-0 pointer-events-none"
+                                : "opacity-100 bg-[#131924]/92"
+                                }`}
+                            >
+                              <span className="text-xs sm:text-sm font-mono font-semibold text-white/50 group-hover:text-white/80 transition-colors">
+                                {item.num}
+                              </span>
+
+                              <div className="flex-1 flex items-center justify-center my-4 overflow-hidden">
+                                <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/80 group-hover:text-white whitespace-nowrap [writing-mode:vertical-rl] rotate-180 select-none transition-colors">
+                                  {item.label}
+                                </span>
+                              </div>
+
+                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/25 bg-white/5 flex items-center justify-center text-white/70 group-hover:border-white/60 group-hover:bg-white/20 group-hover:text-white group-hover:scale-110 transition-transform duration-300">
+                                <span className="text-base sm:text-lg font-light leading-none -translate-y-[0.5px]">+</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              ref={tabletSectionRef}
+              className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24"
+              style={{ backgroundColor: "#0f172a" }}
+            >
+              <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
+                  <div
+                    ref={tabletWrapperRef}
+                    className="lg:col-span-7 xl:col-span-7 w-full flex items-center justify-center pointer-events-none select-none opacity-0 will-change-transform"
+                  >
+                    <div className="w-full h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
+                      <TabletOutline3D
+                        videoSrc="/videos/lmsadm.webm"
+                        active={isOpen && isDeepDive}
+                        interactiveOrbit={false}
+                        showFloorShadow={false}
+                        xRayMode={true}
+                        offsetY={-0.32}
+                        className="w-full h-full relative pointer-events-none select-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
+                    <h2
+                      ref={adminTitleRef}
+                      className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                    >
+                      <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
+                        <span className="admin-word inline-block will-change-transform opacity-0">
+                          Admin
+                        </span>
+                      </span>
+                      <span className="inline-block overflow-hidden py-1">
+                        <span className="admin-word inline-block will-change-transform opacity-0">
+                          View
+                        </span>
+                      </span>
+                    </h2>
+
+                    <div
+                      ref={adminTextRef}
+                      className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                    >
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Built around role-based access control (RBAC), giving HR and operations top-level access to oversee requests across every department, manage company-wide rules, and file their own leave.
+                      </p>
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Admins control exactly who can view, request, or approve time off by structuring departments and assigning user roles. They can also track leave usage by team, configure policies and activity logs, and get automatic alerts whenever a request sits unapproved for more than two days.
+                      </p>
+                      <div className="admin-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
+                        <TakeALookButton
+                          id="btn-view-demo-admin"
+                          label="VIEW DEMO"
+                          ariaLabel="View demo"
+                          onClick={() => {
+                            window.open("https://lms-demo-m.vercel.app/", "_blank", "noopener,noreferrer");
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
