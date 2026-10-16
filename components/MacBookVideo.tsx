@@ -11,6 +11,7 @@ type Props = {
   offsetX?: number;
   offsetY?: number;
   scale?: number;
+  active?: boolean;
 };
 
 const BASE_YAW = -0.28;
@@ -102,9 +103,13 @@ export default function MacBookVideo({
   offsetX = 0.78,
   offsetY = 0.25,
   scale = 1.15,
+  active = true,
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<() => void>(() => {});
+  const startRef = useRef<() => void>(() => {});
+  const stopRef = useRef<() => void>(() => {});
+  const activeRef = useRef(active);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -284,7 +289,7 @@ export default function MacBookVideo({
     };
     replayRef.current = playVideo;
     video.addEventListener('canplay', () => {
-      if (video.paused) {
+      if (video.paused && activeRef.current) {
         const p = video.play();
         if (p) p.catch(() => {});
       }
@@ -304,7 +309,23 @@ export default function MacBookVideo({
       renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+    const start = () => {
+      if (disposed) return;
+      resize();
+      cancelAnimationFrame(raf);
+      playVideo();
+      raf = requestAnimationFrame(frame);
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      video.pause();
+    };
+    startRef.current = start;
+    stopRef.current = stop;
+
+    renderer.compile(scene, camera);
+    renderer.render(scene, camera);
+    if (activeRef.current) start();
 
     return () => {
       disposed = true;
@@ -318,6 +339,12 @@ export default function MacBookVideo({
       if (dom.parentNode === mount) mount.removeChild(dom);
     };
   }, [videoSrc, background, offsetX, offsetY, scale]);
+
+  useEffect(() => {
+    activeRef.current = active;
+    if (active) startRef.current();
+    else stopRef.current();
+  }, [active]);
 
   return (
     <div

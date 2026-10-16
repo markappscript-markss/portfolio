@@ -313,7 +313,7 @@ export default function IPhone3DScene({
       hasStartedAnimation = true;
       t0Ref.current = performance.now();
       if (video) {
-        video.currentTime = 0;
+        if (video.currentTime > 0.05) video.currentTime = 0;
         video.play().catch(() => {});
       }
     };
@@ -327,6 +327,24 @@ export default function IPhone3DScene({
       }
     };
     resetAnimationRef.current = resetAnimation;
+
+    const primeVideo = () => {
+      if (hasStartedAnimation) return;
+      const p = video.play();
+      if (p) {
+        p.then(() => {
+          if (!hasStartedAnimation) {
+            video.pause();
+            video.currentTime = 0;
+          }
+        }).catch(() => {});
+      }
+    };
+    if (video.readyState >= 4) {
+      primeVideo();
+    } else {
+      video.addEventListener("canplaythrough", primeVideo, { once: true });
+    }
 
     let observer: IntersectionObserver | null = null;
     if (triggerReveal !== undefined) {
@@ -355,6 +373,8 @@ export default function IPhone3DScene({
 
     const animate = (now: number) => {
       rafIdRef.current = requestAnimationFrame(animate);
+
+      if (!container.clientWidth) return;
 
       if (!hasStartedAnimation) {
         phone.position.x = offsetX;
@@ -392,12 +412,15 @@ export default function IPhone3DScene({
       renderer.render(scene, camera);
     };
 
+    renderer.compile(scene, camera);
+    renderer.render(scene, camera);
     rafIdRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       resizeObserver.disconnect();
       video.removeEventListener("loadedmetadata", updateFit);
+      video.removeEventListener("canplaythrough", primeVideo);
       video.removeEventListener("canplay", updateFit);
       cancelAnimationFrame(rafIdRef.current);
       if (observer) {

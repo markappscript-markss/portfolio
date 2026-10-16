@@ -11,12 +11,13 @@ type Props = {
   className?: string;
   scale?: number;
   onComplete?: () => void;
+  active?: boolean;
 };
 
 const FOCUS_A = { x: 0.48, y: 0.5 };
 const FOCUS_B = { x: 0.5, y: 0.48 };
 const HOLD_START = 0.4;
-const SPIN = 3.8;
+const SPIN = 2.8;
 const HOLD_END = 0.5;
 const START = { x: 0, y: -0.17, z: -0.04 };
 const END = { x: -0.08, y: 0.5, z: 0.14 };
@@ -97,9 +98,13 @@ export default function TabletReveal({
   className,
   scale = 1,
   onComplete,
+  active = true,
 }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<() => void>(() => {});
+  const startRef = useRef<() => void>(() => {});
+  const stopRef = useRef<() => void>(() => {});
+  const activeRef = useRef(active);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
@@ -132,7 +137,7 @@ export default function TabletReveal({
     el.style.opacity = '0';
     el.style.willChange = 'transform';
     el.style.backfaceVisibility = 'hidden';
-    el.style.transition = 'opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1)';
+    el.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
     mount.appendChild(el);
 
     const FOV = 30;
@@ -283,6 +288,27 @@ export default function TabletReveal({
       raf = requestAnimationFrame(frame);
     };
 
+    let loaded = false;
+
+    const start = () => {
+      if (!loaded || disposed) return;
+      resize();
+      cancelAnimationFrame(raf);
+      play();
+      raf = requestAnimationFrame(frame);
+      requestAnimationFrame(() => {
+        if (!disposed && el) {
+          el.style.opacity = '1';
+        }
+      });
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      el.style.opacity = '0';
+    };
+    startRef.current = start;
+    stopRef.current = stop;
+
     Promise.all([loadImage(srcA), loadImage(srcB)])
       .then(([a, b]) => {
         if (disposed) return;
@@ -293,13 +319,10 @@ export default function TabletReveal({
         renderer.initTexture(ta);
         renderer.initTexture(tb);
         renderer.compile(scene, camera);
-        play();
-        raf = requestAnimationFrame(frame);
-        requestAnimationFrame(() => {
-          if (!disposed && el) {
-            el.style.opacity = '1';
-          }
-        });
+        show(0);
+        renderer.render(scene, camera);
+        loaded = true;
+        if (activeRef.current) start();
       })
       .catch((err) => console.error(err));
 
@@ -312,6 +335,12 @@ export default function TabletReveal({
       if (el.parentNode === mount) mount.removeChild(el);
     };
   }, [srcA, srcB, background, scale]);
+
+  useEffect(() => {
+    activeRef.current = active;
+    if (active) startRef.current();
+    else stopRef.current();
+  }, [active]);
 
   return (
     <div

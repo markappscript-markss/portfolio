@@ -317,7 +317,7 @@ export default function WorkOverlay3({
           outline: "1px solid transparent",
         }}
       >
-        <main className="relative w-full min-h-screen flex flex-col items-center justify-center p-6 text-neutral-950">
+        <main className="relative w-full min-h-dvh flex flex-col items-center justify-center p-6 text-neutral-950">
           {children || (
             <div className="text-center">
               <span className="text-xs font-mono uppercase tracking-widest text-neutral-400">

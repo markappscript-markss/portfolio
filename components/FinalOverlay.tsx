@@ -289,7 +289,7 @@ export default function FinalOverlay({
           outline: "1px solid transparent",
         }}
       >
-        <main className="relative z-10 w-full min-h-screen flex flex-col justify-between p-6 sm:p-10 md:p-12 text-white select-none pointer-events-auto">
+        <main className="relative z-10 w-full min-h-dvh flex flex-col justify-between p-6 sm:p-10 md:p-12 text-white select-none pointer-events-auto">
           {children || (
             <>
               <div className="h-8 sm:h-12" aria-hidden="true" />

@@ -105,7 +105,7 @@ export default function WorkOverlay2({
     } else if (isReturningFromChildRef.current) {
       const timer = setTimeout(() => {
         isReturningFromChildRef.current = false;
-      }, 1500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [isTopmost]);
@@ -318,8 +318,8 @@ export default function WorkOverlay2({
             if (heroSectionRef.current) {
               gsap.killTweensOf(heroSectionRef.current);
               gsap.set(heroSectionRef.current, {
-                minHeight: "100vh",
-                height: "100vh",
+                minHeight: "100dvh",
+                height: "100dvh",
                 maxHeight: "none",
                 paddingTop: "0rem",
                 paddingBottom: "0rem",
@@ -427,8 +427,8 @@ export default function WorkOverlay2({
     if (heroSectionRef.current) {
       gsap.killTweensOf(heroSectionRef.current);
       gsap.to(heroSectionRef.current, {
-        minHeight: "100vh",
-        height: "100vh",
+        minHeight: "100dvh",
+        height: "100dvh",
         maxHeight: "none",
         paddingTop: "0rem",
         paddingBottom: "0rem",
@@ -655,17 +655,45 @@ export default function WorkOverlay2({
       }
     };
 
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (
+        !isOpen ||
+        isHidden ||
+        !isTopmostRef.current ||
+        isDeepDiveRef.current ||
+        isTransitioningRef.current ||
+        isTriggeringNextWorkRef.current ||
+        isReturningFromChildRef.current
+      ) {
+        return;
+      }
+      const deltaY = touchStartY - e.changedTouches[0].clientY;
+      if (deltaY > 40) {
+        handleSeeNext();
+      } else if (deltaY < -40) {
+        handleClose();
+      }
+    };
+
     const container = containerRef.current;
     if (container) {
       container.addEventListener("scroll", handleNativeScroll, { passive: true });
     }
     window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleNativeScroll);
       }
       window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, [isOpen, isHidden, isDeepDive]);
@@ -727,14 +755,21 @@ export default function WorkOverlay2({
       const openTl = gsap.timeline({
         onComplete: () => {
           isTransitioningRef.current = false;
+          isTriggeringNextWorkRef.current = false;
           setCanTakeALook(true);
           canTakeALookRef.current = true;
-          setTimeout(() => {
-            isTriggeringNextWorkRef.current = false;
-          }, 600);
         },
       });
       openTlRef.current = openTl;
+      // Unlock scroll navigation shortly after the slide-in, not after every reveal animation.
+      openTl.call(
+        () => {
+          isTransitioningRef.current = false;
+          isTriggeringNextWorkRef.current = false;
+        },
+        [],
+        0.7
+      );
 
       if (wrapperRef.current) {
         openTl.fromTo(
@@ -939,7 +974,7 @@ export default function WorkOverlay2({
         >
           <main
             ref={heroSectionRef}
-            className="relative w-full min-h-screen h-screen flex flex-col items-center justify-center p-6 text-neutral-950 overflow-hidden shrink-0 will-change-transform"
+            className="relative w-full min-h-dvh h-dvh flex flex-col items-center justify-center p-6 text-neutral-950 overflow-hidden shrink-0 will-change-transform"
           >
             <div
               ref={leftContentRef}
@@ -1021,14 +1056,10 @@ export default function WorkOverlay2({
 
                 <div className="mt-12 sm:mt-16 max-w-4xl">
                   <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none">
-                    <span className="text-amber-400 font-semibold">Leave Management System</span> — is an
-                    all-in-one workforce solution designed to simplify vacation requests, approval flows,
-                    and calendar tracking. Built to replace messy email threads and manual spreadsheets with
-                    an intuitive, real-time interface.
+                    <span className="text-amber-400 font-semibold">Leave Management System</span> — A straightforward web app for requesting time off, managing approvals, and tracking team calendars. It replaces scattered email threads and manual spreadsheets with a single dashboard.
                   </p>
                   <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
-                    Engineered with responsive layouts, instant status notifications, and comprehensive audit logs
-                    to give HR managers and team leads total clarity over team availability.
+                    Includes role-based views, instant status notifications, and full audit logs so HR and team leads always know who’s in and who’s out.
                   </p>
                 </div>
               </div>

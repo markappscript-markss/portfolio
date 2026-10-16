@@ -625,6 +625,16 @@ export default function WorkOverlay({
   }, [isDeepDive]);
 
   useEffect(() => {
+    const v = parallaxVideoRef.current;
+    if (!v) return;
+    if (isDeepDive) {
+      v.play().catch(() => { });
+    } else {
+      v.pause();
+    }
+  }, [isDeepDive]);
+
+  useEffect(() => {
     let targetScroll = 0;
     let currentScroll = 0;
     let rafId: number | null = null;
@@ -645,6 +655,8 @@ export default function WorkOverlay({
     };
 
     let lastNextY = -99999;
+    let lastVideoY = -99999;
+    let lastRevealCheck = 0;
 
     const updateParallax = (scrollTop: number) => {
       const container = containerRef.current;
@@ -652,26 +664,24 @@ export default function WorkOverlay({
       const totalDist = sectionHeight + containerHeight;
       const progress = totalDist > 0 ? Math.max(0, Math.min(1, currentDist / totalDist)) : 0;
 
-      if (videoSectionRef.current) {
-        gsap.set(videoSectionRef.current, { y: 0 });
-      }
-
       if (parallaxVideoRef.current) {
-        gsap.set(parallaxVideoRef.current, {
-          y: 0,
-          scale: 1,
-          force3D: true,
-        });
+        const travel = sectionHeight * 0.03;
+        const vy = (0.5 - progress) * 2 * travel;
+        if (Math.abs(vy - lastVideoY) > 0.05) {
+          lastVideoY = vy;
+          gsap.set(parallaxVideoRef.current, { y: vy, force3D: true });
+        }
       }
 
       if (nextSectionRef.current && container) {
-        const rawOffset = Math.max(0, (progress - 0.45) * 150);
         const maxScroll = container.scrollHeight - container.clientHeight;
         const remainingToBottom = maxScroll > 0 ? Math.max(0, maxScroll - scrollTop) : 0;
+        const atBottom = remainingToBottom < 2;
+        const rawOffset = atBottom ? 0 : Math.max(0, (progress - 0.45) * 150);
         const bottomSpan = Math.max(1, rawOffset);
         const ratio = Math.min(1, remainingToBottom / bottomSpan);
         const bottomFactor = ratio * ratio * (3 - 2 * ratio);
-        const nextY = -Math.min(rawOffset * bottomFactor, remainingToBottom);
+        const nextY = atBottom ? 0 : -Math.min(rawOffset * bottomFactor, remainingToBottom);
 
         if (Math.abs(nextY - lastNextY) > 0.05) {
           lastNextY = nextY;
@@ -682,17 +692,21 @@ export default function WorkOverlay({
         }
       }
 
-      if (!hasRevealedWhereRef.current && whereTitleRef.current) {
-        const rect = whereTitleRef.current.getBoundingClientRect();
-        if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
-          triggerWhereRevealRef.current?.();
+      const nowMs = performance.now();
+      if (nowMs - lastRevealCheck > 150) {
+        lastRevealCheck = nowMs;
+        if (!hasRevealedWhereRef.current && whereTitleRef.current) {
+          const rect = whereTitleRef.current.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
+            triggerWhereRevealRef.current?.();
+          }
         }
-      }
 
-      if (!hasRevealedLandedRef.current && landedTitleRef.current) {
-        const rect = landedTitleRef.current.getBoundingClientRect();
-        if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
-          triggerLandedRevealRef.current?.();
+        if (!hasRevealedLandedRef.current && landedTitleRef.current) {
+          const rect = landedTitleRef.current.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.95 && rect.bottom >= 0) {
+            triggerLandedRevealRef.current?.();
+          }
         }
       }
     };
@@ -757,6 +771,7 @@ export default function WorkOverlay({
       e.preventDefault();
 
       if (!isRunning) {
+        measure();
         currentScroll = container.scrollTop;
         targetScroll = container.scrollTop;
         lastFrameTime = 0;
@@ -1080,8 +1095,8 @@ export default function WorkOverlay({
             if (heroSectionRef.current) {
               gsap.killTweensOf(heroSectionRef.current);
               gsap.set(heroSectionRef.current, {
-                minHeight: "100vh",
-                height: "100vh",
+                minHeight: "100dvh",
+                height: "100dvh",
                 maxHeight: "none",
                 paddingTop: "0rem",
                 paddingBottom: "0rem",
@@ -1199,8 +1214,8 @@ export default function WorkOverlay({
     if (heroSectionRef.current) {
       gsap.killTweensOf(heroSectionRef.current);
       gsap.to(heroSectionRef.current, {
-        minHeight: "100vh",
-        height: "100vh",
+        minHeight: "100dvh",
+        height: "100dvh",
         maxHeight: "none",
         paddingTop: "0rem",
         paddingBottom: "0rem",
@@ -1384,7 +1399,7 @@ export default function WorkOverlay({
       gsap.fromTo(
         tabletContainerRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.5, ease: "power2.out", force3D: true }
+        { opacity: 1, duration: 0.25, ease: "power2.out", force3D: true }
       );
     }
     if (rightContentRef.current) {
@@ -1477,6 +1492,7 @@ export default function WorkOverlay({
         },
       });
       openTlRef.current = openTl;
+      openTl.call(() => setActive(true), [], 0.05);
 
       if (wrapperRef.current) {
         openTl.fromTo(
@@ -1708,20 +1724,18 @@ export default function WorkOverlay({
           aria-hidden={!isOpen}
           className={`w-full h-full bg-white overscroll-contain pointer-events-auto no-scrollbar outline-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
             }`}
-          style={{ WebkitOverflowScrolling: "touch" }}
+          style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "none" }}
         >
           <div
             ref={heroSectionRef}
-            className="relative w-full min-h-screen h-screen flex flex-col items-center justify-center overflow-hidden bg-white"
+            className="relative w-full min-h-dvh h-dvh flex flex-col items-center justify-center overflow-hidden bg-white"
           >
-            {active && (
-              <div
-                ref={tabletContainerRef}
-                className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
-              >
-                <TabletReveal showReplay={false} onComplete={handleTabletSpinComplete} scale={1.26} />
-              </div>
-            )}
+            <div
+              ref={tabletContainerRef}
+              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
+            >
+              <TabletReveal showReplay={false} active={active} onComplete={handleTabletSpinComplete} scale={1.26} />
+            </div>
 
             <div
               className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0 pointer-events-auto"
@@ -1802,15 +1816,10 @@ export default function WorkOverlay({
 
                 <div className="mt-12 sm:mt-16 max-w-4xl">
                   <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-sans font-light text-white leading-relaxed tracking-tight select-none">
-                    <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — is a
-                    complete rebuild of my personal site, designed around one idea: a site that feels like
-                    a space instead of a page. It’s a ground-up rethink of how my work is presented, with
-                    interaction and motion shaping the experience as much as the content does. Every part of
-                    it responds to the visitor, and the details are paced to feel natural rather than flashy.
+                    <span className="text-red-500 font-semibold">Portfolio, Reloaded</span> — A complete rebuild of my personal site, designed to feel more like an interactive space than a static page. Motion and interaction drive the experience alongside the work itself, with responsive details tuned to feel smooth and deliberate rather than flashy.
                   </p>
                   <p className="mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-sans max-w-3xl select-none">
-                    Built with Next.js and three.js, with close attention paid to motion, timing and how
-                    everything holds up from desktop to mobile.
+                    Built with Next.js and Three.js, focusing on tight animation timing, fluid transitions, and consistent performance across desktop and mobile.
                   </p>
                 </div>
               </div>
@@ -1836,7 +1845,7 @@ export default function WorkOverlay({
                   </h2>
                 </div>
 
-                {isDeepDive && (
+                {(
                   <div className="relative w-full flex flex-col md:block select-none mb-4 sm:mb-6">
                     <div
                       ref={whereTextRef}
@@ -1859,7 +1868,7 @@ export default function WorkOverlay({
                       ref={macbookContainerRef}
                       className="w-full opacity-0 will-change-transform h-[50vh] sm:h-[58vh] md:h-[68vh] flex items-center justify-center"
                     >
-                      <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} />
+                      <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} active={isDeepDive} />
                     </div>
                   </div>
                 )}
@@ -1868,29 +1877,31 @@ export default function WorkOverlay({
               </div>
             </div>
 
-            {isDeepDive && (
+            <div className={isDeepDive ? "contents" : "hidden"}>
               <>
-                <div
-                  ref={videoSectionRef}
-                  className="relative w-full aspect-[1892/790] overflow-hidden z-10 bg-neutral-950 will-change-transform"
-                  style={{ aspectRatio: "1892 / 790" }}
-                >
-                  <video
-                    ref={parallaxVideoRef}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover block will-change-transform"
+                <div className="relative w-full overflow-hidden z-10 bg-neutral-950" style={{ aspectRatio: "1892 / 790" }}>
+                  <div
+                    ref={videoSectionRef}
+                    className="relative w-full h-full overflow-hidden"
                   >
-                    <source src="/videos/videoportfolio.webm" type="video/webm" />
-                    <source src="/videos/videoportfolio.mp4" type="video/mp4" />
-                  </video>
+                    <video
+                      ref={parallaxVideoRef}
+                      preload={isDeepDive ? "auto" : "none"}
+                      loop
+                      muted
+                      playsInline
+                      className="absolute left-0 w-full object-cover block will-change-transform"
+                      style={{ top: "-3%", height: "106%" }}
+                    >
+                      <source src="/videos/videoportfolio.webm" type="video/webm" />
+                      <source src="/videos/videoportfolio.mp4" type="video/mp4" />
+                    </video>
+                  </div>
                 </div>
 
                 <div
                   ref={nextSectionRef}
-                  className="relative z-20 w-full bg-[#0f172a] text-white h-screen min-h-screen max-h-screen overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
+                  className="relative z-20 w-full bg-[#0f172a] text-white h-dvh min-h-dvh max-h-dvh overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
                   style={{ backgroundColor: "#0f172a" }}
                 >
                   <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
@@ -1952,7 +1963,7 @@ export default function WorkOverlay({
                   </div>
                 </div>
               </>
-            )}
+            </div>
           </div>
         </div>
       </div>
