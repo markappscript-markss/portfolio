@@ -1,1228 +1,1634 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as THREE from 'three';
-import {
-  Play,
-  Pause,
-  Upload,
-  Code2,
-  Sliders,
-  RotateCcw,
-  Check,
-  Copy,
-  Sparkles,
-  Eye,
-  Video,
-  Maximize2,
-  Layers,
-  Compass,
-  X
-} from 'lucide-react';
+import React, { useState, useRef, useTransition, useEffect } from "react";
+import Phone3D, { PartName, PartTransformData, DEFAULT_PHONE_CONFIG } from "@/components/Phone3D";
 
-interface TabletConfig {
-  width: number;
-  height: number;
-  depth: number;
-  chassisRadius: number;
-  screenRadius: number;
-  bezelWidth: number;
-  outlineColor: string;
-  secondaryLineColor: string;
-  outlineOpacity: number;
-  floatSpeed: number;
-  floatAmplitude: number;
-  tiltAmplitude: number;
-  showHardwareDetails: boolean;
-  showCornerRibs: boolean;
-  showCadGuides: boolean;
-  xRayMode: boolean;
-  interactiveOrbit: boolean;
+type LightingPresetKey = "studio" | "golden" | "cyber" | "noir" | "commercial";
+type ShadingPresetKey = "deepBurgundy" | "royalMerlot" | "midnightCrimson" | "velvetMerlot" | "blackTitanium" | "naturalTitanium";
+
+interface ShadingPreset {
+  name: string;
+  bodyColor: string;
+  metalness: number;
+  roughness: number;
+  backPanelColor: string;
+  backPanelRoughness: number;
+  cameraRingColor: string;
+  cameraRingMetalness: number;
 }
 
-const DEFAULT_CONFIG: TabletConfig = {
-  width: 6.8,
-  height: 4.75,
-  depth: 0.24,
-  chassisRadius: 0.27,
-  screenRadius: 0.12,
-  bezelWidth: 0.14,
-  outlineColor: '#e2e8f0', // Titanium primary
-  secondaryLineColor: '#64748b', // Titanium secondary
-  outlineOpacity: 0.9,
-  floatSpeed: 0.2,
-  floatAmplitude: 0.05,
-  tiltAmplitude: 0.032,
-  showHardwareDetails: true,
-  showCornerRibs: true,
-  showCadGuides: false,
-  xRayMode: true,
-  interactiveOrbit: false,
+const SHADING_PRESETS: Record<ShadingPresetKey, ShadingPreset> = {
+  deepBurgundy: {
+    name: "Deep Burgundy (Default)",
+    bodyColor: "#632233",
+    metalness: 0.72,
+    roughness: 0.35,
+    backPanelColor: "#501625",
+    backPanelRoughness: 0.52,
+    cameraRingColor: "#8e384e",
+    cameraRingMetalness: 0.85,
+  },
+  royalMerlot: {
+    name: "Royal Merlot",
+    bodyColor: "#7e283f",
+    metalness: 0.75,
+    roughness: 0.32,
+    backPanelColor: "#6c2134",
+    backPanelRoughness: 0.5,
+    cameraRingColor: "#a3455e",
+    cameraRingMetalness: 0.85,
+  },
+  midnightCrimson: {
+    name: "Midnight Crimson",
+    bodyColor: "#4a101f",
+    metalness: 0.8,
+    roughness: 0.3,
+    backPanelColor: "#380b16",
+    backPanelRoughness: 0.6,
+    cameraRingColor: "#691d30",
+    cameraRingMetalness: 0.85,
+  },
+  velvetMerlot: {
+    name: "Velvet Merlot",
+    bodyColor: "#8d1f3b",
+    metalness: 0.65,
+    roughness: 0.4,
+    backPanelColor: "#781830",
+    backPanelRoughness: 0.58,
+    cameraRingColor: "#b23e5e",
+    cameraRingMetalness: 0.75,
+  },
+  blackTitanium: {
+    name: "Black Titanium",
+    bodyColor: "#1d1c20",
+    metalness: 0.82,
+    roughness: 0.28,
+    backPanelColor: "#141316",
+    backPanelRoughness: 0.5,
+    cameraRingColor: "#3a3840",
+    cameraRingMetalness: 0.9,
+  },
+  naturalTitanium: {
+    name: "Natural Titanium",
+    bodyColor: "#8c8780",
+    metalness: 0.78,
+    roughness: 0.34,
+    backPanelColor: "#757069",
+    backPanelRoughness: 0.52,
+    cameraRingColor: "#aba69e",
+    cameraRingMetalness: 0.85,
+  },
 };
 
-/**
- * Creates a 2D THREE.Shape with rounded corners centered at (0, 0)
- */
-function createRoundedRectShape(width: number, height: number, radius: number): THREE.Shape {
-  const shape = new THREE.Shape();
-  const w = width / 2;
-  const h = height / 2;
-  const r = Math.min(radius, w, h);
-
-  shape.moveTo(-w + r, -h);
-  shape.lineTo(w - r, -h);
-  shape.absarc(w - r, -h + r, r, -Math.PI / 2, 0, false);
-  shape.lineTo(w, h - r);
-  shape.absarc(w - r, h - r, r, 0, Math.PI / 2, false);
-  shape.lineTo(-w + r, h);
-  shape.absarc(-w + r, h - r, r, Math.PI / 2, Math.PI, false);
-  shape.lineTo(-w, -h + r);
-  shape.absarc(-w + r, -h + r, r, Math.PI, (3 * Math.PI) / 2, false);
-
-  return shape;
+interface LightingPreset {
+  name: string;
+  keyIntensity: number;
+  keyColor: string;
+  keyPos: [number, number, number];
+  envBrightness: number;
+  envTint: string;
+  rimIntensity: number;
+  rimColor: string;
+  ambientIntensity: number;
+  ambientColor: string;
 }
 
-/**
- * Generates a flat 3D mesh geometry with semi-curved corners and normalized [0, 1] UV coordinates
- * so video textures map seamlessly across the entire rounded screen.
- */
-function createSemiCurvedScreenGeometry(
-  width: number,
-  height: number,
-  radius: number,
-  curveSegments = 18
-): THREE.ShapeGeometry {
-  const shape = createRoundedRectShape(width, height, radius);
-  const geometry = new THREE.ShapeGeometry(shape, curveSegments);
+const LIGHTING_PRESETS: Record<LightingPresetKey, LightingPreset> = {
+  studio: {
+    name: "Studio Clean (Default)",
+    keyIntensity: 1.8,
+    keyColor: "#ffffff",
+    keyPos: [3, 5, -8],
+    envBrightness: 1.15,
+    envTint: "#ffffff",
+    rimIntensity: 1.1,
+    rimColor: "#ffffff",
+    ambientIntensity: 0.5,
+    ambientColor: "#ffffff",
+  },
+  golden: {
+    name: "Golden Hour / Warm Stage",
+    keyIntensity: 1.95,
+    keyColor: "#ffe7cc",
+    keyPos: [4, 4, -7],
+    envBrightness: 1.25,
+    envTint: "#ffd7b0",
+    rimIntensity: 1.3,
+    rimColor: "#ffab80",
+    ambientIntensity: 0.55,
+    ambientColor: "#ffe4d1",
+  },
+  cyber: {
+    name: "Cyber Rim / Cool Cyan",
+    keyIntensity: 2.0,
+    keyColor: "#f0f9ff",
+    keyPos: [2, 6, -8],
+    envBrightness: 1.2,
+    envTint: "#bae6fd",
+    rimIntensity: 1.9,
+    rimColor: "#38bdf8",
+    ambientIntensity: 0.35,
+    ambientColor: "#0284c7",
+  },
+  noir: {
+    name: "Dramatic Noir (High Contrast)",
+    keyIntensity: 1.3,
+    keyColor: "#ffffff",
+    keyPos: [5, 4, -6],
+    envBrightness: 0.75,
+    envTint: "#e2e8f0",
+    rimIntensity: 1.5,
+    rimColor: "#cbd5e1",
+    ambientIntensity: 0.22,
+    ambientColor: "#475569",
+  },
+  commercial: {
+    name: "Bright Commercial (Soft Diffusion)",
+    keyIntensity: 2.2,
+    keyColor: "#ffffff",
+    keyPos: [2, 5, -9],
+    envBrightness: 1.45,
+    envTint: "#ffffff",
+    rimIntensity: 0.9,
+    rimColor: "#ffffff",
+    ambientIntensity: 0.8,
+    ambientColor: "#f8fafc",
+  },
+};
 
-  const pos = geometry.attributes.position;
-  const uvs = new Float32Array(pos.count * 2);
+const PART_LABELS: Record<PartName, string> = {
+  plateau: "Camera Island (Plateau)",
+  lensTopLeft: "Top-Left Lens",
+  lensBottomLeft: "Bottom-Left Lens",
+  lensCenter: "Center-Apex Lens",
+  flash: "True Tone Flash",
+  lidar: "LiDAR Scanner",
+  mic: "Microphone",
+  backPanel: "Lower Back Glass",
+  actionBtn: "Action Button (Left)",
+  volUpBtn: "Volume Up (Left)",
+  volDownBtn: "Volume Down (Left)",
+  powerBtn: "Side/Power Button (Right)",
+  camControl: "Camera Control (Right)",
+};
 
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    uvs[i * 2] = (x + width / 2) / width;
-    uvs[i * 2 + 1] = (y + height / 2) / height;
-  }
-
-  geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-/**
- * Extracts evenly spaced 3D points along a rounded rectangle perimeter at a given Z depth
- */
-function getRoundedRectLoopPoints(
-  width: number,
-  height: number,
-  radius: number,
-  z: number,
-  cornerSegments = 16
-): THREE.Vector3[] {
-  const shape = createRoundedRectShape(width, height, radius);
-  const pts2d = shape.getPoints(cornerSegments);
-  return pts2d.map((p) => new THREE.Vector3(p.x, p.y, z));
-}
-
-/**
- * Builds a closed THREE.LineLoop from 3D points
- */
-function createLineLoopFromPoints(
-  points: THREE.Vector3[],
-  material: THREE.LineBasicMaterial
-): THREE.LineLoop {
-  const geo = new THREE.BufferGeometry().setFromPoints(points);
-  return new THREE.LineLoop(geo, material);
-}
-
-/**
- * Creates a wireframe 3D pill / rounded box for buttons and USB-C port outlines
- */
-function createWireframeBox(
-  w: number,
-  h: number,
-  d: number,
-  material: THREE.LineBasicMaterial
-): THREE.LineSegments {
-  const box = new THREE.BoxGeometry(w, h, d);
-  const edges = new THREE.EdgesGeometry(box);
-  return new THREE.LineSegments(edges, material);
-}
-
-function generateStandaloneTSXCode(config: TabletConfig): string {
-  return `import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-
-interface IPadAirOutlineProps {
-  /** Path or URL to your video file (e.g., "/videos/lmsadm.webm") */
-  videoSrc?: string;
-  className?: string;
-}
-
-/**
- * 3D iPad Air (Outline Build) with Semi-Curved Screen Corners & Subtle Idle Float
- */
-export const IPadAirOutline3D: React.FC<IPadAirOutlineProps> = ({
-  videoSrc = '/videos/lmsadm.webm',
-  className = 'w-full h-[600px]',
-}) => {
-  const mountRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
-
-    // 1. Scene, Camera & Renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      36,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 10.2);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
-
-    // 2. Video Element & Three.js VideoTexture
-    const video = document.createElement('video');
-    video.src = videoSrc;
-    video.crossOrigin = 'anonymous';
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.autoplay = true;
-    video.play().catch(() => {});
-
-    const videoTexture = new THREE.VideoTexture(video);
-    videoTexture.colorSpace = THREE.SRGBColorSpace;
-    videoTexture.minFilter = THREE.LinearFilter;
-    videoTexture.magFilter = THREE.LinearFilter;
-
-    // 3. Helper: Rounded Rectangle Shape & Semi-Curved Screen Geometry
-    const createRoundedShape = (w: number, h: number, r: number) => {
-      const s = new THREE.Shape();
-      const hw = w / 2, hh = h / 2;
-      s.moveTo(-hw + r, -hh);
-      s.lineTo(hw - r, -hh);
-      s.absarc(hw - r, -hh + r, r, -Math.PI / 2, 0, false);
-      s.lineTo(hw, hh - r);
-      s.absarc(hw - r, hh - r, r, 0, Math.PI / 2, false);
-      s.lineTo(-hw + r, hh);
-      s.absarc(-hw + r, hh - r, r, Math.PI / 2, Math.PI, false);
-      s.lineTo(-hw, -hh + r);
-      s.absarc(-hw + r, -hh + r, r, Math.PI, (3 * Math.PI) / 2, false);
-      return s;
-    };
-
-    const width = ${config.width};
-    const height = ${config.height};
-    const depth = ${config.depth};
-    const chassisRadius = ${config.chassisRadius};
-    const screenRadius = ${config.screenRadius};
-    const screenW = width - ${config.bezelWidth * 2};
-    const screenH = height - ${config.bezelWidth * 2};
-
-    const tabletGroup = new THREE.Group();
-    scene.add(tabletGroup);
-
-    // 4. Semi-Curved Screen Mesh with normalized [0..1] UVs
-    const screenShape = createRoundedShape(screenW, screenH, screenRadius);
-    const screenGeo = new THREE.ShapeGeometry(screenShape, 18);
-    const pos = screenGeo.attributes.position;
-    const uvs = new Float32Array(pos.count * 2);
-    for (let i = 0; i < pos.count; i++) {
-      uvs[i * 2] = (pos.getX(i) + screenW / 2) / screenW;
-      uvs[i * 2 + 1] = (pos.getY(i) + screenH / 2) / screenH;
-    }
-    screenGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-
-    const screenMat = new THREE.MeshBasicMaterial({ map: videoTexture });
-    const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-    screenMesh.position.z = depth / 2 + 0.004;
-    tabletGroup.add(screenMesh);
-
-    // 5. iPad Air Outline Chassis Contours
-    const lineMat = new THREE.LineBasicMaterial({
-      color: '${config.outlineColor}',
-      transparent: true,
-      opacity: ${config.outlineOpacity},
-    });
-
-    const addLoop = (w: number, h: number, r: number, z: number) => {
-      const pts = createRoundedShape(w, h, r)
-        .getPoints(18)
-        .map((p) => new THREE.Vector3(p.x, p.y, z));
-      const geo = new THREE.BufferGeometry().setFromPoints(pts);
-      tabletGroup.add(new THREE.LineLoop(geo, lineMat));
-      return pts;
-    };
-
-    const frontPts = addLoop(width, height, chassisRadius, depth / 2);
-    const backPts = addLoop(width, height, chassisRadius, -depth / 2);
-    addLoop(screenW, screenH, screenRadius, depth / 2 + 0.005);
-
-    const ribVertices: THREE.Vector3[] = [];
-    for (let i = 0; i < frontPts.length; i += 3) {
-      ribVertices.push(frontPts[i], backPts[i]);
-    }
-    const ribGeo = new THREE.BufferGeometry().setFromPoints(ribVertices);
-    tabletGroup.add(new THREE.LineSegments(ribGeo, lineMat));
-
-    // 6. Subtle Idle Floating Animation Loop
-    const clock = new THREE.Clock();
-    let reqId: number;
-
-    const animate = () => {
-      reqId = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime() * ${config.floatSpeed};
-
-      tabletGroup.position.y = Math.sin(t * 1.1) * ${config.floatAmplitude};
-      tabletGroup.rotation.x = Math.sin(t * 0.85) * ${config.tiltAmplitude};
-      tabletGroup.rotation.y = Math.cos(t * 0.65) * ${(config.tiltAmplitude * 1.3).toFixed(3)};
-      tabletGroup.rotation.z = Math.sin(t * 0.5) * ${(config.tiltAmplitude * 0.35).toFixed(3)};
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const handleResize = () => {
-      if (!container) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(reqId);
-      window.removeEventListener('resize', handleResize);
-      video.pause();
-      videoTexture.dispose();
-      renderer.dispose();
-      container.removeChild(renderer.domElement);
-    };
-  }, [videoSrc]);
-
-  return <div ref={mountRef} className={className} />;
-};`;
-}
+const DEFAULT_PART_DATA: Record<PartName, PartTransformData> = DEFAULT_PHONE_CONFIG;
 
 export default function SandboxPage() {
-  const mountRef = useRef<HTMLDivElement | null>(null);
-  const [config, setConfig] = useState<TabletConfig>(DEFAULT_CONFIG);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [videoTime, setVideoTime] = useState<number>(0);
-  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>('/videos/lmsadm.webm');
-  const [customVideoName, setCustomVideoName] = useState<string>('lmsadm.webm');
-  const [showControls, setShowControls] = useState<boolean>(true);
-  const [showCodeModal, setShowCodeModal] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [isDraggingFile, setIsDraggingFile] = useState<boolean>(false);
+  const [, startTransition] = useTransition();
 
-  // Refs shared with the Three.js animation loop
-  const configRef = useRef<TabletConfig>(config);
-  configRef.current = config;
+  const [activeTab, setActiveTab] = useState<"angle" | "inspector" | "shading" | "view" | "float" | "lighting" | "export">("angle");
+  const [isUiCollapsed, setIsUiCollapsed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [endAngleCopied, setEndAngleCopied] = useState(false);
 
-  const isPlayingRef = useRef<boolean>(isPlaying);
-  isPlayingRef.current = isPlaying;
+  const [endPosition, setEndPosition] = useState({ x: -0.33, y: 0.33, z: 0 });
 
-  const videoElRef = useRef<HTMLVideoElement | null>(null);
-  const rebuildTabletRef = useRef<(() => void) | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [enableGizmo, setEnableGizmo] = useState(true);
+  const [gizmoMode, setGizmoMode] = useState<"translate" | "scale">("translate");
+  const [selectedPart, setSelectedPart] = useState<PartName | null>("plateau");
+  const [lockAspectRatio, setLockAspectRatio] = useState(false);
+  const [partData, setPartData] = useState<Record<PartName, PartTransformData>>(DEFAULT_PART_DATA);
 
-  useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
+  const [enableOrbit, setEnableOrbit] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [autoRotateSpeed, setAutoRotateSpeed] = useState(1.5);
+  const [cameraPreset, setCameraPreset] = useState("hero");
 
-    // 1. Setup Three.js Scene, Camera, and Renderer
-    const scene = new THREE.Scene();
+  const [entranceDuration, setEntranceDuration] = useState(2.2);
+  const [entranceDelay, setEntranceDelay] = useState(0.2);
 
-    const camera = new THREE.PerspectiveCamera(
-      35,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 10.4);
+  const [shadingPreset, setShadingPreset] = useState<ShadingPresetKey>("deepBurgundy");
+  const [bodyColor, setBodyColor] = useState("#632233");
+  const [metalness, setMetalness] = useState(0.72);
+  const [roughness, setRoughness] = useState(0.35);
+  const [autoHarmonize, setAutoHarmonize] = useState(true);
+  const [backPanelColor, setBackPanelColor] = useState("#501625");
+  const [backPanelRoughness, setBackPanelRoughness] = useState(0.52);
+  const [cameraRingColor, setCameraRingColor] = useState("#8e384e");
+  const [cameraRingMetalness, setCameraRingMetalness] = useState(0.85);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
+  const [isFloating, setIsFloating] = useState(true);
+  const [floatAmplitude, setFloatAmplitude] = useState(0.012);
+  const [tiltAmplitude, setTiltAmplitude] = useState(0.012);
+  const [floatSpeed, setFloatSpeed] = useState(0.6);
+  const [floatEaseMode, setFloatEaseMode] = useState<"sine" | "pendulum" | "breathing" | "dynamic">("sine");
 
-    // Setup Video Texture with fallback handling
-    let activeVideoTexture: THREE.VideoTexture | null = null;
-    const vid = document.createElement('video');
-    const targetSrc = customVideoUrl || '/videos/lmsadm.webm';
-    vid.src = targetSrc;
-    vid.crossOrigin = 'anonymous';
-    vid.loop = true;
-    vid.muted = true;
-    vid.playsInline = true;
-    vid.autoplay = true;
+  const [lightingPreset, setLightingPreset] = useState<LightingPresetKey>("cyber");
+  const [keyLightIntensity, setKeyLightIntensity] = useState(2.0);
+  const [keyLightColor, setKeyLightColor] = useState("#f0f9ff");
+  const [keyLightPosPreset, setKeyLightPosPreset] = useState<"frontRight" | "frontLeft" | "overhead" | "side">("side");
+  const [envBrightness, setEnvBrightness] = useState(0.1);
+  const [envTint, setEnvTint] = useState("#bae6fd");
+  const [rimLightIntensity, setRimLightIntensity] = useState(0.25);
+  const [rimLightColor, setRimLightColor] = useState("#38bdf8");
+  const [ambientLightIntensity, setAmbientLightIntensity] = useState(0.1);
+  const [ambientLightColor, setAmbientLightColor] = useState("#0284c7");
+  const [showFloorShadow, setShowFloorShadow] = useState(false);
 
-    vid.addEventListener('loadeddata', () => {
-      vid.play().catch(() => {});
-    });
-    vid.play().catch(() => {});
-    videoElRef.current = vid;
+  const replayTriggerRef = useRef<() => void>(() => { });
 
-    activeVideoTexture = new THREE.VideoTexture(vid);
-    activeVideoTexture.colorSpace = THREE.SRGBColorSpace;
-    activeVideoTexture.minFilter = THREE.LinearFilter;
-    activeVideoTexture.magFilter = THREE.LinearFilter;
-
-    // 3. Root Group for the Floating iPad Air
-    const tabletGroup = new THREE.Group();
-    scene.add(tabletGroup);
-
-    // Subtle floating shadow ring underneath tablet
-    const shadowCanvas = document.createElement('canvas');
-    shadowCanvas.width = 256;
-    shadowCanvas.height = 64;
-    const sCtx = shadowCanvas.getContext('2d')!;
-    const grad = sCtx.createRadialGradient(128, 32, 4, 128, 32, 120);
-    grad.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
-    grad.addColorStop(0.5, 'rgba(16, 185, 129, 0.08)');
-    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    sCtx.fillStyle = grad;
-    sCtx.fillRect(0, 0, 256, 64);
-
-    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
-    const shadowMat = new THREE.MeshBasicMaterial({
-      map: shadowTex,
-      transparent: true,
-      depthWrite: false,
-    });
-    const shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(7.5, 1.4), shadowMat);
-    shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.set(0, -2.95, 0);
-    scene.add(shadowMesh);
-
-    const buildTabletGeometry = () => {
-      // Clear previous children
-      while (tabletGroup.children.length > 0) {
-        const child = tabletGroup.children[0] as THREE.Mesh;
-        if (child.geometry) child.geometry.dispose();
-        tabletGroup.remove(child);
-      }
-
-      const cfg = configRef.current;
-      const w = cfg.width;
-      const h = cfg.height;
-      const d = cfg.depth;
-      const r = cfg.chassisRadius;
-      const screenW = Math.max(1, w - cfg.bezelWidth * 2);
-      const screenH = Math.max(1, h - cfg.bezelWidth * 2);
-      const sr = Math.min(cfg.screenRadius, screenW / 2, screenH / 2);
-
-      // Materials for Outline Build
-      const primaryLineMat = new THREE.LineBasicMaterial({
-        color: new THREE.Color(cfg.outlineColor),
-        transparent: true,
-        opacity: cfg.outlineOpacity,
-      });
-
-      const secondaryLineMat = new THREE.LineBasicMaterial({
-        color: new THREE.Color(cfg.secondaryLineColor),
-        transparent: true,
-        opacity: cfg.outlineOpacity * 0.55,
-      });
-
-      const subtleLineMat = new THREE.LineBasicMaterial({
-        color: new THREE.Color(cfg.outlineColor),
-        transparent: true,
-        opacity: cfg.outlineOpacity * 0.32,
-      });
-
-      // A. Occlusion Core
-      if (!cfg.xRayMode) {
-        const occShape = createRoundedRectShape(w - 0.02, h - 0.02, r - 0.01);
-        const occGeo = new THREE.ExtrudeGeometry(occShape, {
-          depth: d - 0.01,
-          bevelEnabled: false,
-          curveSegments: 18,
-        });
-        occGeo.translate(0, 0, -(d - 0.01) / 2);
-        const occMat = new THREE.MeshBasicMaterial({
-          color: '#060911',
-          polygonOffset: true,
-          polygonOffsetFactor: 1,
-          polygonOffsetUnits: 1,
-        });
-        tabletGroup.add(new THREE.Mesh(occGeo, occMat));
-      }
-
-      // B. Outer Chassis Loops
-      const frontOuterPts = getRoundedRectLoopPoints(w, h, r, d / 2 - 0.02, 18);
-      const frontChamferPts = getRoundedRectLoopPoints(w - 0.05, h - 0.05, r - 0.02, d / 2, 18);
-      const backChamferPts = getRoundedRectLoopPoints(w - 0.05, h - 0.05, r - 0.02, -d / 2, 18);
-      const backOuterPts = getRoundedRectLoopPoints(w, h, r, -d / 2 + 0.02, 18);
-
-      tabletGroup.add(createLineLoopFromPoints(frontOuterPts, primaryLineMat));
-      tabletGroup.add(createLineLoopFromPoints(frontChamferPts, primaryLineMat));
-      tabletGroup.add(createLineLoopFromPoints(backChamferPts, secondaryLineMat));
-      tabletGroup.add(createLineLoopFromPoints(backOuterPts, subtleLineMat));
-
-      // Midline side rail contour
-      const midRailPts = getRoundedRectLoopPoints(w + 0.004, h + 0.004, r, 0, 18);
-      tabletGroup.add(createLineLoopFromPoints(midRailPts, subtleLineMat));
-
-      // C. Corner & Edge Ribs
-      if (cfg.showCornerRibs) {
-        const ribPoints: THREE.Vector3[] = [];
-        for (let i = 0; i < frontOuterPts.length; i += 2) {
-          ribPoints.push(frontOuterPts[i], backOuterPts[i]);
-          ribPoints.push(frontChamferPts[i], frontOuterPts[i]);
-          ribPoints.push(backChamferPts[i], backOuterPts[i]);
-        }
-        const ribGeo = new THREE.BufferGeometry().setFromPoints(ribPoints);
-        tabletGroup.add(new THREE.LineSegments(ribGeo, subtleLineMat));
-      }
-
-      // D. Semi-Curved Screen Mesh + Crisp Screen Bezel Outline
-      const screenGeo = createSemiCurvedScreenGeometry(screenW, screenH, sr, 20);
-      const screenMat = new THREE.MeshBasicMaterial({
-        map: activeVideoTexture,
-        toneMapped: false,
-      });
-      const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-      screenMesh.position.z = d / 2 + 0.003;
-      tabletGroup.add(screenMesh);
-
-      // Inner Semi-Curved Screen Frame Outline
-      const screenBorderPts = getRoundedRectLoopPoints(screenW, screenH, sr, d / 2 + 0.006, 20);
-      tabletGroup.add(createLineLoopFromPoints(screenBorderPts, primaryLineMat));
-
-      // Second hair-line inner bezel offset
-      const innerRimPts = getRoundedRectLoopPoints(
-        screenW + 0.04,
-        screenH + 0.04,
-        sr + 0.02,
-        d / 2 + 0.004,
-        20
-      );
-      tabletGroup.add(createLineLoopFromPoints(innerRimPts, secondaryLineMat));
-
-      // E. iPad Air Hardware Details
-      if (cfg.showHardwareDetails) {
-        const camY = h / 2 - cfg.bezelWidth / 2;
-        const camZ = d / 2 + 0.005;
-
-        const camOuterRing = new THREE.RingGeometry(0.032, 0.042, 24);
-        const camOuterMesh = new THREE.Mesh(
-          camOuterRing,
-          new THREE.MeshBasicMaterial({
-            color: cfg.outlineColor,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.85,
-          })
-        );
-        camOuterMesh.position.set(0, camY, camZ);
-        tabletGroup.add(camOuterMesh);
-
-        const camInnerRing = new THREE.RingGeometry(0.012, 0.018, 16);
-        const camInnerMesh = new THREE.Mesh(
-          camInnerRing,
-          new THREE.MeshBasicMaterial({
-            color: cfg.secondaryLineColor,
-            side: THREE.DoubleSide,
-          })
-        );
-        camInnerMesh.position.set(0, camY, camZ);
-        tabletGroup.add(camInnerMesh);
-
-        const micRing = new THREE.RingGeometry(0.008, 0.014, 12);
-        const micMesh = new THREE.Mesh(
-          micRing,
-          new THREE.MeshBasicMaterial({ color: cfg.outlineColor })
-        );
-        micMesh.position.set(0.18, camY, camZ);
-        tabletGroup.add(micMesh);
-
-        const vol1 = createWireframeBox(0.32, 0.035, 0.07, primaryLineMat);
-        vol1.position.set(-w / 2 + 0.78, h / 2 + 0.016, 0);
-        tabletGroup.add(vol1);
-
-        const vol2 = createWireframeBox(0.32, 0.035, 0.07, primaryLineMat);
-        vol2.position.set(-w / 2 + 1.18, h / 2 + 0.016, 0);
-        tabletGroup.add(vol2);
-
-        const powerBtn = createWireframeBox(0.035, 0.36, 0.08, primaryLineMat);
-        powerBtn.position.set(-w / 2 - 0.016, h / 2 - 0.72, 0);
-        tabletGroup.add(powerBtn);
-
-        const usbcOuter = createWireframeBox(0.02, 0.28, 0.085, primaryLineMat);
-        usbcOuter.position.set(w / 2 + 0.005, 0, 0);
-        tabletGroup.add(usbcOuter);
-
-        const usbcTongue = createWireframeBox(0.015, 0.18, 0.02, secondaryLineMat);
-        usbcTongue.position.set(w / 2 + 0.005, 0, 0);
-        tabletGroup.add(usbcTongue);
-
-        const magStrip = createWireframeBox(0.85, 0.01, 0.06, subtleLineMat);
-        magStrip.position.set(0, h / 2 + 0.002, 0);
-        tabletGroup.add(magStrip);
-      }
-
-      // F. CAD Guides
-      if (cfg.showCadGuides) {
-        const cadPts: THREE.Vector3[] = [];
-        const guideZ = d / 2 + 0.01;
-        const ext = 0.28;
-
-        const cx = screenW / 2 - sr;
-        const cy = screenH / 2 - sr;
-        const corners = [
-          [cx, cy],
-          [-cx, cy],
-          [cx, -cy],
-          [-cx, -cy],
-        ];
-        corners.forEach(([x, y]) => {
-          cadPts.push(
-            new THREE.Vector3(x - 0.08, y, guideZ),
-            new THREE.Vector3(x + 0.08, y, guideZ),
-            new THREE.Vector3(x, y - 0.08, guideZ),
-            new THREE.Vector3(x, y + 0.08, guideZ)
-          );
-        });
-
-        cadPts.push(
-          new THREE.Vector3(-w / 2, h / 2 + 0.12, 0),
-          new THREE.Vector3(-w / 2, h / 2 + ext, 0),
-          new THREE.Vector3(w / 2, h / 2 + 0.12, 0),
-          new THREE.Vector3(w / 2, h / 2 + ext, 0),
-          new THREE.Vector3(-w / 2, h / 2 + 0.2, 0),
-          new THREE.Vector3(w / 2, h / 2 + 0.2, 0)
-        );
-
-        const cadGeo = new THREE.BufferGeometry().setFromPoints(cadPts);
-        tabletGroup.add(new THREE.LineSegments(cadGeo, secondaryLineMat));
-      }
-    };
-
-    buildTabletGeometry();
-    rebuildTabletRef.current = buildTabletGeometry;
-
-    // 4. Interactive Orbit / Drag State
-    let isDragging = false;
-    let prevX = 0;
-    let prevY = 0;
-    let userRotX = 0;
-    let userRotY = 0;
-
-    const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      if (!configRef.current.interactiveOrbit) return;
-      isDragging = true;
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      prevX = clientX;
-      prevY = clientY;
-    };
-
-    const onPointerMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging || !configRef.current.interactiveOrbit) return;
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      userRotY += (clientX - prevX) * 0.007;
-      userRotX += (clientY - prevY) * 0.007;
-      userRotX = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, userRotX));
-      prevX = clientX;
-      prevY = clientY;
-    };
-
-    const onPointerUp = () => {
-      isDragging = false;
-    };
-
-    const domElem = renderer.domElement;
-    domElem.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('mouseup', onPointerUp);
-    domElem.addEventListener('touchstart', onPointerDown, { passive: true });
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
-    window.addEventListener('touchend', onPointerUp);
-
-    // 5. Animation Loop
-    let lastFrameTime = performance.now();
-    let elapsedFloatTime = 0;
-    let reqId: number;
-    let uiTimer = 0;
-
-    const animate = (now: number) => {
-      reqId = requestAnimationFrame(animate);
-      const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
-      lastFrameTime = now;
-
-      const cfg = configRef.current;
-      elapsedFloatTime += dt * cfg.floatSpeed;
-
-      const floatY = Math.sin(elapsedFloatTime * 1.15) * cfg.floatAmplitude;
-      const idleRotX = Math.sin(elapsedFloatTime * 0.85) * cfg.tiltAmplitude;
-      const idleRotY = Math.cos(elapsedFloatTime * 0.65) * (cfg.tiltAmplitude * 1.3);
-      const idleRotZ = Math.sin(elapsedFloatTime * 0.5) * (cfg.tiltAmplitude * 0.35);
-
-      if (!cfg.interactiveOrbit) {
-        userRotX *= 0.92;
-        userRotY *= 0.92;
-      }
-
-      tabletGroup.position.y = floatY;
-      tabletGroup.rotation.x = idleRotX + userRotX;
-      tabletGroup.rotation.y = idleRotY + userRotY;
-      tabletGroup.rotation.z = idleRotZ;
-
-      const shadowScale = 1 - floatY * 0.6;
-      shadowMesh.scale.set(shadowScale, shadowScale, 1);
-
-      if (videoElRef.current) {
-        uiTimer += dt;
-        if (uiTimer > 0.15) {
-          setVideoTime(videoElRef.current.currentTime || 0);
-          uiTimer = 0;
-        }
-      }
-
-      renderer.render(scene, camera);
-    };
-
-    reqId = requestAnimationFrame(animate);
-
-    // 6. Responsive Resize Handler
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.position.z = w < 640 ? 13.8 : w < 1024 ? 11.6 : 10.4;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(reqId);
-      window.removeEventListener('resize', handleResize);
-      domElem.removeEventListener('mousedown', onPointerDown);
-      window.removeEventListener('mousemove', onPointerMove);
-      window.removeEventListener('mouseup', onPointerUp);
-      domElem.removeEventListener('touchstart', onPointerDown);
-      window.removeEventListener('touchmove', onPointerMove);
-      window.removeEventListener('touchend', onPointerUp);
-      if (activeVideoTexture) activeVideoTexture.dispose();
-      vid.pause();
-      renderer.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-    };
-  }, [customVideoUrl]);
-
-  useEffect(() => {
-    if (rebuildTabletRef.current) {
-      rebuildTabletRef.current();
-    }
-  }, [
-    config.width,
-    config.height,
-    config.depth,
-    config.chassisRadius,
-    config.screenRadius,
-    config.bezelWidth,
-    config.outlineColor,
-    config.secondaryLineColor,
-    config.outlineOpacity,
-    config.showHardwareDetails,
-    config.showCornerRibs,
-    config.showCadGuides,
-    config.xRayMode,
-  ]);
-
-  const togglePlay = useCallback(() => {
-    setIsPlaying((prev) => {
-      const next = !prev;
-      if (videoElRef.current) {
-        if (next) videoElRef.current.play().catch(() => {});
-        else videoElRef.current.pause();
-      }
-      return next;
-    });
-  }, []);
-
-  const handleVideoFileUpload = (file: File) => {
-    if (!file || !file.type.startsWith('video/')) return;
-    const url = URL.createObjectURL(file);
-    setCustomVideoUrl(url);
-    setCustomVideoName(file.name);
-    setIsPlaying(true);
+  const handleApplyShadingPreset = (key: ShadingPresetKey) => {
+    const p = SHADING_PRESETS[key];
+    setShadingPreset(key);
+    setBodyColor(p.bodyColor);
+    setMetalness(p.metalness);
+    setRoughness(p.roughness);
+    setBackPanelColor(p.backPanelColor);
+    setBackPanelRoughness(p.backPanelRoughness);
+    setCameraRingColor(p.cameraRingColor);
+    setCameraRingMetalness(p.cameraRingMetalness);
   };
 
-  const handleCopyCode = () => {
-    const code = generateStandaloneTSXCode(config);
-    const textArea = document.createElement('textarea');
-    textArea.value = code;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
+  const handleBodyColorChange = (color: string) => {
+    setBodyColor(color);
+    if (autoHarmonize) {
+      try {
+        const c = parseInt(color.replace("#", ""), 16);
+        const r = (c >> 16) & 255;
+        const g = (c >> 8) & 255;
+        const b = c & 255;
+
+        const panelR = Math.max(0, Math.round(r * 0.82));
+        const panelG = Math.max(0, Math.round(g * 0.82));
+        const panelB = Math.max(0, Math.round(b * 0.82));
+        const panelHex = `#${((1 << 24) + (panelR << 16) + (panelG << 8) + panelB).toString(16).slice(1)}`;
+        setBackPanelColor(panelHex);
+
+        const ringR = Math.min(255, Math.round(r * 1.35));
+        const ringG = Math.min(255, Math.round(g * 1.35));
+        const ringB = Math.min(255, Math.round(b * 1.35));
+        const ringHex = `#${((1 << 24) + (ringR << 16) + (ringG << 8) + ringB).toString(16).slice(1)}`;
+        setCameraRingColor(ringHex);
+      } catch { }
+    }
+  };
+
+  const handleApplyLightingPreset = (key: LightingPresetKey) => {
+    const p = LIGHTING_PRESETS[key];
+    setLightingPreset(key);
+    setKeyLightIntensity(p.keyIntensity);
+    setKeyLightColor(p.keyColor);
+    setEnvBrightness(p.envBrightness);
+    setEnvTint(p.envTint);
+    setRimLightIntensity(p.rimIntensity);
+    setRimLightColor(p.rimColor);
+    setAmbientLightIntensity(p.ambientIntensity);
+    setAmbientLightColor(p.ambientColor);
+  };
+
+  const getKeyPosition = (): [number, number, number] => {
+    switch (keyLightPosPreset) {
+      case "frontLeft":
+        return [-3, 5, -8];
+      case "overhead":
+        return [0, 8, -4];
+      case "side":
+        return [6, 2, -4];
+      case "frontRight":
+      default:
+        return [3, 5, -8];
+    }
+  };
+
+  const handleTransformChange = (part: PartName, data: PartTransformData) => {
+    setPartData((prev) => ({
+      ...prev,
+      [part]: data,
+    }));
+  };
+
+  const updateSelectedPartField = (field: keyof PartTransformData, value: number) => {
+    if (!selectedPart) return;
+    setPartData((prev) => ({
+      ...prev,
+      [selectedPart]: {
+        ...prev[selectedPart],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleResetSelectedPart = () => {
+    if (!selectedPart) return;
+    setPartData((prev) => ({
+      ...prev,
+      [selectedPart]: { ...DEFAULT_PART_DATA[selectedPart] },
+    }));
+  };
+
+  const handleResetAllParts = () => {
+    setPartData({ ...DEFAULT_PART_DATA });
+  };
+
+  const settingsExport = {
+    src: "/images/iphone/sneaker-ad.webp",
+    bodyColor,
+    metalness,
+    roughness,
+    backPanelColor,
+    backPanelRoughness,
+    cameraRingColor,
+    cameraRingMetalness,
+    keyLightIntensity,
+    keyLightColor,
+    keyLightPosition: getKeyPosition(),
+    endPosition,
+    partCoordinates: partData,
+  };
+
+  const handleCopySettings = () => {
+    navigator.clipboard.writeText(JSON.stringify(settingsExport, null, 2));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formatTime = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const handleCopyEndPosition = () => {
+    navigator.clipboard.writeText(JSON.stringify({ endPosition }, null, 2));
+    setEndAngleCopied(true);
+    setTimeout(() => setEndAngleCopied(false), 2000);
   };
 
+  const currentPart = selectedPart ? partData[selectedPart] : null;
+
   return (
-    <div
-      className="relative w-full h-screen bg-[#050811] text-slate-100 overflow-hidden select-none font-sans flex flex-col"
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDraggingFile(true);
-      }}
-      onDragLeave={() => setIsDraggingFile(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setIsDraggingFile(false);
-        const file = e.dataTransfer.files?.[0];
-        if (file) handleVideoFileUpload(file);
-      }}
-    >
-      {/* Subtle Ambient Background Blueprint Grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.14) 0%, transparent 65%), linear-gradient(to right, rgba(30, 41, 59, 0.35) 1px, transparent 1px), linear-gradient(to bottom, rgba(30, 41, 59, 0.35) 1px, transparent 1px)`,
-          backgroundSize: '100% 100%, 40px 40px, 40px 40px',
-        }}
-      />
+    <div className="relative w-screen h-screen overflow-hidden bg-[#090b0e] text-neutral-100 font-sans select-none">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(45,22,32,0.4)_0%,_rgba(9,11,14,0.96)_75%)] pointer-events-none" />
 
-      {/* Top Sandbox Header Bar */}
-      <header className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-inner">
-            <Layers className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm sm:text-base font-semibold tracking-tight text-white">
-                iPad Air 3D — Outline Build
-              </h1>
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Three.js + TSX
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 hidden sm:block">
-              Semi-curved corner screen (`r = {config.screenRadius.toFixed(2)}`) · Loaded video: <span className="text-sky-300 font-mono">/videos/lmsadm.webm</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleVideoFileUpload(file);
-            }}
-          />
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition cursor-pointer"
-            title="Load your local MP4/WebM video onto the 3D screen"
-          >
-            <Upload className="w-3.5 h-3.5 text-sky-400" />
-            <span>Load Video File</span>
-          </button>
-
-          <button
-            onClick={() =>
-              setConfig((c) => ({ ...c, interactiveOrbit: !c.interactiveOrbit }))
-            }
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
-              config.interactiveOrbit
-                ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700/80'
-            }`}
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">
-              {config.interactiveOrbit ? '3D Orbit Active (Drag)' : 'Facing Us (Locked)'}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setShowControls((s) => !s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
-              showControls
-                ? 'bg-slate-800 text-white border-slate-600'
-                : 'bg-slate-900 text-slate-300 border-slate-800'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Inspector</span>
-          </button>
-
-          <button
-            onClick={() => setShowCodeModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-lg shadow-sky-500/20 transition cursor-pointer"
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>Export .TSX</span>
-          </button>
+      <header className="absolute top-4 left-5 z-20 flex items-center gap-3 pointer-events-auto">
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900/80 border border-white/10 backdrop-blur-md shadow-lg">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-xs font-mono font-bold tracking-wider uppercase text-neutral-200">
+            iPhone 18 Pro Max 3D Studio
+          </span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-neutral-400">
+            3D Gizmo Active
+          </span>
         </div>
       </header>
 
-      {/* Main 3D Viewport Area */}
-      <div className="relative flex-1 w-full overflow-hidden">
-        {/* Three.js Canvas Mount */}
-        <div
-          ref={mountRef}
-          className={`w-full h-full ${
-            config.interactiveOrbit ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-          }`}
-        />
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-neutral-950/85 border border-white/15 backdrop-blur-xl shadow-2xl pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setGizmoMode("translate")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono transition-all ${gizmoMode === "translate"
+              ? "bg-amber-400 text-neutral-950 font-bold shadow-md shadow-amber-400/20"
+              : "text-neutral-400 hover:text-white hover:bg-white/5"
+            }`}
+          title="Move/Translate part (drag arrows in 3D)"
+        >
+          <span>⤧</span>
+          <span>Move (Drag)</span>
+        </button>
 
-        {/* Drag & Drop Video Overlay */}
-        {isDraggingFile && (
-          <div className="absolute inset-4 z-40 rounded-2xl bg-sky-950/80 backdrop-blur-md border-2 border-dashed border-sky-400 flex flex-col items-center justify-center gap-3">
-            <Video className="w-12 h-12 text-sky-400 animate-bounce" />
-            <p className="text-lg font-semibold text-white">
-              Drop your video file to map onto the 3D iPad Air screen
-            </p>
-            <p className="text-xs text-sky-300">Supports .mp4, .webm, .mov</p>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={() => setGizmoMode("scale")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono transition-all ${gizmoMode === "scale"
+              ? "bg-amber-400 text-neutral-950 font-bold shadow-md shadow-amber-400/20"
+              : "text-neutral-400 hover:text-white hover:bg-white/5"
+            }`}
+          title="Resize/Scale part (drag cubes in 3D)"
+        >
+          <span>⤢</span>
+          <span>Resize</span>
+        </button>
 
-        {/* Bottom Floating Video Scrubber & Status Pill */}
-        <div className="
-          absolute bottom-5 left-1/2 -translate-x-1/2 z-20
-          flex items-center gap-3 px-4 py-2.5 rounded-2xl
-          bg-slate-950/85 backdrop-blur-md border border-slate-800/90 shadow-2xl
-          max-w-[92vw] sm:max-w-xl w-full
-        ">
-          <button
-            onClick={togglePlay}
-            className="w-8 h-8 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 flex items-center justify-center text-sky-400 transition shrink-0 cursor-pointer"
-            title={isPlaying ? 'Pause Video' : 'Play Video'}
-          >
-            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-          </button>
+        <div className="w-px h-5 bg-white/15 mx-1" />
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-              <span className="truncate font-medium text-slate-200">{customVideoName}</span>
-              <span className="font-mono text-sky-400 shrink-0 ml-2">
-                {formatTime(videoTime)}
-              </span>
-            </div>
-
-            <div className="w-full h-1.5 bg-slate-800 rounded-lg overflow-hidden">
-              <div
-                className="h-full bg-sky-400 transition-all duration-150"
-                style={{
-                  width: videoElRef.current && videoElRef.current.duration
-                    ? `${(videoTime / videoElRef.current.duration) * 100}%`
-                    : '100%',
-                }}
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              setCustomVideoUrl('/videos/lmsadm.webm');
-              setCustomVideoName('lmsadm.webm');
-            }}
-            className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 shrink-0 cursor-pointer"
-          >
-            Reset Default
-          </button>
-        </div>
-
-        {/* Floating Inspector Panel */}
-        {showControls && (
-          <aside className="
-            absolute top-4 right-4 z-30 w-80 max-h-[calc(100%-6rem)]
-            overflow-y-auto rounded-2xl bg-slate-950/90 backdrop-blur-xl
-            border border-slate-800/90 p-4 shadow-2xl space-y-4
-          ">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-sky-400" />
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-200">
-                  Outline & Screen Controls
-                </h2>
-              </div>
-              <button
-                onClick={() => setConfig(DEFAULT_CONFIG)}
-                className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-white transition cursor-pointer"
-                title="Reset to defaults"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>Reset</span>
-              </button>
-            </div>
-
-            {/* Color Theme Presets */}
-            <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-2">
-                Outline Blueprint Theme
-              </label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {[
-                  { name: 'Cyan CAD', p: '#38bdf8', s: '#10b981' },
-                  { name: 'LMS Green', p: '#34d399', s: '#3b82f6' },
-                  { name: 'Titanium', p: '#e2e8f0', s: '#64748b' },
-                  { name: 'Indigo', p: '#818cf8', s: '#c084fc' },
-                ].map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() =>
-                      setConfig((c) => ({
-                        ...c,
-                        outlineColor: preset.p,
-                        secondaryLineColor: preset.s,
-                      }))
-                    }
-                    className={`px-2 py-1.5 rounded-lg text-[11px] font-medium border transition flex flex-col items-center gap-1 cursor-pointer ${
-                      config.outlineColor === preset.p
-                        ? 'bg-slate-800/90 border-sky-400 text-white'
-                        : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    <span
-                      className="w-3.5 h-3.5 rounded-full border border-white/20"
-                      style={{ backgroundColor: preset.p }}
-                    />
-                    <span>{preset.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Semi-Curved Screen Corner Radius */}
-            <div className="space-y-3 pt-1">
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Screen Corner Curvature</span>
-                  <span className="font-mono text-sky-400">{config.screenRadius.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0.04}
-                  max={0.45}
-                  step={0.01}
-                  value={config.screenRadius}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, screenRadius: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Outer Chassis Radius</span>
-                  <span className="font-mono text-sky-400">{config.chassisRadius.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0.12}
-                  max={0.65}
-                  step={0.01}
-                  value={config.chassisRadius}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, chassisRadius: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Bezel Thickness</span>
-                  <span className="font-mono text-sky-400">{config.bezelWidth.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0.14}
-                  max={0.45}
-                  step={0.01}
-                  value={config.bezelWidth}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, bezelWidth: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
-                />
-              </div>
-            </div>
-
-            {/* Subtle Idle Floating Controls */}
-            <div className="space-y-3 border-t border-slate-800/80 pt-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Subtle Idle Floating
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Float Speed</span>
-                  <span className="font-mono text-emerald-400">{config.floatSpeed.toFixed(1)}x</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={2.5}
-                  step={0.1}
-                  value={config.floatSpeed}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, floatSpeed: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Vertical Float Amplitude</span>
-                  <span className="font-mono text-emerald-400">{config.floatAmplitude.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={0.25}
-                  step={0.01}
-                  value={config.floatAmplitude}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, floatAmplitude: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300">Subtle 3D Breathing Tilt</span>
-                  <span className="font-mono text-emerald-400">{config.tiltAmplitude.toFixed(3)}</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={0.1}
-                  step={0.004}
-                  value={config.tiltAmplitude}
-                  onChange={(e) =>
-                    setConfig((c) => ({ ...c, tiltAmplitude: parseFloat(e.target.value) }))
-                  }
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
-                />
-              </div>
-            </div>
-
-            {/* Detail Layer Toggles */}
-            <div className="space-y-2 border-t border-slate-800/80 pt-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
-                Outline Construction Layers
-              </div>
-
-              {[
-                {
-                  key: 'showHardwareDetails',
-                  label: 'Buttons, Camera & USB-C Outlines',
-                },
-                {
-                  key: 'showCornerRibs',
-                  label: 'Corner Bevel Wireframe Ribs',
-                },
-                {
-                  key: 'showCadGuides',
-                  label: 'CAD Radius Crosshairs & Guides',
-                },
-                {
-                  key: 'xRayMode',
-                  label: 'X-Ray Rear Wireframe Pass-through',
-                },
-              ].map((item) => {
-                const active = Boolean(config[item.key as keyof TabletConfig]);
-                return (
-                  <label
-                    key={item.key}
-                    className="flex items-center justify-between text-xs text-slate-300 py-1 cursor-pointer"
-                  >
-                    <span>{item.label}</span>
-                    <input
-                      type="checkbox"
-                      checked={active}
-                      onChange={(e) =>
-                        setConfig((c) => ({ ...c, [item.key]: e.target.checked }))
-                      }
-                      className="rounded bg-slate-800 border-slate-700 text-sky-500 focus:ring-0 cursor-pointer"
-                    />
-                  </label>
-                );
-              })}
-            </div>
-          </aside>
-        )}
+        <button
+          type="button"
+          onClick={() => setEnableGizmo(!enableGizmo)}
+          className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all ${enableGizmo
+              ? "bg-white/10 text-neutral-200 font-medium"
+              : "bg-red-500/20 text-red-300 border border-red-500/30"
+            }`}
+        >
+          Gizmo {enableGizmo ? "ON" : "OFF"}
+        </button>
       </div>
 
-      {/* Code Export Modal */}
-      {showCodeModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
-              <div>
-                <h3 className="text-base font-semibold text-white">
-                  IPadAirOutline3D.tsx — Standalone Component
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Ready to drop into your React / Next.js project with your current curvature & float settings
+      <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
+        <Phone3D
+          src="/images/iphone/sneaker-ad.webp"
+          bodyColor={bodyColor}
+          metalness={metalness}
+          roughness={roughness}
+          backPanelColor={backPanelColor}
+          backPanelRoughness={backPanelRoughness}
+          cameraRingColor={cameraRingColor}
+          cameraRingMetalness={cameraRingMetalness}
+          enableOrbit={enableOrbit}
+          autoRotate={autoRotate}
+          autoRotateSpeed={autoRotateSpeed}
+          cameraPreset={cameraPreset}
+          isFloating={isFloating}
+          floatAmplitude={floatAmplitude}
+          tiltAmplitude={tiltAmplitude}
+          floatSpeed={floatSpeed}
+          floatEaseMode={floatEaseMode}
+          entranceDuration={entranceDuration}
+          entranceDelay={entranceDelay}
+          keyLightIntensity={keyLightIntensity}
+          keyLightColor={keyLightColor}
+          keyLightPosition={getKeyPosition()}
+          envBrightness={envBrightness}
+          envTint={envTint}
+          rimLightIntensity={rimLightIntensity}
+          rimLightColor={rimLightColor}
+          ambientLightIntensity={ambientLightIntensity}
+          ambientLightColor={ambientLightColor}
+          showFloorShadow={showFloorShadow}
+          enableGizmo={enableGizmo}
+          gizmoMode={gizmoMode}
+          selectedPart={selectedPart}
+          partOverrides={partData}
+          endPosition={endPosition}
+          onSelectPart={(p) => {
+            setSelectedPart(p);
+            if (p) setActiveTab("inspector");
+          }}
+          onPartTransformChange={handleTransformChange}
+          onReplayTrigger={(fn) => {
+            replayTriggerRef.current = fn;
+          }}
+        />
+      </div>
+
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full bg-neutral-950/80 border border-white/15 backdrop-blur-xl shadow-2xl pointer-events-auto select-none">
+        <button
+          type="button"
+          onClick={() => setCameraPreset("back")}
+          className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 active:scale-95 ${cameraPreset === "back"
+              ? "bg-amber-400 text-neutral-950 font-bold shadow-md shadow-amber-400/20"
+              : "bg-white/10 hover:bg-white/20 text-neutral-300"
+            }`}
+          title="Align camera to straight back side"
+        >
+          Straight Back
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setCameraPreset("backClose")}
+          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 text-xs font-mono transition-all active:scale-95"
+          title="Zoom directly into the camera island"
+        >
+          Zoom Island
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setCameraPreset("hero")}
+          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 text-xs font-mono transition-all active:scale-95"
+          title="Reset camera to Hero 3/4 angle"
+        >
+          Hero 3/4
+        </button>
+
+        <div className="w-px h-5 bg-white/15" />
+
+        <button
+          type="button"
+          onClick={() => setAutoRotate(!autoRotate)}
+          className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 ${autoRotate
+              ? "bg-sky-500 text-white font-semibold shadow-md shadow-sky-500/30"
+              : "bg-white/10 hover:bg-white/20 text-neutral-300"
+            }`}
+          title="Toggle automatic 360 degree turntable rotation"
+        >
+          <span>🔄</span>
+          <span>Turn {autoRotate ? "ON" : "OFF"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => replayTriggerRef.current()}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 text-xs font-mono uppercase transition-all active:scale-95"
+        >
+          ↻ Replay
+        </button>
+
+        <div className="w-px h-5 bg-white/15" />
+
+        <button
+          type="button"
+          onClick={() => setIsUiCollapsed(!isUiCollapsed)}
+          className="px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white text-xs font-mono transition-all"
+        >
+          {isUiCollapsed ? "Controls ◳" : "Hide ◲"}
+        </button>
+      </div>
+
+      <div className="absolute bottom-6 left-6 z-10 hidden sm:block pointer-events-none text-[11px] font-mono text-neutral-400 leading-tight bg-neutral-950/70 p-3 rounded-2xl border border-white/10 backdrop-blur-md">
+        <p className="text-amber-300 font-bold mb-1">Interactive 3D Gizmo:</p>
+        <p>• Click any lens, island, or button to select it</p>
+        <p>• Drag the arrows to move it in real-time</p>
+        <p>• Switch to &quot;Resize&quot; to scale parts</p>
+      </div>
+
+      <aside
+        className={`absolute top-4 right-4 z-30 w-full sm:w-[390px] md:w-[430px] max-h-[calc(100vh-2rem)] flex flex-col rounded-3xl bg-neutral-950/85 border border-white/15 backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.6)] transition-all duration-300 ${isUiCollapsed ? "translate-x-[110%] opacity-0 pointer-events-none" : "translate-x-0 opacity-100 pointer-events-auto"
+          }`}
+      >
+        <div className="p-4 pb-2 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold tracking-wide text-white">3D Studio & Controls</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Drag & Drop
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsUiCollapsed(true)}
+            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-neutral-400 hover:text-white text-xs transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <nav className="flex items-center gap-1 p-2 border-b border-white/10 overflow-x-auto text-xs font-mono">
+          {(
+            [
+              { id: "angle", label: "📐 End Angle" },
+              { id: "inspector", label: "🎯 Drag/Resize" },
+              { id: "shading", label: "🍷 Shading" },
+              { id: "view", label: "📱 360 View" },
+              { id: "lighting", label: "💡 Lighting" },
+              { id: "float", label: "🌊 Float" },
+              { id: "export", label: "📋 Export" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition-all ${activeTab === tab.id
+                  ? "bg-white text-neutral-950 font-bold shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-white/5"
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-neutral-300">
+          {activeTab === "angle" && (
+            <div className="space-y-5">
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/25 space-y-1">
+                <span className="font-mono text-amber-300 font-bold block text-xs">
+                  📐 Landing / Resting Angle Options
+                </span>
+                <p className="text-[11px] text-neutral-300 leading-relaxed">
+                  Adjust Pitch, Yaw, and Roll below. The 3D phone reacts live in real-time, and your exported JSON automatically updates!
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="space-y-4">
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-neutral-200 font-semibold block">Pitch / Tilt (X Axis)</span>
+                      <span className="text-[10px] text-neutral-400">Tilt top forward (-) or back (+)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono">
+                      <span className="text-[10px] text-neutral-400">{((endPosition.x * 180) / Math.PI).toFixed(1)}°</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={endPosition.x}
+                        onChange={(e) => setEndPosition((prev) => ({ ...prev, x: parseFloat(e.target.value) || 0 }))}
+                        className="w-16 px-1.5 py-0.5 rounded bg-neutral-900 border border-white/20 text-amber-400 font-bold text-center text-xs"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min="-1.50"
+                    max="1.50"
+                    step="0.01"
+                    value={endPosition.x}
+                    onChange={(e) => setEndPosition((prev) => ({ ...prev, x: parseFloat(e.target.value) }))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex items-center justify-between gap-1 text-[10px] font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, x: Number((p.x - 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.05
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, x: Number((p.x - 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, x: 0 }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-400"
+                    >
+                      0
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, x: Number((p.x + 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, x: Number((p.x + 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.05
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-neutral-200 font-semibold block">Yaw / Spin (Y Axis)</span>
+                      <span className="text-[10px] text-neutral-400">Turn phone left (-) or right (+)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono">
+                      <span className="text-[10px] text-neutral-400">{((endPosition.y * 180) / Math.PI).toFixed(1)}°</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={endPosition.y}
+                        onChange={(e) => setEndPosition((prev) => ({ ...prev, y: parseFloat(e.target.value) || 0 }))}
+                        className="w-16 px-1.5 py-0.5 rounded bg-neutral-900 border border-white/20 text-amber-400 font-bold text-center text-xs"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min="-3.14"
+                    max="3.14"
+                    step="0.01"
+                    value={endPosition.y}
+                    onChange={(e) => setEndPosition((prev) => ({ ...prev, y: parseFloat(e.target.value) }))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex items-center justify-between gap-1 text-[10px] font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, y: Number((p.y - 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.05
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, y: Number((p.y - 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, y: 0 }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-400"
+                    >
+                      0
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, y: Number((p.y + 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, y: Number((p.y + 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.05
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-neutral-200 font-semibold block">Roll / Cant (Z Axis)</span>
+                      <span className="text-[10px] text-neutral-400">Lean sideways left (-) or right (+)</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono">
+                      <span className="text-[10px] text-neutral-400">{((endPosition.z * 180) / Math.PI).toFixed(1)}°</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={endPosition.z}
+                        onChange={(e) => setEndPosition((prev) => ({ ...prev, z: parseFloat(e.target.value) || 0 }))}
+                        className="w-16 px-1.5 py-0.5 rounded bg-neutral-900 border border-white/20 text-amber-400 font-bold text-center text-xs"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min="-1.50"
+                    max="1.50"
+                    step="0.01"
+                    value={endPosition.z}
+                    onChange={(e) => setEndPosition((prev) => ({ ...prev, z: parseFloat(e.target.value) }))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex items-center justify-between gap-1 text-[10px] font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, z: Number((p.z - 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.05
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, z: Number((p.z - 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      -0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, z: 0 }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-400"
+                    >
+                      0
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, z: Number((p.z + 0.01).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.01
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEndPosition((p) => ({ ...p, z: Number((p.z + 0.05).toFixed(2)) }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-neutral-300"
+                    >
+                      +0.05
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Quick Angle Presets
+                </label>
+                <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                  {[
+                    {
+                      label: "🎯 Tuned Angle (Active)",
+                      sub: "x: -0.33, y: 0.33, z: 0",
+                      val: { x: -0.33, y: 0.33, z: 0 },
+                    },
+                    {
+                      label: "📸 Dramatic Hero",
+                      sub: "Screenshot preset",
+                      val: { x: -0.20, y: 0.55, z: 0.14 },
+                    },
+                    {
+                      label: "📐 Mild Angle",
+                      sub: "Previous JSON preset",
+                      val: { x: -0.06, y: 0.28, z: 0.02 },
+                    },
+                    {
+                      label: "📱 Flat Front",
+                      sub: "Straight-on display",
+                      val: { x: 0, y: 0, z: 0 },
+                    },
+                    {
+                      label: "🔄 Full Rear",
+                      sub: "Showcase back island",
+                      val: { x: 0, y: 3.14, z: 0 },
+                    },
+                    {
+                      label: "↗️ High Perspective",
+                      sub: "Steeper tilt look",
+                      val: { x: -0.30, y: 0.65, z: 0.20 },
+                    },
+                    {
+                      label: "↖️ Left-Turn Hero",
+                      sub: "Facing left 3/4",
+                      val: { x: -0.15, y: -0.45, z: -0.10 },
+                    },
+                  ].map((preset, idx) => {
+                    const isCurrent =
+                      endPosition.x === preset.val.x &&
+                      endPosition.y === preset.val.y &&
+                      endPosition.z === preset.val.z;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setEndPosition({ ...preset.val })}
+                        className={`p-2 rounded-xl border text-left transition-all ${
+                          isCurrent
+                            ? "border-amber-400 bg-amber-400/20 text-white font-bold"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                        }`}
+                      >
+                        <div className="text-white font-medium">{preset.label}</div>
+                        <div className="text-[9px] text-neutral-400">{preset.sub}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1 border-t border-white/10">
                 <button
-                  onClick={handleCopyCode}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-slate-950 transition cursor-pointer"
+                  type="button"
+                  onClick={() => replayTriggerRef.current()}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-mono font-bold text-xs uppercase transition-all shadow-lg active:scale-98 flex items-center justify-center gap-1.5"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied TSX!' : 'Copy Code'}</span>
+                  <span>↻</span>
+                  <span>Test Entrance Landing</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCameraPreset("hero")}
+                  className="w-full py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-300 text-xs font-mono transition-all"
+                  title="Resets orbit camera so you see the exact resting perspective"
+                >
+                  Reset Orbit Camera to Front
+                </button>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-black/50 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+                    Live Auto-Adjusted JSON
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyEndPosition}
+                    className="px-2 py-0.5 rounded bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[10px] font-mono border border-amber-400/30 transition-all active:scale-95"
+                  >
+                    {endAngleCopied ? "✓ Copied!" : "Copy Angle JSON"}
+                  </button>
+                </div>
+                <pre className="text-[11px] font-mono text-emerald-400 bg-neutral-950 p-2.5 rounded-xl border border-white/10 overflow-x-auto">
+{`"endPosition": {
+  "x": ${endPosition.x},
+  "y": ${endPosition.y},
+  "z": ${endPosition.z}
+}`}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "inspector" && (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Select 3D Component to Move or Resize
+                </label>
+                <div className="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+                  {(Object.keys(PART_LABELS) as PartName[]).map((key) => {
+                    const isSelected = selectedPart === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setSelectedPart(key)}
+                        className={`p-2 rounded-xl border text-left truncate transition-all ${isSelected
+                            ? "border-amber-400 bg-amber-400/20 text-white font-bold"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                          }`}
+                      >
+                        {PART_LABELS[key]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {selectedPart && currentPart ? (
+                <div className="p-4 rounded-2xl bg-white/[0.04] border border-amber-400/30 space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold block">
+                        Active Selection
+                      </span>
+                      <span className="text-sm font-semibold text-white">
+                        {PART_LABELS[selectedPart]}
+                      </span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleResetSelectedPart}
+                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-mono text-neutral-300 transition-colors"
+                      >
+                        Reset Part
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 font-mono text-[11px]">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-neutral-400">Position X (Horizontal)</span>
+                        <span className="text-amber-400 font-bold">{currentPart.x.toFixed(3)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedPartField("x", Number((currentPart.x - 0.02).toFixed(3)))}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="range"
+                          min="-1.2"
+                          max="1.2"
+                          step="0.01"
+                          value={currentPart.x}
+                          onChange={(e) => updateSelectedPartField("x", parseFloat(e.target.value))}
+                          className="flex-1 accent-amber-400 cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedPartField("x", Number((currentPart.x + 0.02).toFixed(3)))}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-neutral-400">Position Y (Vertical)</span>
+                        <span className="text-amber-400 font-bold">{currentPart.y.toFixed(3)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedPartField("y", Number((currentPart.y - 0.02).toFixed(3)))}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="range"
+                          min="-2.2"
+                          max="2.2"
+                          step="0.01"
+                          value={currentPart.y}
+                          onChange={(e) => updateSelectedPartField("y", parseFloat(e.target.value))}
+                          className="flex-1 accent-amber-400 cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedPartField("y", Number((currentPart.y + 0.02).toFixed(3)))}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-neutral-400">Scale / Size</span>
+                        <span className="text-amber-400 font-bold">{currentPart.scaleX.toFixed(2)}x</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ns = Math.max(0.2, Number((currentPart.scaleX - 0.05).toFixed(2)));
+                            updateSelectedPartField("scaleX", ns);
+                            updateSelectedPartField("scaleY", ns);
+                            updateSelectedPartField("scaleZ", ns);
+                          }}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="range"
+                          min="0.3"
+                          max="2.5"
+                          step="0.02"
+                          value={currentPart.scaleX}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            updateSelectedPartField("scaleX", val);
+                            updateSelectedPartField("scaleY", val);
+                            updateSelectedPartField("scaleZ", val);
+                          }}
+                          className="flex-1 accent-amber-400 cursor-pointer"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ns = Math.min(2.5, Number((currentPart.scaleX + 0.05).toFixed(2)));
+                            updateSelectedPartField("scaleX", ns);
+                            updateSelectedPartField("scaleY", ns);
+                            updateSelectedPartField("scaleZ", ns);
+                          }}
+                          className="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center text-neutral-400 font-mono text-xs">
+                  Click any camera lens, plateau, or button directly on the phone to start moving or resizing it.
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopySettings}
+                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-mono font-bold text-xs uppercase transition-all shadow-lg active:scale-98"
+                >
+                  {copied ? "✓ Coordinates Copied!" : "Copy New Coordinates"}
                 </button>
                 <button
-                  onClick={() => setShowCodeModal(false)}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+                  type="button"
+                  onClick={handleResetAllParts}
+                  className="px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-neutral-300 font-mono text-xs uppercase transition-all"
+                  title="Reset all parts to initial defaults"
                 >
-                  <X className="w-4 h-4" />
+                  Reset All
                 </button>
               </div>
             </div>
+          )}
 
-            <pre className="p-5 text-xs font-mono text-sky-200 overflow-y-auto leading-relaxed bg-[#070a12]">
-              <code>{generateStandaloneTSXCode(config)}</code>
-            </pre>
-          </div>
+          {activeTab === "shading" && (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Burgundy Color Presets
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.keys(SHADING_PRESETS) as ShadingPresetKey[]).map((key) => {
+                    const p = SHADING_PRESETS[key];
+                    const isSelected = shadingPreset === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleApplyShadingPreset(key)}
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all ${isSelected
+                            ? "border-amber-400 bg-amber-400/10 text-white font-medium"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                          }`}
+                      >
+                        <span
+                          className="w-4 h-4 rounded-full border border-white/30 shrink-0 shadow-inner"
+                          style={{ backgroundColor: p.bodyColor }}
+                        />
+                        <span className="truncate text-[11px]">{p.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-200">Body Chassis Color</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={bodyColor}
+                      onChange={(e) => handleBodyColorChange(e.target.value)}
+                      className="w-7 h-7 rounded-lg border border-white/20 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={bodyColor}
+                      onChange={(e) => handleBodyColorChange(e.target.value)}
+                      className="w-20 px-2 py-1 rounded-md bg-neutral-900 border border-white/15 text-neutral-200 font-mono text-[11px] uppercase text-center"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-neutral-400">
+                  <span>Auto-Harmonize Accents</span>
+                  <input
+                    type="checkbox"
+                    checked={autoHarmonize}
+                    onChange={(e) => setAutoHarmonize(e.target.checked)}
+                    className="accent-amber-400 w-4 h-4 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1.5">
+                    <span>Metalness</span>
+                    <span className="text-amber-400 font-bold">{metalness.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={metalness}
+                    onChange={(e) => setMetalness(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-neutral-500 font-mono mt-0.5">
+                    <span>Dielectric (0.0)</span>
+                    <span>High Metallic (1.0)</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1.5">
+                    <span>Roughness</span>
+                    <span className="text-amber-400 font-bold">{roughness.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={roughness}
+                    onChange={(e) => setRoughness(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-neutral-500 font-mono mt-0.5">
+                    <span>Mirror Gloss (0.0)</span>
+                    <span>Matte Diffuse (1.0)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/10 space-y-3.5">
+                <span className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Component Overrides
+                </span>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-300">Back Glass Panel</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={backPanelColor}
+                      onChange={(e) => setBackPanelColor(e.target.value)}
+                      className="w-6 h-6 rounded-md border border-white/20 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={backPanelColor}
+                      onChange={(e) => setBackPanelColor(e.target.value)}
+                      className="w-18 px-1.5 py-0.5 rounded bg-neutral-900 border border-white/15 text-neutral-200 font-mono text-[10px] uppercase text-center"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-[11px] text-neutral-400 font-mono mb-1">
+                    <span>Back Glass Roughness</span>
+                    <span className="text-neutral-200">{backPanelRoughness.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={backPanelRoughness}
+                    onChange={(e) => setBackPanelRoughness(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-300">Camera Lens Rings</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={cameraRingColor}
+                      onChange={(e) => setCameraRingColor(e.target.value)}
+                      className="w-6 h-6 rounded-md border border-white/20 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={cameraRingColor}
+                      onChange={(e) => setCameraRingColor(e.target.value)}
+                      className="w-18 px-1.5 py-0.5 rounded bg-neutral-900 border border-white/15 text-neutral-200 font-mono text-[10px] uppercase text-center"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "view" && (
+            <div className="space-y-5">
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-200">Enable 360 Orbit</span>
+                  <input
+                    type="checkbox"
+                    checked={enableOrbit}
+                    onChange={(e) => setEnableOrbit(e.target.checked)}
+                    className="accent-amber-400 w-4 h-4 cursor-pointer"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-200">Auto Turntable Spin</span>
+                  <input
+                    type="checkbox"
+                    checked={autoRotate}
+                    onChange={(e) => setAutoRotate(e.target.checked)}
+                    className="accent-amber-400 w-4 h-4 cursor-pointer"
+                  />
+                </div>
+                {autoRotate && (
+                  <div>
+                    <div className="flex justify-between text-neutral-400 font-mono mb-1 text-[11px]">
+                      <span>Turntable Speed</span>
+                      <span className="text-amber-400 font-bold">{autoRotateSpeed.toFixed(1)}x</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-4"
+                      max="4"
+                      step="0.2"
+                      value={autoRotateSpeed}
+                      onChange={(e) => setAutoRotateSpeed(parseFloat(e.target.value))}
+                      className="w-full accent-amber-400 cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Camera Angle Presets
+                </label>
+                <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                  {[
+                    { id: "back", label: "Straight Back (Active)" },
+                    { id: "backClose", label: "Zoom Island" },
+                    { id: "hero", label: "Hero 3/4" },
+                    { id: "front", label: "Front (Screen)" },
+                    { id: "left", label: "Left Profile" },
+                    { id: "right", label: "Right Profile" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setCameraPreset(p.id)}
+                      className={`p-2.5 rounded-xl border text-center transition-all ${cameraPreset === p.id
+                          ? "border-sky-400 bg-sky-400/10 text-white font-bold"
+                          : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                        }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/10 space-y-3.5">
+                <span className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Entrance Animation Tuning
+                </span>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Duration</span>
+                    <span className="text-amber-400 font-bold">{entranceDuration.toFixed(1)}s</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.8"
+                    max="5.0"
+                    step="0.1"
+                    value={entranceDuration}
+                    onChange={(e) => setEntranceDuration(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Initial Delay</span>
+                    <span className="text-amber-400 font-bold">{entranceDelay.toFixed(2)}s</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1.5"
+                    step="0.05"
+                    value={entranceDelay}
+                    onChange={(e) => setEntranceDelay(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => replayTriggerRef.current()}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-mono font-bold text-xs uppercase transition-all shadow-lg active:scale-98"
+                >
+                  Test Entrance Replay
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "lighting" && (
+            <div className="space-y-5">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Lighting Environments
+                </label>
+                <div className="space-y-2">
+                  {(Object.keys(LIGHTING_PRESETS) as LightingPresetKey[]).map((key) => {
+                    const p = LIGHTING_PRESETS[key];
+                    const isSelected = lightingPreset === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleApplyLightingPreset(key)}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${isSelected
+                            ? "border-sky-400 bg-sky-400/10 text-white font-semibold"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                          }`}
+                      >
+                        <span className="text-[11px] font-mono">{p.name}</span>
+                        <div className="flex gap-1.5 items-center">
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-white/30"
+                            style={{ backgroundColor: p.keyColor }}
+                          />
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-white/30"
+                            style={{ backgroundColor: p.rimColor }}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Key Light Intensity</span>
+                    <span className="text-amber-400 font-bold">{keyLightIntensity.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="3.5"
+                    step="0.05"
+                    value={keyLightIntensity}
+                    onChange={(e) => setKeyLightIntensity(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-neutral-300">Key Light Tint</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={keyLightColor}
+                      onChange={(e) => setKeyLightColor(e.target.value)}
+                      className="w-6 h-6 rounded-md border border-white/20 bg-transparent cursor-pointer"
+                    />
+                    <span className="font-mono text-[10px] uppercase text-neutral-400">{keyLightColor}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono text-neutral-400 mb-1.5">Key Light Angle</label>
+                  <div className="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+                    {[
+                      { id: "frontRight", label: "Rear-Right (Specular)" },
+                      { id: "frontLeft", label: "Rear-Left" },
+                      { id: "overhead", label: "Overhead Top" },
+                      { id: "side", label: "Dramatic Side" },
+                    ].map((pos) => (
+                      <button
+                        key={pos.id}
+                        type="button"
+                        onClick={() => setKeyLightPosPreset(pos.id as any)}
+                        className={`p-1.5 rounded-lg border text-center transition-all ${keyLightPosPreset === pos.id
+                            ? "border-amber-400 bg-amber-400/20 text-white font-bold"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                          }`}
+                      >
+                        {pos.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3.5">
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Studio Reflection Brightness</span>
+                    <span className="text-amber-400 font-bold">{envBrightness.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2.5"
+                    step="0.05"
+                    value={envBrightness}
+                    onChange={(e) => setEnvBrightness(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Silhouette Rim Light</span>
+                    <span className="text-amber-400 font-bold">{rimLightIntensity.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2.5"
+                    step="0.05"
+                    value={rimLightIntensity}
+                    onChange={(e) => setRimLightIntensity(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Ambient Fill Light</span>
+                    <span className="text-amber-400 font-bold">{ambientLightIntensity.toFixed(2)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1.5"
+                    step="0.05"
+                    value={ambientLightIntensity}
+                    onChange={(e) => setAmbientLightIntensity(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="font-mono text-neutral-300">Floor Contact Shadow</span>
+                  <input
+                    type="checkbox"
+                    checked={showFloorShadow}
+                    onChange={(e) => setShowFloorShadow(e.target.checked)}
+                    className="accent-amber-400 w-4 h-4 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "float" && (
+            <div className="space-y-5">
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-neutral-200 block">Idle Float Motion</span>
+                  <span className="text-[10px] text-neutral-500">Continuous micro-float physics</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={isFloating}
+                  onChange={(e) => setIsFloating(e.target.checked)}
+                  className="accent-amber-400 w-4 h-4 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-2">
+                  Float Ease Curve
+                </label>
+                <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                  {[
+                    { id: "sine", label: "Smooth Sine", desc: "Classic harmonic wave" },
+                    { id: "breathing", label: "Breathing", desc: "Buoyant peak dwell" },
+                    { id: "pendulum", label: "Pendulum", desc: "Dual-axis phase lag" },
+                    { id: "dynamic", label: "Dynamic", desc: "Springy bounce" },
+                  ].map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setFloatEaseMode(mode.id as any)}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${floatEaseMode === mode.id
+                          ? "border-amber-400 bg-amber-400/10 text-white font-semibold"
+                          : "border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300"
+                        }`}
+                    >
+                      <div className="font-bold">{mode.label}</div>
+                      <div className="text-[9px] text-neutral-400">{mode.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Height Amplitude (Y)</span>
+                    <span className="text-amber-400 font-bold">{floatAmplitude.toFixed(3)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.08"
+                    step="0.002"
+                    value={floatAmplitude}
+                    onChange={(e) => setFloatAmplitude(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Tilt Amplitude (Rot X/Z)</span>
+                    <span className="text-amber-400 font-bold">{tiltAmplitude.toFixed(3)} rad</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.04"
+                    step="0.001"
+                    value={tiltAmplitude}
+                    onChange={(e) => setTiltAmplitude(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-neutral-300 font-mono mb-1">
+                    <span>Float Speed / Frequency</span>
+                    <span className="text-amber-400 font-bold">{floatSpeed.toFixed(1)}x</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="2.5"
+                    step="0.1"
+                    value={floatSpeed}
+                    onChange={(e) => setFloatSpeed(parseFloat(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "export" && (
+            <div className="space-y-4">
+              <div>
+                <span className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-1.5">
+                  Tuned Configuration & Coordinates
+                </span>
+                <pre className="p-3 rounded-xl bg-neutral-900 border border-white/10 font-mono text-[10px] text-neutral-300 overflow-x-auto max-h-[300px]">
+                  {JSON.stringify(settingsExport, null, 2)}
+                </pre>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopySettings}
+                  className="flex-1 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-neutral-950 font-mono font-bold text-xs uppercase transition-all active:scale-98 shadow-md"
+                >
+                  {copied ? "✓ Copied to Clipboard!" : "Copy Settings JSON"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </aside>
     </div>
   );
 }
