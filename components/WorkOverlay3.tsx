@@ -18,6 +18,108 @@ interface WorkOverlay3Props {
   children?: React.ReactNode;
 }
 
+const PREVIEW_VIDEOS = [
+  {
+    src: "/videos/preview1.webm",
+    title: "Preview 1",
+  },
+  {
+    src: "/videos/preview2.webm",
+    title: "Preview 2",
+  },
+  {
+    src: "/videos/preview3.webm",
+    title: "Preview 3",
+  },
+];
+
+const STATIC_ADS = [
+  {
+    id: "static-1",
+    src: "/images/static1.webp",
+    alt: "Static Ad Creative 1",
+    top: "14%",
+    left: "5%",
+    className: "w-[145px] sm:w-[175px] md:w-[205px] lg:w-[235px] xl:w-[265px] sm:left-[5.5%] xl:left-[6%]",
+    speed: -180,
+    zIndex: 25,
+    opacity: "opacity-100",
+    shadow: "shadow-[0_20px_50px_rgba(0,0,0,0.8)] ring-1 ring-white/10",
+  },
+  {
+    id: "static-2",
+    src: "/images/static2.webp",
+    alt: "Static Ad Creative 2",
+    top: "24%",
+    left: "21%",
+    className: "w-[115px] sm:w-[135px] md:w-[155px] lg:w-[175px] xl:w-[195px] sm:left-[21.5%] xl:left-[22%]",
+    speed: 90,
+    zIndex: 14,
+    opacity: "opacity-95",
+    shadow: "shadow-[0_14px_35px_rgba(0,0,0,0.6)] ring-1 ring-white/10",
+  },
+  {
+    id: "static-3",
+    src: "/images/static3.webp",
+    alt: "Static Ad Creative 3",
+    top: "32%",
+    left: "73%",
+    className: "w-[145px] sm:w-[175px] md:w-[205px] lg:w-[235px] xl:w-[270px] sm:left-[74%] xl:left-[75%]",
+    speed: 190,
+    zIndex: 26,
+    opacity: "opacity-100",
+    shadow: "shadow-[0_22px_55px_rgba(0,0,0,0.8)] ring-1 ring-white/10",
+  },
+  {
+    id: "static-4",
+    src: "/images/static4.webp",
+    alt: "Static Ad Creative 4",
+    top: "12%",
+    left: "66%",
+    className: "w-[115px] sm:w-[135px] md:w-[155px] lg:w-[175px] xl:w-[195px] sm:left-[66.5%] xl:left-[67%]",
+    speed: -95,
+    zIndex: 15,
+    opacity: "opacity-95",
+    shadow: "shadow-[0_14px_35px_rgba(0,0,0,0.6)] ring-1 ring-white/10",
+  },
+  {
+    id: "static-5",
+    src: "/images/static5.webp",
+    alt: "Static Ad Creative 5",
+    top: "6%",
+    left: "84%",
+    className: "w-[80px] sm:w-[95px] md:w-[110px] lg:w-[120px] xl:w-[135px] sm:left-[85%] xl:left-[86%]",
+    speed: 35,
+    zIndex: 7,
+    opacity: "opacity-85",
+    shadow: "shadow-[0_8px_20px_rgba(0,0,0,0.45)] ring-1 ring-white/5",
+  },
+  {
+    id: "static-6",
+    src: "/images/static6.webp",
+    alt: "Static Ad Creative 6",
+    top: "54%",
+    left: "13%",
+    className: "w-[115px] sm:w-[135px] md:w-[155px] lg:w-[175px] xl:w-[195px] sm:left-[13.5%] xl:left-[14%]",
+    speed: -70,
+    zIndex: 14,
+    opacity: "opacity-95",
+    shadow: "shadow-[0_14px_35px_rgba(0,0,0,0.6)] ring-1 ring-white/10",
+  },
+  {
+    id: "static-7",
+    src: "/images/static7.webp",
+    alt: "Static Ad Creative 7",
+    top: "58%",
+    left: "33%",
+    className: "w-[75px] sm:w-[88px] md:w-[100px] lg:w-[112px] xl:w-[125px] sm:left-[34%] xl:left-[35%]",
+    speed: 40,
+    zIndex: 8,
+    opacity: "opacity-85",
+    shadow: "shadow-[0_8px_20px_rgba(0,0,0,0.45)] ring-1 ring-white/5",
+  },
+];
+
 export default function WorkOverlay3({
   isOpen,
   onClose,
@@ -36,16 +138,32 @@ export default function WorkOverlay3({
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const buttonWrapperRef = useRef<HTMLDivElement>(null);
   const macbookContainerRef = useRef<HTMLDivElement>(null);
-  const phoneReplayRef = useRef<() => void>(() => {});
+  const phoneReplayRef = useRef<() => void>(() => { });
   const backBtnContainerRef = useRef<HTMLDivElement>(null);
   const fadeOverlayRef = useRef<HTMLDivElement>(null);
   const blackSectionRef = useRef<HTMLDivElement>(null);
+  const videoCardsRef = useRef<HTMLDivElement>(null);
+  const videoTitleRef = useRef<HTMLHeadingElement>(null);
+  const videoTextRef = useRef<HTMLDivElement>(null);
+  const hasRevealedVideoCardsRef = useRef(false);
+  const hasRevealedVideoTextRef = useRef(false);
+  const staticSectionRef = useRef<HTMLDivElement>(null);
+  const staticCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const staticTextRef = useRef<HTMLDivElement>(null);
+  const processVideoRef = useRef<HTMLDivElement>(null);
+  const processTextRef = useRef<HTMLDivElement>(null);
+  const hasRevealedProcessRef = useRef(false);
 
   const [isDeepDive, setIsDeepDive] = useState(false);
   const isDeepDiveRef = useRef(false);
   const [isDeepDiveNav, setIsDeepDiveNav] = useState(false);
   const [canTakeALook, setCanTakeALook] = useState(true);
   const canTakeALookRef = useRef(true);
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [isVideoCarouselHovered, setIsVideoCarouselHovered] = useState(false);
+  const [isPhonePaused, setIsPhonePaused] = useState(false);
+  const isPhonePausedRef = useRef(false);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   const openTlRef = useRef<gsap.core.Timeline | null>(null);
   const closeTlRef = useRef<gsap.core.Timeline | null>(null);
@@ -62,6 +180,55 @@ export default function WorkOverlay3({
   useEffect(() => {
     isDeepDiveRef.current = isDeepDive;
   }, [isDeepDive]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive || isVideoCarouselHovered) return;
+    const timer = setInterval(() => {
+      setActiveVideoIndex((prev) => (prev + 1) % PREVIEW_VIDEOS.length);
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [isOpen, isDeepDive, isVideoCarouselHovered, activeVideoIndex]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      videoRefs.current.forEach((v) => {
+        if (v && !v.paused) {
+          v.pause();
+        }
+      });
+      return;
+    }
+
+    videoRefs.current.forEach((v, idx) => {
+      if (!v) return;
+      if (idx === activeVideoIndex) {
+        if (v.paused) {
+          const playPromise = v.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => { });
+          }
+        }
+      } else {
+        if (!v.paused) {
+          v.pause();
+        }
+      }
+    });
+  }, [isOpen, isDeepDive, activeVideoIndex]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const offscreen = container.scrollTop > 180;
+      if (offscreen !== isPhonePausedRef.current) {
+        isPhonePausedRef.current = offscreen;
+        setIsPhonePaused(offscreen);
+      }
+    };
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     canTakeALookRef.current = canTakeALook;
@@ -106,6 +273,8 @@ export default function WorkOverlay3({
 
     if (!isTopmost) {
       isReturningFromChildRef.current = true;
+      isPhonePausedRef.current = true;
+      setIsPhonePaused(true);
       gsap.killTweensOf(wrapperRef.current);
       gsap.to(wrapperRef.current, {
         yPercent: -100,
@@ -116,6 +285,8 @@ export default function WorkOverlay3({
         autoRound: false,
       });
     } else if (isReturningFromChildRef.current) {
+      isPhonePausedRef.current = false;
+      setIsPhonePaused(false);
       gsap.killTweensOf(wrapperRef.current);
       gsap.to(wrapperRef.current, {
         yPercent: 0,
@@ -134,6 +305,11 @@ export default function WorkOverlay3({
 
   const handleClose = () => {
     if (isTransitioningRef.current) return;
+    hasRevealedVideoCardsRef.current = false;
+    hasRevealedVideoTextRef.current = false;
+    hasRevealedProcessRef.current = false;
+    isPhonePausedRef.current = false;
+    setIsPhonePaused(false);
     onCloseRef.current?.();
   };
 
@@ -309,6 +485,26 @@ export default function WorkOverlay3({
   const handleBackToExplore = () => {
     if (isTransitioningRef.current) return;
 
+    hasRevealedVideoCardsRef.current = false;
+    hasRevealedVideoTextRef.current = false;
+    hasRevealedProcessRef.current = false;
+    isPhonePausedRef.current = false;
+    setIsPhonePaused(false);
+    if (videoCardsRef.current) gsap.killTweensOf(videoCardsRef.current);
+    if (videoTitleRef.current) {
+      const words = videoTitleRef.current.querySelectorAll(".video-word");
+      gsap.killTweensOf(words);
+    }
+    if (videoTextRef.current) {
+      const paragraphs = videoTextRef.current.querySelectorAll("p");
+      gsap.killTweensOf(paragraphs);
+    }
+    if (processVideoRef.current) gsap.killTweensOf(processVideoRef.current);
+    if (processTextRef.current) {
+      const items = processTextRef.current.querySelectorAll("p, .process-cta");
+      gsap.killTweensOf(items);
+    }
+
     const currentScrollTop = containerRef.current?.scrollTop || 0;
     const isScrolledDown = currentScrollTop > 20;
 
@@ -467,6 +663,12 @@ export default function WorkOverlay3({
             containerRef.current.scrollTop = 0;
             containerRef.current.style.overflowY = "hidden";
           }
+          staticCardRefs.current.forEach((el) => {
+            if (el) gsap.set(el, { y: 0 });
+          });
+          if (staticTextRef.current) {
+            gsap.set(staticTextRef.current, { y: 0 });
+          }
           if (buttonWrapperRef.current) {
             buttonWrapperRef.current.style.pointerEvents = "auto";
           }
@@ -589,6 +791,274 @@ export default function WorkOverlay3({
     };
   }, [isOpen, isDeepDive]);
 
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      hasRevealedVideoCardsRef.current = false;
+      hasRevealedVideoTextRef.current = false;
+      if (videoCardsRef.current) {
+        gsap.set(videoCardsRef.current, { opacity: 0, y: 70, scale: 0.92 });
+      }
+      if (videoTitleRef.current) {
+        const words = videoTitleRef.current.querySelectorAll(".video-word");
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (videoTextRef.current) {
+        const paragraphs = videoTextRef.current.querySelectorAll("p");
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const words = videoTitleRef.current?.querySelectorAll(".video-word");
+    const paragraphs = videoTextRef.current?.querySelectorAll("p");
+
+    if (!hasRevealedVideoCardsRef.current && videoCardsRef.current) {
+      gsap.set(videoCardsRef.current, { opacity: 0, y: 70, scale: 0.92 });
+    }
+    if (!hasRevealedVideoTextRef.current) {
+      if (words && words.length) {
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (paragraphs && paragraphs.length) {
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+    }
+
+    const triggerCardsReveal = () => {
+      if (hasRevealedVideoCardsRef.current) return;
+      hasRevealedVideoCardsRef.current = true;
+
+      if (videoCardsRef.current) {
+        gsap.fromTo(
+          videoCardsRef.current,
+          { opacity: 0, y: 70, scale: 0.92 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.05,
+            ease: "power3.out",
+            force3D: true,
+          }
+        );
+      }
+    };
+
+    const triggerTextReveal = (delay = 0) => {
+      if (hasRevealedVideoTextRef.current) return;
+      hasRevealedVideoTextRef.current = true;
+
+      const tl = gsap.timeline({ delay });
+      if (words && words.length) {
+        tl.fromTo(
+          words,
+          { yPercent: 115, opacity: 0 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.95,
+            stagger: 0.09,
+            ease: "power4.out",
+            force3D: true,
+          },
+          0
+        );
+      }
+      if (paragraphs && paragraphs.length) {
+        tl.fromTo(
+          paragraphs,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            stagger: 0.18,
+            ease: "power3.out",
+            force3D: true,
+          },
+          0.14
+        );
+      }
+    };
+
+    const isDesktop = () => typeof window !== "undefined" && window.innerWidth >= 1024;
+
+    const handleScrollCheck = () => {
+      if (!container) return;
+      const containerRect = container.getBoundingClientRect();
+
+      if (isDesktop()) {
+        if (!hasRevealedVideoCardsRef.current || !hasRevealedVideoTextRef.current) {
+          const target = videoCardsRef.current || videoTitleRef.current;
+          if (target) {
+            const rect = target.getBoundingClientRect();
+            if (rect.top - containerRect.top < containerRect.height * 0.78) {
+              triggerCardsReveal();
+              triggerTextReveal(0.08);
+            }
+          }
+        }
+      } else {
+        if (!hasRevealedVideoCardsRef.current && videoCardsRef.current) {
+          const rect = videoCardsRef.current.getBoundingClientRect();
+          if (rect.top - containerRect.top < containerRect.height * 0.78) {
+            triggerCardsReveal();
+          }
+        }
+        if (!hasRevealedVideoTextRef.current && (videoTitleRef.current || videoTextRef.current)) {
+          const target = videoTitleRef.current || videoTextRef.current;
+          if (target) {
+            const rect = target.getBoundingClientRect();
+            if (rect.top - containerRect.top < containerRect.height * 0.78) {
+              triggerTextReveal(0);
+            }
+          }
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (isDesktop()) {
+              triggerCardsReveal();
+              triggerTextReveal(0.08);
+            } else {
+              if (entry.target === videoCardsRef.current) {
+                triggerCardsReveal();
+              }
+              if (entry.target === videoTitleRef.current || entry.target === videoTextRef.current) {
+                triggerTextReveal(0);
+              }
+            }
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    if (videoCardsRef.current) observer.observe(videoCardsRef.current);
+    if (videoTitleRef.current) observer.observe(videoTitleRef.current);
+    if (videoTextRef.current) observer.observe(videoTextRef.current);
+
+    container.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCheck();
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScrollCheck);
+    };
+  }, [isOpen, isDeepDive]);
+
+  useEffect(() => {
+    if (!isOpen || !isDeepDive) {
+      hasRevealedProcessRef.current = false;
+      if (processVideoRef.current) {
+        gsap.set(processVideoRef.current, { opacity: 0, y: 60, scale: 0.94 });
+      }
+      if (processTextRef.current) {
+        const items = processTextRef.current.querySelectorAll("p, .process-cta");
+        gsap.set(items, { opacity: 0, y: 35 });
+      }
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const items = processTextRef.current?.querySelectorAll("p, .process-cta");
+
+    if (!hasRevealedProcessRef.current) {
+      if (processVideoRef.current) {
+        gsap.set(processVideoRef.current, { opacity: 0, y: 60, scale: 0.94 });
+      }
+      if (items && items.length) {
+        gsap.set(items, { opacity: 0, y: 35 });
+      }
+    }
+
+    const triggerProcessReveal = () => {
+      if (hasRevealedProcessRef.current) return;
+      hasRevealedProcessRef.current = true;
+
+      if (processVideoRef.current) {
+        gsap.fromTo(
+          processVideoRef.current,
+          { opacity: 0, y: 60, scale: 0.94 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.05,
+            ease: "power3.out",
+            force3D: true,
+          }
+        );
+      }
+
+      if (items && items.length) {
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 35 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            stagger: 0.15,
+            ease: "power3.out",
+            force3D: true,
+          }
+        );
+      }
+    };
+
+    const handleScrollCheck = () => {
+      if (!container || hasRevealedProcessRef.current) return;
+      const containerRect = container.getBoundingClientRect();
+      const target = processVideoRef.current || processTextRef.current;
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        if (rect.top - containerRect.top < containerRect.height * 0.85) {
+          triggerProcessReveal();
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            triggerProcessReveal();
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    if (processVideoRef.current) observer.observe(processVideoRef.current);
+    if (processTextRef.current) observer.observe(processTextRef.current);
+
+    container.addEventListener("scroll", handleScrollCheck, { passive: true });
+    handleScrollCheck();
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScrollCheck);
+    };
+  }, [isOpen, isDeepDive]);
+
 
 
   useEffect(() => {
@@ -597,6 +1067,35 @@ export default function WorkOverlay3({
     let rafId: number | null = null;
     let isRunning = false;
     let lastFrameTime = 0;
+
+    const updateStaticParallax = (scrollTop: number) => {
+      const section = staticSectionRef.current;
+      const container = containerRef.current;
+      if (!section || !container) return;
+
+      const containerHeight = container.clientHeight;
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+
+      const currentDist = scrollTop + containerHeight - sectionTop;
+      const totalDist = sectionHeight + containerHeight;
+      if (totalDist <= 0) return;
+      const progress = Math.max(0, Math.min(1, currentDist / totalDist));
+
+      STATIC_ADS.forEach((ad, i) => {
+        const el = staticCardRefs.current[i];
+        if (el) {
+          const yVal = (progress - 0.5) * ad.speed;
+          gsap.set(el, { y: yVal, force3D: true });
+        }
+      });
+
+      if (staticTextRef.current) {
+        const textSpeed = 700;
+        const textY = (progress - 0.5) * textSpeed;
+        gsap.set(staticTextRef.current, { y: textY, force3D: true });
+      }
+    };
 
     const loop = (time: number) => {
       const container = containerRef.current;
@@ -615,10 +1114,12 @@ export default function WorkOverlay3({
         const factor = 1 - Math.exp(-9.5 * dt);
         currentScroll += diff * factor;
         container.scrollTop = currentScroll;
+        updateStaticParallax(currentScroll);
         rafId = requestAnimationFrame(loop);
       } else {
         currentScroll = targetScroll;
         container.scrollTop = currentScroll;
+        updateStaticParallax(currentScroll);
         isRunning = false;
         lastFrameTime = 0;
       }
@@ -677,6 +1178,7 @@ export default function WorkOverlay3({
       if (!isRunning && containerRef.current) {
         currentScroll = containerRef.current.scrollTop;
         targetScroll = currentScroll;
+        updateStaticParallax(currentScroll);
       }
     };
 
@@ -711,6 +1213,10 @@ export default function WorkOverlay3({
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    if (isDeepDive && containerRef.current) {
+      updateStaticParallax(containerRef.current.scrollTop);
+    }
 
     return () => {
       if (container) {
@@ -861,6 +1367,28 @@ export default function WorkOverlay3({
       setIsDeepDive(false);
       isDeepDiveRef.current = false;
       setIsDeepDiveNav(false);
+      hasRevealedVideoCardsRef.current = false;
+      hasRevealedVideoTextRef.current = false;
+      if (videoCardsRef.current) {
+        gsap.killTweensOf(videoCardsRef.current);
+        gsap.set(videoCardsRef.current, { opacity: 0, y: 70, scale: 0.92 });
+      }
+      if (videoTitleRef.current) {
+        const words = videoTitleRef.current.querySelectorAll(".video-word");
+        gsap.killTweensOf(words);
+        gsap.set(words, { yPercent: 115, opacity: 0 });
+      }
+      if (videoTextRef.current) {
+        const paragraphs = videoTextRef.current.querySelectorAll("p");
+        gsap.killTweensOf(paragraphs);
+        gsap.set(paragraphs, { opacity: 0, y: 40 });
+      }
+      staticCardRefs.current.forEach((el) => {
+        if (el) {
+          gsap.killTweensOf(el);
+          gsap.set(el, { y: 0 });
+        }
+      });
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("portfolio-deepdive-exit"));
       }
@@ -1040,7 +1568,7 @@ export default function WorkOverlay3({
                   showReplay={false}
                   showFloorShadow={false}
                   phoneScale={1.16}
-                  paused={!isOpen}
+                  paused={!isOpen || isPhonePaused}
                   onReplayTrigger={(fn) => {
                     phoneReplayRef.current = fn;
                   }}
@@ -1101,16 +1629,208 @@ export default function WorkOverlay3({
               </div>
             </div>
 
-            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-24 sm:py-32 flex items-center justify-center">
-              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 w-full">
+            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]">
+              <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
+                  <div
+                    ref={videoCardsRef}
+                    className="lg:col-span-7 xl:col-span-7 flex flex-col items-center justify-center w-full py-6 select-none opacity-0 will-change-transform"
+                    onMouseEnter={() => setIsVideoCarouselHovered(true)}
+                    onMouseLeave={() => setIsVideoCarouselHovered(false)}
+                  >
+                    <div className="relative w-[260px] sm:w-[300px] md:w-[350px] lg:w-[380px] xl:w-[410px] aspect-[9/16] select-none flex items-center justify-center">
+                      {PREVIEW_VIDEOS.map((item, idx) => {
+                        const slot =
+                          (idx - activeVideoIndex + PREVIEW_VIDEOS.length) % PREVIEW_VIDEOS.length;
+
+                        let slotClasses = "";
+                        if (slot === 0) {
+                          slotClasses =
+                            "z-30 scale-100 translate-x-0 opacity-100 cursor-default pointer-events-auto";
+                        } else if (slot === 1) {
+                          slotClasses =
+                            "z-10 scale-[0.90] translate-x-[38%] sm:translate-x-[42%] md:translate-x-[46%] opacity-75 hover:opacity-95 cursor-pointer pointer-events-auto";
+                        } else {
+                          slotClasses =
+                            "z-10 scale-[0.90] -translate-x-[38%] sm:-translate-x-[42%] md:-translate-x-[46%] opacity-75 hover:opacity-95 cursor-pointer pointer-events-auto";
+                        }
+
+                        return (
+                          <div
+                            key={item.src}
+                            onClick={() => setActiveVideoIndex(idx)}
+                            className={`group absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden bg-neutral-900 border border-neutral-950/15 shadow-[0_24px_55px_rgba(0,0,0,0.25)] ring-1 ring-black/10 transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] transform-gpu will-change-transform ${slotClasses}`}
+                          >
+                            <video
+                              ref={(el) => {
+                                videoRefs.current[idx] = el;
+                                if (el && isOpen && isDeepDive && idx === activeVideoIndex && el.paused) {
+                                  el.play().catch(() => { });
+                                }
+                              }}
+                              src={item.src}
+                              loop
+                              muted
+                              playsInline
+                              preload="auto"
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            />
+                            <div
+                              className={`absolute inset-0 bg-black/25 transition-opacity duration-500 pointer-events-none ${slot === 0 ? "opacity-0" : "opacity-100 group-hover:opacity-0"
+                                }`}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:-ml-4 xl:-ml-8">
+                    <h2
+                      ref={videoTitleRef}
+                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                    >
+                      <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
+                        <span className="video-word inline-block will-change-transform opacity-0">
+                          Video
+                        </span>
+                      </span>
+                      <span className="inline-block overflow-hidden py-1">
+                        <span className="video-word inline-block will-change-transform opacity-0">
+                          Ads
+                        </span>
+                      </span>
+                    </h2>
+
+                    <div
+                      ref={videoTextRef}
+                      className="mt-6 sm:mt-8 space-y-5 max-w-xl"
+                    >
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Short vertical video ads in the style your brand needs: UGC-style creator content, polished studio shots, product demos, and more. Each one starts from your brief and goes through script, storyboard, and final cut.
+                      </p>
+                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                        Every video is checked against platform ad policies before it ships, covering claims, visuals, captions, and audio, so it&apos;s ready to run on TikTok, Instagram Reels, and Pinterest without getting flagged.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {children}
+              </div>
+            </div>
+
+            <div
+              ref={staticSectionRef}
+              className="w-full bg-[#080C18] text-white relative z-20 min-h-[110vh] sm:min-h-[118vh] xl:min-h-[125vh] pt-14 pb-4 sm:pt-16 sm:pb-6 lg:pt-20 lg:pb-8 overflow-hidden select-none"
+            >
+              <div className="relative w-full h-[95vh] sm:h-[102vh] xl:h-[108vh] px-4 sm:px-8 lg:px-12">
+                <div
+                  ref={staticTextRef}
+                  className="absolute top-[6%] sm:top-[7%] xl:top-[8%] left-1/2 -translate-x-1/2 w-[90%] max-w-md sm:max-w-lg xl:max-w-xl text-left z-20 pointer-events-auto transform-gpu will-change-transform drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
+                  style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 1)" }}
+                >
+                  <h2
+                    className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                    style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 1)" }}
+                  >
+                    Static Ads
+                  </h2>
+                  <div className="mt-6 sm:mt-8 space-y-5">
+                    <p
+                      className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-300 leading-[1.65] tracking-tight select-none"
+                      style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 1)" }}
+                    >
+                      Scroll-stopping static ads for affiliate marketing, Pinterest, and social media, designed around your product and your audience. Pins, feed posts, and story formats all come from the same brief, so the look stays consistent on every platform.
+                    </p>
+                    <p
+                      className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-300 leading-[1.65] tracking-tight select-none"
+                      style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 2px rgba(0, 0, 0, 1)" }}
+                    >
+                      Each design is checked against platform ad policies before delivery, covering claims, text, and visuals. Variations are easy to produce, so you can test different layouts, headlines, and images and keep the ones that perform.
+                    </p>
+                  </div>
+                </div>
+
+                {STATIC_ADS.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    ref={(el) => {
+                      staticCardRefs.current[idx] = el;
+                    }}
+                    className={`absolute transform-gpu will-change-transform ${item.className}`}
+                    style={{ top: item.top, left: item.left, zIndex: item.zIndex }}
+                  >
+                    <div
+                      className={`group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-neutral-900 border border-white/10 ${item.shadow} ${item.opacity} transition-all duration-500 ease-out hover:scale-[1.03] hover:opacity-100 hover:z-40 cursor-pointer`}
+                    >
+                      <img
+                        src={item.src}
+                        alt={item.alt}
+                        loading="lazy"
+                        draggable={false}
+                        className="w-full h-auto object-cover select-none pointer-events-none block transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]">
+              <div className="w-full max-w-[1760px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-14">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-9 xl:gap-10 items-center">
+                  <div className="lg:col-span-4 xl:col-span-4 flex flex-col justify-center text-left w-full order-2 lg:order-1">
+                    <div ref={processTextRef} className="space-y-5 max-w-lg">
+                      <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
+                        One clear process from product brief to launch-ready ads: script, storyboard, video and static production, policy check, and revisions.
+                      </p>
+                      <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
+                        The full campaign, with variations for testing, is delivered in one place.
+                      </p>
+                      <div className="process-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
+                        <TakeALookButton
+                          id="btn-view-files"
+                          label="View Files"
+                          ariaLabel="View Files"
+                          onClick={() => {
+                            window.open(
+                              "https://drive.google.com/drive/folders/1_vaVOS8wGJpVYOVlH29UQnac_eMbv59z?usp=sharing",
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    ref={processVideoRef}
+                    className="lg:col-span-8 xl:col-span-8 flex flex-col items-center justify-center w-full order-1 lg:order-2 opacity-0 will-change-transform"
+                  >
+                    <div className="w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-auto block"
+                      >
+                        <source src="/videos/vidprocess.webm" type="video/webm" />
+                        <source src="/videos/vidprocess.mp4" type="video/mp4" />
+                      </video>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div
-          className="absolute top-full left-0 right-0 h-[250vh] bg-white pointer-events-none -mt-px"
+          className="absolute top-full left-0 right-0 h-[120vh] pointer-events-none -mt-px bg-white"
           aria-hidden="true"
         />
       </div>
