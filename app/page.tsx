@@ -252,6 +252,7 @@ export default function Home() {
         onClose={handleCloseWork}
         onNextWork={handleOpenWork2}
         hideBackButton={isFinalSectionOpen}
+        isCovered={isWork2Open}
       />
       <WorkOverlay2
         isOpen={activeView === "work" && isWork2Open}

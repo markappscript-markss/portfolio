@@ -13,6 +13,7 @@ interface WorkOverlayProps {
   onTakeALook?: () => void;
   onNextWork?: () => void;
   hideBackButton?: boolean;
+  isCovered?: boolean;
   children?: React.ReactNode;
 }
 
@@ -350,6 +351,7 @@ export default function WorkOverlay({
   onTakeALook,
   onNextWork,
   hideBackButton = false,
+  isCovered = false,
   children,
 }: WorkOverlayProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -359,6 +361,8 @@ export default function WorkOverlay({
   const onCloseRef = useRef(onClose);
   const onNextWorkRef = useRef(onNextWork);
   const isTriggeringNextWorkRef = useRef(false);
+  const coveredRef = useRef(false);
+  if (isOpen) coveredRef.current = isCovered;
   const [active, setActive] = useState(false);
   const [isDeepDive, setIsDeepDive] = useState(false);
   const isDeepDiveRef = useRef(false);
@@ -1592,6 +1596,8 @@ export default function WorkOverlay({
         takeALookBtnWrapperRef.current.style.display = "none";
         takeALookBtnWrapperRef.current.style.pointerEvents = "none";
       }
+
+      if (coveredRef.current) setActive(false);
 
       openTlRef.current?.kill();
 

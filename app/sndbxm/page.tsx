@@ -20,7 +20,7 @@ interface ShadingPreset {
 const SHADING_PRESETS: Record<ShadingPresetKey, ShadingPreset> = {
   deepBurgundy: {
     name: "Deep Burgundy (Default)",
-    bodyColor: "#632233",
+    bodyColor: "#4D1821",
     metalness: 0.72,
     roughness: 0.35,
     backPanelColor: "#501625",
@@ -144,15 +144,15 @@ const LIGHTING_PRESETS: Record<LightingPresetKey, LightingPreset> = {
   },
   commercial: {
     name: "Bright Commercial (Soft Diffusion)",
-    keyIntensity: 2.2,
+    keyIntensity: 1.65,
     keyColor: "#ffffff",
-    keyPos: [2, 5, -9],
-    envBrightness: 1.45,
+    keyPos: [6, 2, -4],
+    envBrightness: 0.9,
     envTint: "#ffffff",
-    rimIntensity: 0.9,
+    rimIntensity: 1.35,
     rimColor: "#ffffff",
-    ambientIntensity: 0.8,
-    ambientColor: "#f8fafc",
+    ambientIntensity: 0.7,
+    ambientColor: "#ffffff",
   },
 };
 
@@ -199,7 +199,7 @@ export default function SandboxPage() {
   const [entranceDelay, setEntranceDelay] = useState(0.2);
 
   const [shadingPreset, setShadingPreset] = useState<ShadingPresetKey>("deepBurgundy");
-  const [bodyColor, setBodyColor] = useState("#632233");
+  const [bodyColor, setBodyColor] = useState("#4D1821");
   const [metalness, setMetalness] = useState(0.72);
   const [roughness, setRoughness] = useState(0.35);
   const [autoHarmonize, setAutoHarmonize] = useState(true);
@@ -214,16 +214,16 @@ export default function SandboxPage() {
   const [floatSpeed, setFloatSpeed] = useState(0.6);
   const [floatEaseMode, setFloatEaseMode] = useState<"sine" | "pendulum" | "breathing" | "dynamic">("sine");
 
-  const [lightingPreset, setLightingPreset] = useState<LightingPresetKey>("cyber");
-  const [keyLightIntensity, setKeyLightIntensity] = useState(2.0);
-  const [keyLightColor, setKeyLightColor] = useState("#f0f9ff");
+  const [lightingPreset, setLightingPreset] = useState<LightingPresetKey>("commercial");
+  const [keyLightIntensity, setKeyLightIntensity] = useState(1.65);
+  const [keyLightColor, setKeyLightColor] = useState("#ffffff");
   const [keyLightPosPreset, setKeyLightPosPreset] = useState<"frontRight" | "frontLeft" | "overhead" | "side">("side");
-  const [envBrightness, setEnvBrightness] = useState(0.1);
-  const [envTint, setEnvTint] = useState("#bae6fd");
-  const [rimLightIntensity, setRimLightIntensity] = useState(0.25);
-  const [rimLightColor, setRimLightColor] = useState("#38bdf8");
-  const [ambientLightIntensity, setAmbientLightIntensity] = useState(0.1);
-  const [ambientLightColor, setAmbientLightColor] = useState("#0284c7");
+  const [envBrightness, setEnvBrightness] = useState(0.9);
+  const [envTint, setEnvTint] = useState("#ffffff");
+  const [rimLightIntensity, setRimLightIntensity] = useState(1.35);
+  const [rimLightColor, setRimLightColor] = useState("#ffffff");
+  const [ambientLightIntensity, setAmbientLightIntensity] = useState(0.7);
+  const [ambientLightColor, setAmbientLightColor] = useState("#ffffff");
   const [showFloorShadow, setShowFloorShadow] = useState(false);
 
   const replayTriggerRef = useRef<() => void>(() => { });
@@ -275,6 +275,9 @@ export default function SandboxPage() {
     setRimLightColor(p.rimColor);
     setAmbientLightIntensity(p.ambientIntensity);
     setAmbientLightColor(p.ambientColor);
+    if (key === "commercial") {
+      setKeyLightPosPreset("side");
+    }
   };
 
   const getKeyPosition = (): [number, number, number] => {
@@ -333,6 +336,17 @@ export default function SandboxPage() {
     keyLightIntensity,
     keyLightColor,
     keyLightPosition: getKeyPosition(),
+    envBrightness,
+    envTint,
+    rimLightIntensity,
+    rimLightColor,
+    ambientLightIntensity,
+    ambientLightColor,
+    showFloorShadow,
+    floatAmplitude,
+    tiltAmplitude,
+    floatSpeed,
+    floatEaseMode,
     endPosition,
     partCoordinates: partData,
   };

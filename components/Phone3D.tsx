@@ -172,6 +172,8 @@ export interface Phone3DProps {
   ambientLightIntensity?: number;
   ambientLightColor?: string;
   showFloorShadow?: boolean;
+  phoneScale?: number;
+  paused?: boolean;
 
   enableGizmo?: boolean;
   gizmoMode?: "translate" | "scale";
@@ -241,7 +243,7 @@ export default function Phone3D({
   showReplay = false,
   className = "",
 
-  bodyColor = "#632233",
+  bodyColor = "#4D1821",
   metalness = 0.72,
   roughness = 0.35,
   backPanelColor = "#501625",
@@ -262,16 +264,18 @@ export default function Phone3D({
   entranceDuration = 2.2,
   entranceDelay = 0.2,
 
-  keyLightIntensity = 2.0,
-  keyLightColor = "#f0f9ff",
+  keyLightIntensity = 1.65,
+  keyLightColor = "#ffffff",
   keyLightPosition = [6, 2, -4],
-  envBrightness = 0.1,
-  envTint = "#bae6fd",
-  rimLightIntensity = 0.25,
-  rimLightColor = "#38bdf8",
-  ambientLightIntensity = 0.1,
-  ambientLightColor = "#0284c7",
+  envBrightness = 0.9,
+  envTint = "#ffffff",
+  rimLightIntensity = 1.35,
+  rimLightColor = "#ffffff",
+  ambientLightIntensity = 0.7,
+  ambientLightColor = "#ffffff",
   showFloorShadow = false,
+  phoneScale = 1,
+  paused = false,
 
   enableGizmo = true,
   gizmoMode = "translate",
@@ -285,6 +289,8 @@ export default function Phone3D({
 }: Phone3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const playRef = useRef<() => void>(() => { });
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   const liveProps = useRef({
     bodyColor,
@@ -314,6 +320,7 @@ export default function Phone3D({
     ambientLightIntensity,
     ambientLightColor,
     showFloorShadow,
+    phoneScale,
     enableGizmo,
     gizmoMode,
     selectedPart,
@@ -349,6 +356,7 @@ export default function Phone3D({
       ambientLightIntensity,
       ambientLightColor,
       showFloorShadow,
+      phoneScale,
       enableGizmo,
       gizmoMode,
       selectedPart,
@@ -360,6 +368,9 @@ export default function Phone3D({
   const transformControlsRef = useRef<TransformControls | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const defaultDistRef = useRef(12.6);
+  const phoneRef = useRef<THREE.Group | null>(null);
+  const floorShadowMeshRef = useRef<THREE.Mesh | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
 
   const partsMapRef = useRef<Map<PartName, THREE.Object3D>>(new Map());
 
@@ -402,7 +413,20 @@ export default function Phone3D({
       mat.logo.needsUpdate = true;
     }
     if (mat.floorShadow) {
-      mat.floorShadow.visible = showFloorShadow;
+      mat.floorShadow.visible = !!showFloorShadow;
+      mat.floorShadow.opacity = showFloorShadow ? 0.8 : 0;
+    }
+    if (floorShadowMeshRef.current) {
+      floorShadowMeshRef.current.visible = !!showFloorShadow;
+      if (showFloorShadow) {
+        if (sceneRef.current && !sceneRef.current.children.includes(floorShadowMeshRef.current)) {
+          sceneRef.current.add(floorShadowMeshRef.current);
+        }
+      } else {
+        if (floorShadowMeshRef.current.parent) {
+          floorShadowMeshRef.current.parent.remove(floorShadowMeshRef.current);
+        }
+      }
     }
   }, [
     bodyColor,
@@ -414,6 +438,12 @@ export default function Phone3D({
     cameraRingMetalness,
     showFloorShadow,
   ]);
+
+  useEffect(() => {
+    if (phoneRef.current) {
+      phoneRef.current.scale.setScalar(phoneScale || 1);
+    }
+  }, [phoneScale]);
 
   useEffect(() => {
     const lights = lightsRef.current;
@@ -529,12 +559,14 @@ export default function Phone3D({
       alpha: true,
       powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.domElement.style.cssText = "display:block;width:100%;height:100%;touch-action:none;";
+    renderer.domElement.style.cssText =
+      "display:block;width:100%;height:100%;touch-action:none;will-change:transform;backface-visibility:hidden;";
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
     const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
     cameraRef.current = camera;
 
@@ -591,7 +623,11 @@ export default function Phone3D({
       camera.lookAt(0, 0, 0);
       controls.target.set(0, 0, 0);
       controls.update();
-      startY = -(d * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) + H / 2 + 0.9);
+      startY = -(
+        d * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) +
+        ((H * (liveProps.current.phoneScale || 1)) / 2) +
+        1.8
+      );
     };
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
@@ -647,6 +683,8 @@ export default function Phone3D({
     lightsRef.current.ambient = ambient;
 
     const phone = new THREE.Group();
+    phone.scale.setScalar(liveProps.current.phoneScale || 1);
+    phoneRef.current = phone;
     scene.add(phone);
 
     const titanium = new THREE.MeshStandardMaterial({
@@ -769,6 +807,41 @@ export default function Phone3D({
     }
     const screenMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
     add(sg, screenMat, 0, 0, zf + 0.002);
+
+    const glareCanvas = document.createElement("canvas");
+    glareCanvas.width = 512;
+    glareCanvas.height = 1024;
+    const gctx = glareCanvas.getContext("2d");
+    if (gctx) {
+      gctx.clearRect(0, 0, 512, 1024);
+      const grad = gctx.createLinearGradient(0, 0, 512, 0);
+      grad.addColorStop(0.0, "rgba(255, 255, 255, 0)");
+      grad.addColorStop(0.25, "rgba(255, 255, 255, 0)");
+      grad.addColorStop(0.36, "rgba(220, 240, 255, 0.1)");
+      grad.addColorStop(0.44, "rgba(235, 248, 255, 0.45)");
+      grad.addColorStop(0.50, "rgba(255, 255, 255, 0.95)");
+      grad.addColorStop(0.56, "rgba(235, 248, 255, 0.45)");
+      grad.addColorStop(0.64, "rgba(220, 240, 255, 0.1)");
+      grad.addColorStop(0.75, "rgba(255, 255, 255, 0)");
+      grad.addColorStop(1.0, "rgba(255, 255, 255, 0)");
+      gctx.fillStyle = grad;
+      gctx.fillRect(0, 0, 512, 1024);
+    }
+    const glareTex = new THREE.CanvasTexture(glareCanvas);
+    glareTex.wrapS = THREE.ClampToEdgeWrapping;
+    glareTex.wrapT = THREE.ClampToEdgeWrapping;
+    glareTex.rotation = 0.42;
+    glareTex.center.set(0.5, 0.5);
+
+    const glareGeo = sg.clone();
+    const glareMat = new THREE.MeshBasicMaterial({
+      map: glareTex,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    add(glareGeo, glareMat, 0, 0, zf + 0.0033);
 
     const islandPill = add(
       new THREE.ShapeGeometry(createPillShape(0.56, 0.16), 24),
@@ -991,14 +1064,19 @@ export default function Phone3D({
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTex,
       transparent: true,
-      opacity: 0.8,
+      opacity: liveProps.current.showFloorShadow ? 0.8 : 0,
       depthWrite: false,
+      visible: !!liveProps.current.showFloorShadow,
     });
     materialsRef.current.floorShadow = shadowMat;
     const floorShadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 5.8), shadowMat);
     floorShadowMesh.rotation.x = -Math.PI / 2;
     floorShadowMesh.position.y = -H / 2 - 0.35;
-    scene.add(floorShadowMesh);
+    floorShadowMesh.visible = !!liveProps.current.showFloorShadow;
+    floorShadowMeshRef.current = floorShadowMesh;
+    if (liveProps.current.showFloorShadow) {
+      scene.add(floorShadowMesh);
+    }
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let t0: number | null = null;
@@ -1034,7 +1112,8 @@ export default function Phone3D({
       g.drawImage(img, 0, (ch - img.height * k) / 2, cw, img.height * k);
       screenTex = new THREE.CanvasTexture(sc);
       screenTex.colorSpace = THREE.SRGBColorSpace;
-      screenTex.anisotropy = 8;
+      screenTex.anisotropy = 4;
+      renderer.initTexture(screenTex);
       screenMat.map = screenTex;
       screenMat.color.set(0xffffff);
       screenMat.needsUpdate = true;
@@ -1042,8 +1121,14 @@ export default function Phone3D({
     };
     img.src = src;
 
+    renderer.compile(scene, camera);
+
     let raf = 0;
     const frame = (now: number) => {
+      if (pausedRef.current || !mount.clientWidth || !mount.clientHeight) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dur = liveProps.current.entranceDuration || 2.2;
       const delay = liveProps.current.entranceDelay || 0.2;
       const el = t0 === null ? -1 : (now - t0) / 1000;
@@ -1088,8 +1173,19 @@ export default function Phone3D({
         end.z + b * (tAmp * 0.8)
       );
 
-      floorShadowMesh.position.y = -H / 2 - 0.35 + phone.position.y * 0.15;
-      floorShadowMesh.scale.setScalar(1 + (phone.position.y - startY) * 0.03);
+      if (floorShadowMesh.visible) {
+        floorShadowMesh.position.y = -H / 2 - 0.35 + phone.position.y * 0.15;
+        floorShadowMesh.scale.setScalar(1 + (phone.position.y - startY) * 0.03);
+      }
+
+      if (p < 1) {
+        const sweepProgress = Math.min(Math.max((s - 0.2) / 0.72, 0), 1);
+        const spinHighlight = Math.sin(sweepProgress * Math.PI);
+        glareMat.opacity = Math.pow(spinHighlight, 1.15) * 0.95;
+        glareTex.offset.x = -0.75 + sweepProgress * 0.98;
+      } else {
+        glareMat.opacity = 0;
+      }
 
       controls.update();
       renderer.render(scene, camera);
@@ -1106,10 +1202,15 @@ export default function Phone3D({
       transformControls.dispose();
       disposeTree(scene);
       screenTex?.dispose();
+      glareTex.dispose();
       shadowTex.dispose();
       envRT.dispose();
       pm.dispose();
       renderer.dispose();
+      materialsRef.current.floorShadow = undefined;
+      floorShadowMeshRef.current = null;
+      phoneRef.current = null;
+      sceneRef.current = null;
       if (mount.contains(renderer.domElement)) {
         mount.removeChild(renderer.domElement);
       }

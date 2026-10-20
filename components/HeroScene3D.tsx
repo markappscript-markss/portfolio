@@ -1712,15 +1712,21 @@ export default function HeroScene3D() {
       isOverlayOpen = true;
     };
 
+    let resumeTimer: ReturnType<typeof setTimeout> | undefined;
     const onPortfolioTriggerMain = () => {
-      if (isOverlayOpen) {
-        isOverlayOpen = false;
-        clock.getDelta();
-        if (isRunning) {
-          animate();
-        }
-      }
-      resetToDarkWithStagger();
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (isOverlayOpen) {
+            isOverlayOpen = false;
+            clock.getDelta();
+            if (isRunning) {
+              animate();
+            }
+          }
+          resetToDarkWithStagger();
+        });
+      }, 90);
     };
 
     if (typeof window !== "undefined" && ((window as any).__paperTearComplete || (window as any).__paperTearReveal)) {
@@ -1741,6 +1747,7 @@ export default function HeroScene3D() {
     return () => {
       isRunning = false;
       clearTimeout(fallbackTimer);
+      clearTimeout(resumeTimer);
       revealTimeouts.forEach(clearTimeout);
       window.removeEventListener("paper-tear-reveal", onPaperTearReveal);
       window.removeEventListener("paper-tear-complete", playStaggerReveal);
