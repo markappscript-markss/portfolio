@@ -1719,7 +1719,7 @@ export default function WorkOverlay2({
             <div className="relative w-full bg-[#1c1c1f]">
               <div
                 ref={tabletSectionRef}
-                className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24 shadow-[0_-35px_80px_rgba(0,0,0,0.4),0_30px_70px_rgba(0,0,0,0.5)]"
+                className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24"
                 style={{ backgroundColor: "#0f172a" }}
               >
                 <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
