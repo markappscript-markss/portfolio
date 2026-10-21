@@ -660,17 +660,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => {
-      
-      const altSrc = src.includes('dashboard.png')
-        ? src.replace('dashboard.png', 'Dashboard.png')
-        : src.replace('Dashboard.png', 'dashboard.png');
-
-      const img2 = new Image();
-      img2.onload = () => resolve(img2);
-      img2.onerror = () => reject(new Error(`Failed to load ${src}`));
-      img2.src = altSrc;
-    };
+    img.onerror = () => reject(new Error(`Failed to load ${src}`));
     img.src = src;
   });
 }
@@ -680,7 +670,7 @@ const easeInOutCubic = (p: number) =>
 
 export default function MacBookOpening({
   isOpen = true,
-  imageSrc = '/macbook/dashboard.png',
+  imageSrc = '/macbook/dashboard.webp',
   background = 'transparent',
   finish = 'midnight',
   mode = 'animate',

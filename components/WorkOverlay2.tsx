@@ -1111,7 +1111,7 @@ export default function WorkOverlay2({
         delta *= container.clientHeight;
       }
 
-      targetScroll = Math.max(0, Math.min(targetScroll + delta, maxScroll));
+      targetScroll = Math.max(0, Math.min(maxScroll, targetScroll + delta));
 
       if (!isRunning) {
         isRunning = true;
@@ -1157,6 +1157,11 @@ export default function WorkOverlay2({
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    if (isDeepDive && containerRef.current) {
+      currentScroll = containerRef.current.scrollTop;
+      targetScroll = containerRef.current.scrollTop;
+    }
 
     return () => {
       if (container) {
@@ -1450,12 +1455,12 @@ export default function WorkOverlay2({
               ref={leftContentRef}
               className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] md:absolute md:top-[34%] lg:top-[35%] xl:top-[36%] md:left-[13%] lg:left-[14%] xl:left-[15%] flex flex-col items-center text-center z-20 max-w-2xl px-4 md:px-0 pointer-events-auto will-change-transform"
             >
-              <h1
+              <h2
                 ref={titleRef}
                 className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
               >
                 Leave Management<br />System
-              </h1>
+              </h2>
               <p
                 ref={subtitleRef}
                 className="mt-4 sm:mt-5 text-base sm:text-lg md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-lg lg:max-w-xl will-change-transform text-center mx-auto"
@@ -1711,66 +1716,68 @@ export default function WorkOverlay2({
               </div>
             </div>
 
-            <div
-              ref={tabletSectionRef}
-              className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24"
-              style={{ backgroundColor: "#0f172a" }}
-            >
-              <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
-                  <div
-                    ref={tabletWrapperRef}
-                    className="lg:col-span-7 xl:col-span-7 w-full flex items-center justify-center pointer-events-none select-none opacity-0 will-change-transform"
-                  >
-                    <div className="w-full h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
-                      <TabletOutline3D
-                        videoSrc="/videos/lmsadm.webm"
-                        active={isOpen && isDeepDive}
-                        interactiveOrbit={false}
-                        showFloorShadow={false}
-                        xRayMode={true}
-                        offsetY={-0.32}
-                        className="w-full h-full relative pointer-events-none select-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
-                    <h2
-                      ref={adminTitleRef}
-                      className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
-                    >
-                      <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
-                        <span className="admin-word inline-block will-change-transform opacity-0">
-                          Admin
-                        </span>
-                      </span>
-                      <span className="inline-block overflow-hidden py-1">
-                        <span className="admin-word inline-block will-change-transform opacity-0">
-                          View
-                        </span>
-                      </span>
-                    </h2>
-
+            <div className="relative w-full bg-[#1c1c1f]">
+              <div
+                ref={tabletSectionRef}
+                className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24 shadow-[0_-35px_80px_rgba(0,0,0,0.4),0_30px_70px_rgba(0,0,0,0.5)]"
+                style={{ backgroundColor: "#0f172a" }}
+              >
+                <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
                     <div
-                      ref={adminTextRef}
-                      className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                      ref={tabletWrapperRef}
+                      className="lg:col-span-7 xl:col-span-7 w-full flex items-center justify-center pointer-events-none select-none opacity-0 will-change-transform"
                     >
-                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
-                        Built around role-based access control (RBAC), giving HR and operations top-level access to oversee requests across every department, manage company-wide rules, and file their own leave.
-                      </p>
-                      <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
-                        Admins control exactly who can view, request, or approve time off by structuring departments and assigning user roles. They can also track leave usage by team, configure policies and activity logs, and get automatic alerts whenever a request sits unapproved for more than two days.
-                      </p>
-                      <div className="admin-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
-                        <TakeALookButton
-                          id="btn-view-demo-admin"
-                          label="VIEW DEMO"
-                          ariaLabel="View demo"
-                          onClick={() => {
-                            window.open("https://lms-demo-m.vercel.app/", "_blank", "noopener,noreferrer");
-                          }}
+                      <div className="w-full h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
+                        <TabletOutline3D
+                          videoSrc="/videos/lmsadm.webm"
+                          active={isOpen && isDeepDive}
+                          interactiveOrbit={false}
+                          showFloorShadow={false}
+                          xRayMode={true}
+                          offsetY={-0.32}
+                          className="w-full h-full relative pointer-events-none select-none"
                         />
+                      </div>
+                    </div>
+
+                    <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
+                      <h2
+                        ref={adminTitleRef}
+                        className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                      >
+                        <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
+                          <span className="admin-word inline-block will-change-transform opacity-0">
+                            Admin
+                          </span>
+                        </span>
+                        <span className="inline-block overflow-hidden py-1">
+                          <span className="admin-word inline-block will-change-transform opacity-0">
+                            View
+                          </span>
+                        </span>
+                      </h2>
+
+                      <div
+                        ref={adminTextRef}
+                        className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                      >
+                        <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                          Built around role-based access control (RBAC), giving HR and operations top-level access to oversee requests across every department, manage company-wide rules, and file their own leave.
+                        </p>
+                        <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
+                          Admins control exactly who can view, request, or approve time off by structuring departments and assigning user roles. They can also track leave usage by team, configure policies and activity logs, and get automatic alerts whenever a request sits unapproved for more than two days.
+                        </p>
+                        <div className="admin-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
+                          <TakeALookButton
+                            id="btn-view-demo-admin"
+                            label="VIEW DEMO"
+                            ariaLabel="View demo"
+                            onClick={() => {
+                              window.open("https://lms-demo-m.vercel.app/", "_blank", "noopener,noreferrer");
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -679,13 +679,13 @@ export default function WorkOverlay({
 
       if (nextSectionRef.current && container) {
         const maxScroll = container.scrollHeight - container.clientHeight;
-        const remainingToBottom = maxScroll > 0 ? Math.max(0, maxScroll - scrollTop) : 0;
-        const atBottom = remainingToBottom < 2;
+        const remaining = Math.max(0, maxScroll - scrollTop);
+        const atBottom = remaining < 2;
         const rawOffset = atBottom ? 0 : Math.max(0, (progress - 0.45) * 150);
         const bottomSpan = Math.max(1, rawOffset);
-        const ratio = Math.min(1, remainingToBottom / bottomSpan);
+        const ratio = Math.min(1, remaining / bottomSpan);
         const bottomFactor = ratio * ratio * (3 - 2 * ratio);
-        const nextY = atBottom ? 0 : -Math.min(rawOffset * bottomFactor, remainingToBottom);
+        const nextY = atBottom ? 0 : -Math.min(rawOffset * bottomFactor, remaining);
 
         if (Math.abs(nextY - lastNextY) > 0.05) {
           lastNextY = nextY;
@@ -788,7 +788,7 @@ export default function WorkOverlay({
         delta *= containerHeight;
       }
 
-      targetScroll = Math.max(0, Math.min(targetScroll + delta, maxScroll));
+      targetScroll = Math.max(0, Math.min(maxScroll, targetScroll + delta));
 
       if (!isRunning) {
         isRunning = true;
@@ -1874,7 +1874,7 @@ export default function WorkOverlay({
                       ref={macbookContainerRef}
                       className="w-full opacity-0 will-change-transform h-[50vh] sm:h-[58vh] md:h-[68vh] flex items-center justify-center"
                     >
-                      <MacBookVideo videoSrc="/macbook/demo.mp4" showReplay={false} scale={1.15} offsetX={0.78} active={isDeepDive} />
+                      <MacBookVideo videoSrc="/macbook/demo.webm" showReplay={false} scale={1.15} offsetX={0.78} active={isDeepDive} />
                     </div>
                   </div>
                 )}
@@ -1900,68 +1900,69 @@ export default function WorkOverlay({
                       style={{ top: "-3%", height: "106%" }}
                     >
                       <source src="/videos/videoportfolio.webm" type="video/webm" />
-                      <source src="/videos/videoportfolio.mp4" type="video/mp4" />
                     </video>
                   </div>
                 </div>
 
-                <div
-                  ref={nextSectionRef}
-                  className="relative z-20 w-full bg-[#0f172a] text-white h-dvh min-h-dvh max-h-dvh overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
-                  style={{ backgroundColor: "#0f172a" }}
-                >
-                  <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 min-h-0">
-                      <div className="md:col-span-7 lg:col-span-7 flex flex-col items-end justify-center h-full min-h-0 pointer-events-none">
-                        <div className="w-full max-w-[580px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[780px] flex-1 min-h-0 relative select-none pointer-events-none flex items-center justify-end">
-                          <IPhone3DScene
-                            videoSrc="/images/iphone/ipon_smooth.webm"
-                            zoom={1.01}
-                            cropBlackBars={true}
-                            autoPlayOnVisible={false}
-                            triggerReveal={isIPhoneRevealed}
-                            interactive={false}
-                            phoneScale={2.05}
-                            cameraFov={37}
-                            offsetY={-0.38}
-                            offsetX={0.22}
-                            lineColor={0xc4c9cf}
-                            className="w-full h-full relative pointer-events-none"
-                          />
+                <div className="relative w-full bg-[#1c1c1f]">
+                  <div
+                    ref={nextSectionRef}
+                    className="relative z-20 w-full bg-[#0f172a] text-white h-dvh min-h-dvh max-h-dvh overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4),0_30px_70px_rgba(0,0,0,0.5)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
+                    <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-1 min-h-0">
+                        <div className="md:col-span-7 lg:col-span-7 flex flex-col items-end justify-center h-full min-h-0 pointer-events-none">
+                          <div className="w-full max-w-[580px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[780px] flex-1 min-h-0 relative select-none pointer-events-none flex items-center justify-end">
+                            <IPhone3DScene
+                              videoSrc="/images/iphone/ipon_smooth.webm"
+                              zoom={1.01}
+                              cropBlackBars={true}
+                              autoPlayOnVisible={false}
+                              triggerReveal={isIPhoneRevealed}
+                              interactive={false}
+                              phoneScale={2.05}
+                              cameraFov={37}
+                              offsetY={-0.38}
+                              offsetX={0.22}
+                              lineColor={0xc4c9cf}
+                              className="w-full h-full relative pointer-events-none"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
-                        <h2
-                          ref={landedTitleRef}
-                          className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
-                        >
-                          <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
-                            <span className="landed-word inline-block will-change-transform opacity-0">
-                              The
+                        <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
+                          <h2
+                            ref={landedTitleRef}
+                            className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
+                          >
+                            <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
+                              <span className="landed-word inline-block will-change-transform opacity-0">
+                                The
+                              </span>
                             </span>
-                          </span>
-                          <span className="inline-block overflow-hidden py-1">
-                            <span className="landed-word inline-block will-change-transform opacity-0">
-                              Redesign
+                            <span className="inline-block overflow-hidden py-1">
+                              <span className="landed-word inline-block will-change-transform opacity-0">
+                                Redesign
+                              </span>
                             </span>
-                          </span>
-                        </h2>
+                          </h2>
 
-                        <div
-                          ref={landedTextRef}
-                          className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
-                        >
-                          <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
-                            The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
-                          </p>
-                          <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
-                            <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
-                              STACK
-                            </span>
-                            <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-white uppercase font-mono bg-transparent">
-                              Next.js, Three.js, GSAP
+                          <div
+                            ref={landedTextRef}
+                            className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
+                          >
+                            <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
+                              The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
                             </p>
+                            <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
+                              <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
+                                STACK
+                              </span>
+                              <p className="mt-1 text-xs sm:text-sm font-bold tracking-wider text-white uppercase font-mono bg-transparent">
+                                Next.js, Three.js, GSAP
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

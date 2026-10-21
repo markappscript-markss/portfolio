@@ -9,6 +9,7 @@ import AboutOverlay from "@/components/AboutOverlay";
 import WorkOverlay from "@/components/WorkOverlay";
 import WorkOverlay2 from "@/components/WorkOverlay2";
 import WorkOverlay3 from "@/components/WorkOverlay3";
+import WorkArchive from "@/components/WorkArchive";
 import FinalOverlay from "@/components/FinalOverlay";
 import WorkOverlayBackButton from "@/components/WorkOverlayBackButton";
 
@@ -16,6 +17,7 @@ export default function Home() {
   const [activeView, setActiveView] = useState<"main" | "about" | "work">("main");
   const [isWork2Open, setIsWork2Open] = useState(false);
   const [isWork3Open, setIsWork3Open] = useState(false);
+  const [isWorkArchiveOpen, setIsWorkArchiveOpen] = useState(false);
   const [isFinalSectionOpen, setIsFinalSectionOpen] = useState(false);
   const [isDarkHeader, setIsDarkHeader] = useState(false);
   const [isDeepDive, setIsDeepDive] = useState(false);
@@ -30,6 +32,7 @@ export default function Home() {
     setActiveView("main");
     setIsWork2Open(false);
     setIsWork3Open(false);
+    setIsWorkArchiveOpen(false);
     setIsFinalSectionOpen(false);
     setIsDarkHeader(false);
     setIsDeepDive(false);
@@ -41,6 +44,7 @@ export default function Home() {
   const handleCloseWork2 = useCallback(() => {
     setIsWork2Open(false);
     setIsWork3Open(false);
+    setIsWorkArchiveOpen(false);
     setIsFinalSectionOpen(false);
     setIsDarkHeader(false);
     setIsDeepDive(false);
@@ -52,6 +56,7 @@ export default function Home() {
 
   const handleCloseWork3 = useCallback(() => {
     setIsWork3Open(false);
+    setIsWorkArchiveOpen(false);
     setIsFinalSectionOpen(false);
     setIsDarkHeader(false);
     setIsDeepDive(false);
@@ -59,6 +64,17 @@ export default function Home() {
 
   const handleOpenWork3 = useCallback(() => {
     setIsWork3Open(true);
+  }, []);
+
+  const handleCloseWorkArchive = useCallback(() => {
+    setIsWorkArchiveOpen(false);
+    setIsFinalSectionOpen(false);
+    setIsDarkHeader(false);
+    setIsDeepDive(false);
+  }, []);
+
+  const handleOpenWorkArchive = useCallback(() => {
+    setIsWorkArchiveOpen(true);
   }, []);
 
   const handleOpenFinal = useCallback(() => {
@@ -74,6 +90,7 @@ export default function Home() {
     setActiveView("main");
     setIsWork2Open(false);
     setIsWork3Open(false);
+    setIsWorkArchiveOpen(false);
     setIsFinalSectionOpen(false);
     setIsDarkHeader(false);
     setIsDeepDive(false);
@@ -115,6 +132,7 @@ export default function Home() {
       setActiveView("work");
       setIsWork2Open(false);
       setIsWork3Open(false);
+      setIsWorkArchiveOpen(false);
       setIsFinalSectionOpen(false);
       setIsDarkHeader(false);
       setIsDeepDive(false);
@@ -124,6 +142,7 @@ export default function Home() {
       setActiveView("about");
       setIsWork2Open(false);
       setIsWork3Open(false);
+      setIsWorkArchiveOpen(false);
       setIsFinalSectionOpen(false);
       setIsDarkHeader(false);
       setIsDeepDive(false);
@@ -133,6 +152,7 @@ export default function Home() {
       setActiveView("main");
       setIsWork2Open(false);
       setIsWork3Open(false);
+      setIsWorkArchiveOpen(false);
       setIsFinalSectionOpen(false);
       setIsDarkHeader(false);
       setIsDeepDive(false);
@@ -144,6 +164,10 @@ export default function Home() {
 
     const handleViewWork3 = () => {
       setIsWork3Open(true);
+    };
+
+    const handleViewWorkArchive = () => {
+      setIsWorkArchiveOpen(true);
     };
 
     const handleViewFinal = () => {
@@ -164,6 +188,7 @@ export default function Home() {
     window.addEventListener("portfolio-trigger-main", handleTriggerMain);
     window.addEventListener("portfolio-view-work2", handleViewWork2);
     window.addEventListener("portfolio-view-work3", handleViewWork3);
+    window.addEventListener("portfolio-view-workarchive", handleViewWorkArchive);
     window.addEventListener("portfolio-view-final", handleViewFinal);
     window.addEventListener("portfolio-deepdive-enter", handleDeepDiveEnter);
     window.addEventListener("portfolio-deepdive-exit", handleDeepDiveExit);
@@ -175,6 +200,7 @@ export default function Home() {
       window.removeEventListener("portfolio-trigger-main", handleTriggerMain);
       window.removeEventListener("portfolio-view-work2", handleViewWork2);
       window.removeEventListener("portfolio-view-work3", handleViewWork3);
+      window.removeEventListener("portfolio-view-workarchive", handleViewWorkArchive);
       window.removeEventListener("portfolio-view-final", handleViewFinal);
       window.removeEventListener("portfolio-deepdive-enter", handleDeepDiveEnter);
       window.removeEventListener("portfolio-deepdive-exit", handleDeepDiveExit);
@@ -244,6 +270,7 @@ export default function Home() {
       </div>
 
       <main id="home" className="h-[100dvh] w-full bg-white relative overflow-hidden flex items-center justify-center">
+        <h1 className="sr-only">Mark Poticar — Portfolio</h1>
         <HeroScene3D />
       </main>
       <AboutOverlay isOpen={activeView === "about"} />
@@ -264,11 +291,17 @@ export default function Home() {
       <WorkOverlay3
         isOpen={activeView === "work" && isWork2Open && isWork3Open}
         onClose={handleCloseWork3}
+        onNextWork={handleOpenWorkArchive}
+        isTopmost={!isWorkArchiveOpen}
+      />
+      <WorkArchive
+        isOpen={activeView === "work" && isWork2Open && isWork3Open && isWorkArchiveOpen}
+        onClose={handleCloseWorkArchive}
         onNextWork={handleOpenFinal}
         isTopmost={!isFinalSectionOpen}
       />
       <FinalOverlay
-        isOpen={activeView === "work" && isWork2Open && isWork3Open && isFinalSectionOpen}
+        isOpen={activeView === "work" && isWork2Open && isWork3Open && isWorkArchiveOpen && isFinalSectionOpen}
         onClose={handleCloseFinal}
         onToMain={handleToMainFromFinal}
         onReachTop={handleReachTop}

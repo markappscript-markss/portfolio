@@ -8,6 +8,7 @@ interface SeeNextIndicatorProps {
   onClick?: () => void;
   className?: string;
   id?: string;
+  theme?: "light" | "dark" | "auto";
 }
 
 export default function SeeNextIndicator({
@@ -15,6 +16,7 @@ export default function SeeNextIndicator({
   onClick,
   className = "",
   id = "indicator-see-next",
+  theme = "light",
 }: SeeNextIndicatorProps) {
   const containerRef = useRef<HTMLButtonElement>(null);
   const arrowRef = useRef<HTMLSpanElement>(null);
@@ -108,16 +110,40 @@ export default function SeeNextIndicator({
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      style={{ opacity: 0, visibility: "hidden" }}
-      className={`group absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-neutral-950/20 rounded-full px-3 py-1.5 transition-transform will-change-transform ${className}`}
+      style={{
+        opacity: 0,
+        visibility: "hidden",
+        mixBlendMode: theme === "auto" ? "difference" : undefined,
+      }}
+      className={`group absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer select-none outline-none focus-visible:ring-2 ${
+        theme === "auto"
+          ? "mix-blend-difference text-white focus-visible:ring-white/50"
+          : theme === "dark"
+          ? "focus-visible:ring-white/30"
+          : "focus-visible:ring-neutral-950/20"
+      } rounded-full px-3 py-1.5 transition-transform will-change-transform ${className}`}
       aria-label="See next project"
     >
-      <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold text-neutral-700 group-hover:text-neutral-950 transition-colors duration-200">
+      <span
+        className={`font-mono text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold transition-opacity duration-200 ${
+          theme === "auto"
+            ? "text-white opacity-90 group-hover:opacity-100"
+            : theme === "dark"
+            ? "text-white/75 group-hover:text-white"
+            : "text-neutral-700 group-hover:text-neutral-950"
+        }`}
+      >
         SEE NEXT
       </span>
       <span
         ref={arrowRef}
-        className="text-neutral-700 group-hover:text-neutral-950 transition-colors duration-200 will-change-transform flex items-center justify-center"
+        className={`transition-opacity duration-200 will-change-transform flex items-center justify-center ${
+          theme === "auto"
+            ? "text-white opacity-90 group-hover:opacity-100"
+            : theme === "dark"
+            ? "text-white/75 group-hover:text-white"
+            : "text-neutral-700 group-hover:text-neutral-950"
+        }`}
       >
         <svg
           className="w-4 h-4 sm:w-4.5 sm:h-4.5"

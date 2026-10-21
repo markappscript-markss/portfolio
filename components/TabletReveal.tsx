@@ -91,8 +91,8 @@ function makeTexture(
 const ease = (p: number) => -(Math.cos(Math.PI * p) - 1) / 2;
 
 export default function TabletReveal({
-  srcA = '/tablet/hero.png',
-  srcB = '/tablet/poster.png',
+  srcA = '/tablet/hero.webp',
+  srcB = '/tablet/poster.webp',
   background = '#ffffff',
   showReplay = true,
   className,

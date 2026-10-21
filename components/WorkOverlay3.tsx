@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { WORK_OVERLAY_CURVE_CONFIG } from "./WorkOverlay";
-import { FINAL_OVERLAY_CURVE_CONFIG } from "./FinalOverlay";
 import SeeNextIndicator from "./SeeNextIndicator";
 import Phone3D from "@/components/Phone3D";
 import TakeALookButton from "@/components/TakeALookButton";
@@ -159,6 +158,7 @@ export default function WorkOverlay3({
   const [isDeepDiveNav, setIsDeepDiveNav] = useState(false);
   const [canTakeALook, setCanTakeALook] = useState(true);
   const canTakeALookRef = useRef(true);
+  const processSectionRef = useRef<HTMLDivElement>(null);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [isVideoCarouselHovered, setIsVideoCarouselHovered] = useState(false);
   const [isPhonePaused, setIsPhonePaused] = useState(false);
@@ -275,30 +275,12 @@ export default function WorkOverlay3({
       isReturningFromChildRef.current = true;
       isPhonePausedRef.current = true;
       setIsPhonePaused(true);
-      gsap.killTweensOf(wrapperRef.current);
-      gsap.to(wrapperRef.current, {
-        yPercent: -100,
-        y: 0,
-        duration: FINAL_OVERLAY_CURVE_CONFIG.openDuration,
-        ease: FINAL_OVERLAY_CURVE_CONFIG.openEase,
-        force3D: true,
-        autoRound: false,
-      });
     } else if (isReturningFromChildRef.current) {
       isPhonePausedRef.current = false;
       setIsPhonePaused(false);
-      gsap.killTweensOf(wrapperRef.current);
-      gsap.to(wrapperRef.current, {
-        yPercent: 0,
-        y: 0,
-        duration: FINAL_OVERLAY_CURVE_CONFIG.closeDuration,
-        ease: FINAL_OVERLAY_CURVE_CONFIG.closeEase,
-        force3D: true,
-        autoRound: false,
-      });
       const timer = setTimeout(() => {
         isReturningFromChildRef.current = false;
-      }, FINAL_OVERLAY_CURVE_CONFIG.closeDuration * 1000);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [isTopmost]);
@@ -318,11 +300,11 @@ export default function WorkOverlay3({
     isTriggeringNextWorkRef.current = true;
     onNextWorkRef.current?.();
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("portfolio-view-final"));
+      window.dispatchEvent(new CustomEvent("portfolio-view-workarchive"));
     }
     setTimeout(() => {
       isTriggeringNextWorkRef.current = false;
-    }, FINAL_OVERLAY_CURVE_CONFIG.openDuration * 1000);
+    }, 1000);
   };
 
   const getResponsiveSettings = () => {
@@ -1166,7 +1148,7 @@ export default function WorkOverlay3({
         delta *= container.clientHeight;
       }
 
-      targetScroll = Math.max(0, Math.min(targetScroll + delta, maxScroll));
+      targetScroll = Math.max(0, Math.min(maxScroll, targetScroll + delta));
 
       if (!isRunning) {
         isRunning = true;
@@ -1215,6 +1197,8 @@ export default function WorkOverlay3({
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     if (isDeepDive && containerRef.current) {
+      currentScroll = containerRef.current.scrollTop;
+      targetScroll = containerRef.current.scrollTop;
       updateStaticParallax(containerRef.current.scrollTop);
     }
 
@@ -1493,7 +1477,7 @@ export default function WorkOverlay3({
         ref={wrapperRef}
         id="work-overlay-3-wrapper"
         aria-hidden={!isOpen}
-        className="fixed inset-0 z-[48] pointer-events-none overflow-visible select-none"
+        className="fixed inset-0 z-[47] pointer-events-none overflow-visible select-none"
         style={{ display: "none" }}
       >
         <svg
@@ -1533,12 +1517,12 @@ export default function WorkOverlay3({
               ref={leftContentRef}
               className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] md:absolute md:top-[34%] lg:top-[35%] xl:top-[36%] md:right-[17%] lg:right-[18%] xl:right-[19%] md:left-auto flex flex-col items-center text-center z-20 max-w-2xl px-4 md:px-0 pointer-events-auto will-change-transform"
             >
-              <h1
+              <h2
                 ref={titleRef}
                 className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
               >
                 AI Video and<br />Static Ads
-              </h1>
+              </h2>
               <p
                 ref={subtitleRef}
                 className="mt-4 sm:mt-5 text-base sm:text-lg md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-lg lg:max-w-xl will-change-transform text-center mx-auto"
@@ -1778,49 +1762,53 @@ export default function WorkOverlay3({
               </div>
             </div>
 
-            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]">
-              <div className="w-full max-w-[1760px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-14">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-9 xl:gap-10 items-center">
-                  <div className="lg:col-span-4 xl:col-span-4 flex flex-col justify-center text-left w-full order-2 lg:order-1">
-                    <div ref={processTextRef} className="space-y-5 max-w-lg">
-                      <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
-                        One clear process from product brief to launch-ready ads: script, storyboard, video and static production, policy check, and revisions.
-                      </p>
-                      <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
-                        The full campaign, with variations for testing, is delivered in one place.
-                      </p>
-                      <div className="process-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
-                        <TakeALookButton
-                          id="btn-view-files"
-                          label="View Files"
-                          ariaLabel="View Files"
-                          onClick={() => {
-                            window.open(
-                              "https://drive.google.com/drive/folders/1_vaVOS8wGJpVYOVlH29UQnac_eMbv59z?usp=sharing",
-                              "_blank",
-                              "noopener,noreferrer"
-                            );
-                          }}
-                        />
+            <div className="relative w-full bg-[#1c1c1f]">
+              <div
+                ref={processSectionRef}
+                className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12),0_30px_70px_rgba(0,0,0,0.5)]"
+              >
+                <div className="w-full max-w-[1760px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-14">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-9 xl:gap-10 items-center">
+                    <div className="lg:col-span-4 xl:col-span-4 flex flex-col justify-center text-left w-full order-2 lg:order-1">
+                      <div ref={processTextRef} className="space-y-5 max-w-lg">
+                        <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
+                          One clear process from product brief to launch-ready ads: script, storyboard, video and static production, policy check, and revisions.
+                        </p>
+                        <p className="text-lg sm:text-xl md:text-2xl lg:text-[19px] xl:text-[21px] font-sans font-normal text-neutral-800 leading-[1.6] tracking-tight select-none opacity-0 will-change-transform">
+                          The full campaign, with variations for testing, is delivered in one place.
+                        </p>
+                        <div className="process-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
+                          <TakeALookButton
+                            id="btn-view-files"
+                            label="View Files"
+                            ariaLabel="View Files"
+                            onClick={() => {
+                              window.open(
+                                "https://drive.google.com/drive/folders/1_vaVOS8wGJpVYOVlH29UQnac_eMbv59z?usp=sharing",
+                                "_blank",
+                                "noopener,noreferrer"
+                              );
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div
-                    ref={processVideoRef}
-                    className="lg:col-span-8 xl:col-span-8 flex flex-col items-center justify-center w-full order-1 lg:order-2 opacity-0 will-change-transform"
-                  >
-                    <div className="w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
-                      <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="w-full h-auto block"
-                      >
-                        <source src="/videos/vidprocess.webm" type="video/webm" />
-                        <source src="/videos/vidprocess.mp4" type="video/mp4" />
-                      </video>
+                    <div
+                      ref={processVideoRef}
+                      className="lg:col-span-8 xl:col-span-8 flex flex-col items-center justify-center w-full order-1 lg:order-2 opacity-0 will-change-transform"
+                    >
+                      <div className="w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+                        <video
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-auto block"
+                        >
+                          <source src="/videos/vidprocess.webm" type="video/webm" />
+                        </video>
+                      </div>
                     </div>
                   </div>
                 </div>

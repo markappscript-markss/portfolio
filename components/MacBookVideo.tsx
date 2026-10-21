@@ -96,7 +96,7 @@ function makeKeyboardTexture(): THREE.CanvasTexture {
 }
 
 export default function MacBookVideo({
-  videoSrc = '/macbook/demo.mp4',
+  videoSrc = '/macbook/demo.webm',
   background = '#ffffff',
   showReplay = false,
   className,

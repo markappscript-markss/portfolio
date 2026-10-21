@@ -316,9 +316,9 @@ export default function FinalOverlay({
                   </a>
                 </div>
 
-                <h1 className="text-[clamp(2.25rem,6.2vw,6.5rem)] font-black tracking-tight leading-none text-white transition-colors duration-200 hover:text-[#ff2222] cursor-default">
+                <h2 className="text-[clamp(2.25rem,6.2vw,6.5rem)] font-black tracking-tight leading-none text-white transition-colors duration-200 hover:text-[#ff2222] cursor-default">
                   markappscript
-                </h1>
+                </h2>
 
                 <div className="flex items-center justify-center gap-2.5 mt-5 sm:mt-6 font-mono text-sm sm:text-base md:text-lg tracking-widest uppercase text-white">
                   <span className="transition-colors duration-200 hover:text-[#ff2222] cursor-default">
