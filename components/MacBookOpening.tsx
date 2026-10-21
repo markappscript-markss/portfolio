@@ -7,6 +7,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 
 export type MacBookOpeningProps = {
   isOpen?: boolean;
+  active?: boolean;
   imageSrc?: string;
   background?: string;
   finish?: 'space-gray' | 'space-black' | 'silver' | 'midnight';
@@ -689,10 +690,21 @@ export default function MacBookOpening({
   enableKeyboardBacklight = true,
   keyboardBacklightIntensity = 1.6, 
   className = "w-full h-full relative pointer-events-none",
+  active = true,
 }: MacBookOpeningProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const replayRef = useRef<() => void>(() => { });
   const [fadeIn, setFadeIn] = useState(false);
+  const startRef = useRef<() => void>(() => { });
+  const stopRef = useRef<() => void>(() => { });
+
+  useEffect(() => {
+    if (active) {
+      startRef.current?.();
+    } else {
+      stopRef.current?.();
+    }
+  }, [active]);
 
   useEffect(() => {
     if (isOpen) {
@@ -1221,11 +1233,32 @@ export default function MacBookOpening({
       renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+
+    const start = () => {
+      if (disposed) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(frame);
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+    };
+    startRef.current = start;
+    stopRef.current = stop;
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+    };
+    renderer.domElement.addEventListener("webglcontextlost", handleContextLost);
+
+    if (active) {
+      start();
+    }
 
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
       ro.disconnect();
       if (enableParallax) window.removeEventListener('mousemove', onMouseMove);
       disposables.forEach((d) => d.dispose());

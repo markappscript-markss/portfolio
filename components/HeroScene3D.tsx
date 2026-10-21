@@ -1450,14 +1450,15 @@ export default function HeroScene3D() {
     let isRunning = false;
     let isOverlayOpen = false;
     let animationFrameId: number;
-    const clock = new THREE.Clock();
+    let lastTime = performance.now();
 
     const animate = () => {
       if (!isRunning || isOverlayOpen) return;
       animationFrameId = requestAnimationFrame(animate);
 
-      const delta = Math.min(clock.getDelta(), 0.05);
       const now = performance.now();
+      const delta = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
       renderTypewriter(now, delta);
       glitchUniforms.uTime.value = now * 0.001;
 
@@ -1535,7 +1536,7 @@ export default function HeroScene3D() {
       if (hasStarted3D) {
         if (!isRunning) {
           isRunning = true;
-          clock.getDelta();
+          lastTime = performance.now();
           animate();
         }
         return;
@@ -1719,7 +1720,7 @@ export default function HeroScene3D() {
         requestAnimationFrame(() => {
           if (isOverlayOpen) {
             isOverlayOpen = false;
-            clock.getDelta();
+            lastTime = performance.now();
             if (isRunning) {
               animate();
             }

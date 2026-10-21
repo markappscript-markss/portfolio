@@ -181,6 +181,7 @@ export default function TabletOutline3D({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const activeRef = useRef(active);
   activeRef.current = active;
+  const startRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const container = mountRef.current;
@@ -503,9 +504,8 @@ export default function TabletOutline3D({
     let reqId: number;
 
     const animate = (now: number) => {
-      reqId = requestAnimationFrame(animate);
-
       if (!activeRef.current) return;
+      reqId = requestAnimationFrame(animate);
 
       const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
       if (!container.clientWidth || container.clientHeight <= 0) return;
@@ -562,6 +562,22 @@ export default function TabletOutline3D({
     };
     updateSize();
 
+    const start = () => {
+      cancelAnimationFrame(reqId);
+      reqId = requestAnimationFrame(animate);
+    };
+    startRef.current = start;
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(reqId);
+    };
+    renderer.domElement.addEventListener("webglcontextlost", handleContextLost);
+
+    if (active) {
+      start();
+    }
+
     let resizeObserver: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(() => updateSize());
@@ -571,6 +587,7 @@ export default function TabletOutline3D({
 
     return () => {
       cancelAnimationFrame(reqId);
+      renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
       if (resizeObserver) resizeObserver.disconnect();
       window.removeEventListener("resize", updateSize);
       video.removeEventListener("loadeddata", tryPlay);
@@ -615,6 +632,10 @@ export default function TabletOutline3D({
   ]);
 
   useEffect(() => {
+    activeRef.current = active;
+    if (active) {
+      startRef.current?.();
+    }
     if (videoRef.current) {
       if (active) {
         videoRef.current.play().catch(() => {});

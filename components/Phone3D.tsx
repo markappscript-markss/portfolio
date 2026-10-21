@@ -289,8 +289,15 @@ export default function Phone3D({
 }: Phone3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const playRef = useRef<() => void>(() => { });
+  const resumeRef = useRef<() => void>(() => { });
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
+
+  useEffect(() => {
+    if (!paused) {
+      resumeRef.current?.();
+    }
+  }, [paused]);
 
   const liveProps = useRef({
     bodyColor,
@@ -1189,13 +1196,32 @@ export default function Phone3D({
 
       controls.update();
       renderer.render(scene, camera);
+      if (!pausedRef.current) {
+        raf = requestAnimationFrame(frame);
+      }
+    };
+
+    const resume = () => {
+      if (disposed) return;
+      cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+    resumeRef.current = resume;
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+    };
+    renderer.domElement.addEventListener("webglcontextlost", handleContextLost);
+
+    if (!pausedRef.current) {
+      raf = requestAnimationFrame(frame);
+    }
 
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
       renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
       ro.disconnect();
       controls.dispose();

@@ -326,9 +326,16 @@ export default function TabletReveal({
       })
       .catch((err) => console.error(err));
 
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+    };
+    el.addEventListener('webglcontextlost', handleContextLost);
+
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      el.removeEventListener('webglcontextlost', handleContextLost);
       window.removeEventListener('resize', handleWindowResize);
       disposables.forEach((d) => d.dispose());
       renderer.dispose();

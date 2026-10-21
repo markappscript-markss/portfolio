@@ -1484,7 +1484,7 @@ export default function WorkOverlay2({
               className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[41%] md:right-[7%] top-1/2 -translate-y-1/2 h-[78vh] sm:h-[82vh] w-[94%] md:w-auto flex items-center justify-center pointer-events-none z-10 overflow-visible will-change-transform"
             >
               <div className="w-full h-full relative pointer-events-none overflow-visible">
-                <MacBookOpening isOpen={isOpen} />
+                <MacBookOpening isOpen={isOpen} active={isOpen && isTopmost} />
               </div>
             </div>
 
@@ -1731,7 +1731,7 @@ export default function WorkOverlay2({
                       <div className="w-full h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
                         <TabletOutline3D
                           videoSrc="/videos/lmsadm.webm"
-                          active={isOpen && isDeepDive}
+                          active={isOpen && isDeepDive && isTopmost}
                           interactiveOrbit={false}
                           showFloorShadow={false}
                           xRayMode={true}

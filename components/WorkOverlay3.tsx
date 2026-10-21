@@ -1552,7 +1552,7 @@ export default function WorkOverlay3({
                   showReplay={false}
                   showFloorShadow={false}
                   phoneScale={1.16}
-                  paused={!isOpen || isPhonePaused}
+                  paused={!isOpen || !isTopmost || isPhonePaused}
                   onReplayTrigger={(fn) => {
                     phoneReplayRef.current = fn;
                   }}

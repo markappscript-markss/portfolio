@@ -404,6 +404,10 @@ export default function WorkOverlay({
   });
 
   useEffect(() => {
+    coveredRef.current = isCovered;
+  }, [isCovered]);
+
+  useEffect(() => {
     isDeepDiveRef.current = isDeepDive;
   }, [isDeepDive]);
 
@@ -746,6 +750,7 @@ export default function WorkOverlay({
     };
 
     const handleWheel = (e: WheelEvent) => {
+      if (coveredRef.current) return;
       if (!isDeepDiveRef.current || isTransitioningRef.current || !containerRef.current) {
         if (isTransitioningRef.current || isOpen) {
           e.preventDefault();
@@ -828,12 +833,14 @@ export default function WorkOverlay({
 
     let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => {
+      if (coveredRef.current) return;
       touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (
         !isOpen ||
+        coveredRef.current ||
         isDeepDiveRef.current ||
         isTriggeringNextWorkRef.current
       ) {
@@ -1740,7 +1747,7 @@ export default function WorkOverlay({
               ref={tabletContainerRef}
               className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
             >
-              <TabletReveal showReplay={false} active={active} onComplete={handleTabletSpinComplete} scale={1.26} />
+              <TabletReveal showReplay={false} active={active && !isCovered} onComplete={handleTabletSpinComplete} scale={1.26} />
             </div>
 
             <div
