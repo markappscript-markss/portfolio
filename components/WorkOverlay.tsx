@@ -1747,7 +1747,7 @@ export default function WorkOverlay({
               ref={tabletContainerRef}
               className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
             >
-              <TabletReveal showReplay={false} active={active && !isCovered} onComplete={handleTabletSpinComplete} scale={1.26} />
+              <TabletReveal showReplay={false} active={active} onComplete={handleTabletSpinComplete} scale={1.26} />
             </div>
 
             <div
