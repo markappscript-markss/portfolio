@@ -1589,7 +1589,7 @@ export default function WorkOverlay3({
 
             <div
               ref={leftContentRef}
-              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] absolute top-[70%] sm:top-[65%] left-0 right-0 md:left-auto md:right-[17%] lg:right-[18%] xl:right-[19%] md:top-[34%] lg:top-[35%] xl:top-[36%] flex flex-col items-center text-center z-20 max-w-2xl px-6 md:px-0 pointer-events-auto will-change-transform"
+              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] absolute top-[62%] sm:top-[60%] left-0 right-0 md:left-auto md:right-[17%] lg:right-[18%] xl:right-[19%] md:top-[34%] lg:top-[35%] xl:top-[36%] flex flex-col items-center text-center z-20 max-w-2xl px-6 md:px-0 pointer-events-auto will-change-transform"
             >
               <h2
                 ref={titleRef}
