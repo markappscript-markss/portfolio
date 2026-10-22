@@ -357,7 +357,7 @@ export default function WorkOverlay3({
       return {
         scale: w < 480 ? 0.72 : 0.76,
         x: "0px",
-        y: w < 480 ? -150 : -130,
+        y: w < 480 ? -115 : -95,
         contentY: 0,
         heroHeight: w < 480 ? "62vh" : "60vh",
       };
