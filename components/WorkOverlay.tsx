@@ -671,32 +671,46 @@ export default function WorkOverlay({
       const currentDist = scrollTop + containerHeight - sectionTop;
       const totalDist = sectionHeight + containerHeight;
       const progress = totalDist > 0 ? Math.max(0, Math.min(1, currentDist / totalDist)) : 0;
+      const isMobile =
+        typeof window !== "undefined" &&
+        (window.innerWidth < 768 || (container ? container.clientWidth < 768 : false));
 
-      if (parallaxVideoRef.current) {
-        const travel = sectionHeight * 0.03;
-        const vy = (0.5 - progress) * 2 * travel;
-        if (Math.abs(vy - lastVideoY) > 0.05) {
-          lastVideoY = vy;
-          gsap.set(parallaxVideoRef.current, { y: vy, force3D: true });
+      if (!isMobile) {
+        if (parallaxVideoRef.current) {
+          const travel = sectionHeight * 0.03;
+          const vy = (0.5 - progress) * 2 * travel;
+          if (Math.abs(vy - lastVideoY) > 0.05) {
+            lastVideoY = vy;
+            gsap.set(parallaxVideoRef.current, { y: vy, force3D: true });
+          }
         }
-      }
 
-      if (nextSectionRef.current && container) {
-        const maxScroll = container.scrollHeight - container.clientHeight;
-        const remaining = Math.max(0, maxScroll - scrollTop);
-        const atBottom = remaining < 2;
-        const rawOffset = atBottom ? 0 : Math.max(0, (progress - 0.45) * 150);
-        const bottomSpan = Math.max(1, rawOffset);
-        const ratio = Math.min(1, remaining / bottomSpan);
-        const bottomFactor = ratio * ratio * (3 - 2 * ratio);
-        const nextY = atBottom ? 0 : -Math.min(rawOffset * bottomFactor, remaining);
+        if (nextSectionRef.current && container) {
+          const maxScroll = container.scrollHeight - container.clientHeight;
+          const remaining = Math.max(0, maxScroll - scrollTop);
+          const atBottom = remaining < 2;
+          const rawOffset = atBottom ? 0 : Math.max(0, (progress - 0.45) * 150);
+          const bottomSpan = Math.max(1, rawOffset);
+          const ratio = Math.min(1, remaining / bottomSpan);
+          const bottomFactor = ratio * ratio * (3 - 2 * ratio);
+          const nextY = atBottom ? 0 : -Math.min(rawOffset * bottomFactor, remaining);
 
-        if (Math.abs(nextY - lastNextY) > 0.05) {
-          lastNextY = nextY;
-          gsap.set(nextSectionRef.current, {
-            y: nextY,
-            force3D: true,
-          });
+          if (Math.abs(nextY - lastNextY) > 0.05) {
+            lastNextY = nextY;
+            gsap.set(nextSectionRef.current, {
+              y: nextY,
+              force3D: true,
+            });
+          }
+        }
+      } else {
+        if (lastVideoY !== 0 && parallaxVideoRef.current) {
+          lastVideoY = 0;
+          gsap.set(parallaxVideoRef.current, { y: 0 });
+        }
+        if (lastNextY !== 0 && nextSectionRef.current) {
+          lastNextY = 0;
+          gsap.set(nextSectionRef.current, { y: 0 });
         }
       }
 
@@ -948,8 +962,8 @@ export default function WorkOverlay({
       return {
         scale: w < 480 ? 0.72 : 0.8,
         x: "0px",
-        y: 4,
-        contentY: 4,
+        y: 0,
+        contentY: w < 480 ? -36 : -28,
         heroHeight: "55vh",
       };
     }
@@ -1345,16 +1359,21 @@ export default function WorkOverlay({
 
   const handleTabletSpinComplete = () => {
     if (!tabletContainerRef.current) return;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
     const isLarge = typeof window !== "undefined" && window.innerWidth >= 1024;
     const isTablet = typeof window !== "undefined" && window.innerWidth >= 768;
-    const targetX = isLarge ? "-13vw" : isTablet ? "-8vw" : "0px";
+    const targetX = isMobile ? "0px" : isLarge ? "-13vw" : "-8vw";
 
-    gsap.to(tabletContainerRef.current, {
-      x: targetX,
-      duration: 1.1,
-      ease: "power3.inOut",
-      force3D: true,
-    });
+    if (!isMobile) {
+      gsap.to(tabletContainerRef.current, {
+        x: targetX,
+        duration: 1.1,
+        ease: "power3.inOut",
+        force3D: true,
+      });
+    } else {
+      gsap.set(tabletContainerRef.current, { x: 0 });
+    }
 
     if (isDeepDiveRef.current) return;
 
@@ -1745,13 +1764,13 @@ export default function WorkOverlay({
           >
             <div
               ref={tabletContainerRef}
-              className="h-[80vh] sm:h-[82vh] w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
+              className="h-[44vh] sm:h-[48vh] md:h-[82vh] -mt-6 sm:-mt-8 md:mt-0 w-full shrink-0 flex items-center justify-center opacity-0 will-change-transform pointer-events-none"
             >
               <TabletReveal showReplay={false} active={active} onComplete={handleTabletSpinComplete} scale={1.26} />
             </div>
 
             <div
-              className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 pb-20 md:px-0 md:pb-0 pointer-events-auto"
+              className="w-full md:w-auto md:absolute md:top-[44%] md:left-[65%] md:-translate-x-1/2 md:-translate-y-1/2 flex flex-col items-center text-center z-30 px-6 -mt-3 sm:-mt-4 md:mt-0 pb-0 md:pb-0 pointer-events-auto"
             >
               <div
                 ref={rightContentRef}
@@ -1763,7 +1782,7 @@ export default function WorkOverlay({
                     <span className="text-red-600">Reloaded</span>.
                   </span>
                 </h2>
-                <p className="reveal-text opacity-0 mt-3 sm:mt-4 text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-600 font-sans font-medium tracking-tight select-none">
+                <p className="reveal-text opacity-0 mt-2 sm:mt-4 text-sm sm:text-base md:text-xl lg:text-2xl text-neutral-600 font-sans font-medium tracking-tight select-none">
                   Same me. Completely rebuilt.
                 </p>
 
@@ -1776,7 +1795,7 @@ export default function WorkOverlay({
                     pointerEvents: "none",
                     display: "none",
                   }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 pt-6 sm:pt-8 whitespace-nowrap z-30"
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-4 sm:pt-6 md:pt-8 whitespace-nowrap z-30"
                 >
                   <TakeALookButton
                     onClick={handleTakeALook}
@@ -1840,7 +1859,7 @@ export default function WorkOverlay({
 
             <div className="w-full bg-white text-neutral-950 relative z-20 shadow-[0_30px_70px_rgba(0,0,0,0.22)] min-h-[90vh]">
               <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-28 sm:pt-36 md:pt-48 lg:pt-52 pb-20 sm:pb-28 md:pb-36 lg:pb-40">
-                <div className="mb-8 sm:mb-10 md:mb-12">
+                <div className="mb-2 sm:mb-4 md:mb-12">
                   <h2
                     ref={whereTitleRef}
                     className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none whitespace-nowrap"
@@ -1861,8 +1880,15 @@ export default function WorkOverlay({
                 {(
                   <div className="relative w-full flex flex-col md:block select-none mb-4 sm:mb-6">
                     <div
+                      ref={macbookContainerRef}
+                      className="w-full opacity-0 will-change-transform h-[40vh] sm:h-[46vh] md:h-[68vh] -mt-2 sm:-mt-4 md:mt-0 flex items-center justify-center"
+                    >
+                      <MacBookVideo videoSrc="/macbook/demo.webm" showReplay={false} scale={1.28} offsetX={0.78} active={isDeepDive} />
+                    </div>
+
+                    <div
                       ref={whereTextRef}
-                      className="relative md:absolute md:top-14 lg:top-20 xl:top-24 md:left-0 z-10 w-full md:max-w-[215px] lg:max-w-[230px] xl:max-w-[255px] pointer-events-auto opacity-0 will-change-transform mb-8 md:mb-0"
+                      className="relative md:absolute md:top-14 lg:top-20 xl:top-24 md:left-0 z-10 w-full md:max-w-[215px] lg:max-w-[230px] xl:max-w-[255px] pointer-events-auto opacity-0 will-change-transform -mt-4 sm:-mt-6 md:mt-0 mb-8 md:mb-0"
                     >
                       <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-neutral-900 leading-[1.65] tracking-tight select-none">
                         Monotone and overly dark, the original UI suffered from stuttering animations that created unnecessary friction instead of making a strong visual statement.
@@ -1876,13 +1902,6 @@ export default function WorkOverlay({
                         </p>
                       </div>
                     </div>
-
-                    <div
-                      ref={macbookContainerRef}
-                      className="w-full opacity-0 will-change-transform h-[50vh] sm:h-[58vh] md:h-[68vh] flex items-center justify-center"
-                    >
-                      <MacBookVideo videoSrc="/macbook/demo.webm" showReplay={false} scale={1.15} offsetX={0.78} active={isDeepDive} />
-                    </div>
                   </div>
                 )}
 
@@ -1892,7 +1911,7 @@ export default function WorkOverlay({
 
             <div className={isDeepDive ? "contents" : "hidden"}>
               <>
-                <div className="relative w-full overflow-hidden z-10 bg-neutral-950" style={{ aspectRatio: "1892 / 790" }}>
+                <div className="hidden md:block relative w-full overflow-hidden z-10 bg-neutral-950 aspect-[1892/790]">
                   <div
                     ref={videoSectionRef}
                     className="relative w-full h-full overflow-hidden"
@@ -1903,18 +1922,17 @@ export default function WorkOverlay({
                       loop
                       muted
                       playsInline
-                      className="absolute left-0 w-full object-cover block will-change-transform"
-                      style={{ top: "-3%", height: "106%" }}
+                      className="absolute left-0 top-0 h-full w-full object-cover object-center md:top-[-3%] md:h-[106%] block will-change-transform"
                     >
                       <source src="/videos/videoportfolio.webm" type="video/webm" />
                     </video>
                   </div>
                 </div>
 
-                <div className="relative w-full bg-[#1c1c1f]">
+                <div className="relative w-full bg-transparent md:bg-[#1c1c1f]">
                   <div
                     ref={nextSectionRef}
-                    className="relative z-20 w-full bg-[#0f172a] text-white h-dvh min-h-dvh max-h-dvh overflow-hidden shadow-[0_-35px_80px_rgba(0,0,0,0.4),0_30px_70px_rgba(0,0,0,0.5)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
+                    className="relative z-20 w-full bg-[#0f172a] text-white h-dvh min-h-dvh max-h-dvh overflow-hidden shadow-none md:shadow-[0_-35px_80px_rgba(0,0,0,0.4),0_30px_70px_rgba(0,0,0,0.5)] will-change-transform pt-16 sm:pt-20 md:pt-24 pb-0 flex flex-col justify-between"
                     style={{ backgroundColor: "#0f172a" }}
                   >
                     <div className="max-w-7xl w-full mx-auto px-6 sm:px-12 lg:px-20 flex-1 flex flex-col min-h-0">
@@ -1941,7 +1959,7 @@ export default function WorkOverlay({
                         <div className="md:col-span-5 lg:col-span-5 pt-4 sm:pt-6 md:pt-12 lg:pt-16 flex flex-col items-start text-left bg-transparent">
                           <h2
                             ref={landedTitleRef}
-                            className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
+                            className="relative -top-8 sm:-top-6 md:top-0 font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none mb-6 sm:mb-8 shrink-0 whitespace-nowrap"
                           >
                             <span className="inline-block overflow-hidden py-1 mr-[0.26em]">
                               <span className="landed-word inline-block will-change-transform opacity-0">
@@ -1957,12 +1975,12 @@ export default function WorkOverlay({
 
                           <div
                             ref={landedTextRef}
-                            className="mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
+                            className="relative -top-20 sm:-top-16 md:top-0 mt-12 sm:mt-16 md:mt-24 lg:mt-28 opacity-0 will-change-transform flex flex-col items-start text-left bg-transparent pointer-events-auto"
                           >
                             <p className="text-base sm:text-lg lg:text-[19px] font-sans font-normal text-white leading-[1.65] tracking-tight select-none text-left bg-transparent">
                               The redesign introduces customizable visual options and a fully interactive 3D environment, brought to life with fluid animations and a distinct, charming visual identity.
                             </p>
-                            <div className="mt-6 pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
+                            <div className="mt-3 pt-2.5 md:mt-6 md:pt-4 border-t border-white/20 flex flex-col items-start text-left min-w-[200px] w-full max-w-[260px] bg-transparent">
                               <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 font-medium bg-transparent">
                                 STACK
                               </span>

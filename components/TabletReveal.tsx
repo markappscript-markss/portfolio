@@ -261,18 +261,22 @@ export default function TabletReveal({
       const elapsed = reduced ? HOLD_START + SPIN + HOLD_END : (now - t0) / 1000;
       const p = Math.min(Math.max((elapsed - HOLD_START) / SPIN, 0), 1);
       const e = ease(p);
-      const yaw = START.y + (Math.PI * 2 + END.y - START.y) * e;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const targetStart = isMobile ? { x: 0, y: 0, z: 0 } : START;
+      const targetEnd = isMobile ? { x: 0, y: 0, z: 0 } : END;
+      const yaw = targetStart.y + (Math.PI * 2 + targetEnd.y - targetStart.y) * e;
       const calm = reduced || p < 1 ? 0 : Math.min((elapsed - HOLD_START - SPIN) / 0.6, 1);
       const idle = Math.sin(elapsed * 1.0) * calm;
 
       const spinArc = Math.sin(p * Math.PI);
       camera.position.z = baseCameraZ * (1 + 0.08 * spinArc);
-      tablet.rotation.y = yaw + idle * 0.01;
+      tablet.rotation.y = yaw + (isMobile ? 0 : idle * 0.01);
       tablet.rotation.x =
-        START.x + (END.x - START.x) * e - 0.08 * spinArc + idle * 0.005;
+        targetStart.x + (targetEnd.x - targetStart.x) * e - 0.08 * spinArc + (isMobile ? 0 : idle * 0.005);
       tablet.rotation.z =
-        START.z + (END.z - START.z) * e + 0.02 * Math.sin(p * Math.PI * 2) + idle * 0.007;
-      tablet.position.y = -0.12 * spinArc + idle * 0.012;
+        targetStart.z + (targetEnd.z - targetStart.z) * e + (isMobile ? 0 : 0.02 * Math.sin(p * Math.PI * 2) + idle * 0.007);
+      tablet.position.y = -0.12 * spinArc + (isMobile ? 0 : idle * 0.012);
+      tablet.position.x = 0;
 
       if (yaw > Math.PI && !swapped) {
         swapped = true;
