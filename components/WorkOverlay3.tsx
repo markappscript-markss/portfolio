@@ -385,7 +385,9 @@ export default function WorkOverlay3({
 
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
+      containerRef.current.style.overflowX = "hidden";
       containerRef.current.scrollTop = 0;
+      containerRef.current.scrollLeft = 0;
       containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
       containerRef.current.focus();
     }
@@ -426,6 +428,7 @@ export default function WorkOverlay3({
           isTransitioningRef.current = false;
           if (containerRef.current) {
             containerRef.current.style.overflowY = "auto";
+            containerRef.current.style.overflowX = "hidden";
           }
         },
       });
@@ -517,7 +520,9 @@ export default function WorkOverlay3({
           onComplete: () => {
             if (containerRef.current) {
               containerRef.current.style.overflowY = "hidden";
+              containerRef.current.style.overflowX = "hidden";
               containerRef.current.scrollTop = 0;
+              containerRef.current.scrollLeft = 0;
               containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
             }
             if (typeof window !== "undefined") {
@@ -620,7 +625,9 @@ export default function WorkOverlay3({
 
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
+      containerRef.current.style.overflowX = "hidden";
       containerRef.current.scrollTop = 0;
+      containerRef.current.scrollLeft = 0;
       containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
 
@@ -671,7 +678,9 @@ export default function WorkOverlay3({
           canTakeALookRef.current = true;
           if (containerRef.current) {
             containerRef.current.style.overflowY = "hidden";
+            containerRef.current.style.overflowX = "hidden";
             containerRef.current.scrollTop = 0;
+            containerRef.current.scrollLeft = 0;
             containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
           }
           if (typeof window !== "undefined") {
@@ -1554,9 +1563,10 @@ export default function WorkOverlay3({
           data-lenis-prevent-wheel
           data-lenis-prevent-touch
           aria-hidden={!isOpen}
-          className={`w-full h-full bg-white overscroll-contain select-none transform-gpu will-change-transform no-scrollbar outline-none pointer-events-auto before:absolute before:-top-[2px] before:left-0 before:right-0 before:h-[3px] before:bg-white before:content-[''] before:pointer-events-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
+          className={`w-full h-full bg-white overscroll-contain select-none transform-gpu will-change-transform no-scrollbar outline-none pointer-events-auto overflow-x-hidden before:absolute before:-top-[2px] before:left-0 before:right-0 before:h-[3px] before:bg-white before:content-[''] before:pointer-events-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
             }`}
           style={{
+            overflowX: "hidden",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             outline: "1px solid transparent",
@@ -1624,7 +1634,7 @@ export default function WorkOverlay3({
 
           <div
             ref={blackSectionRef}
-            className={`w-full relative z-30 -mt-px ${isDeepDive ? "block" : "hidden"
+            className={`w-full relative z-30 -mt-px overflow-x-hidden ${isDeepDive ? "block" : "hidden"
               }`}
           >
             <div className="w-full bg-neutral-950 text-white">
@@ -1667,7 +1677,7 @@ export default function WorkOverlay3({
               </div>
             </div>
 
-            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]">
+            <div className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)] overflow-hidden">
               <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-center">
                   <div
@@ -1852,7 +1862,7 @@ export default function WorkOverlay3({
             <div className="relative w-full bg-[#1c1c1f]">
               <div
                 ref={processSectionRef}
-                className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12),0_30px_70px_rgba(0,0,0,0.5)]"
+                className="w-full bg-white text-neutral-950 relative z-20 min-h-screen py-20 sm:py-28 lg:py-32 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12),0_30px_70px_rgba(0,0,0,0.5)] overflow-hidden"
               >
                 <div className="w-full max-w-[1760px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-14">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-9 xl:gap-10 items-center">

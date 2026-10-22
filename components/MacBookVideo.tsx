@@ -151,9 +151,9 @@ export default function MacBookVideo({
       renderer.setSize(w, h, false);
       camera.aspect = a;
       camera.updateProjectionMatrix();
-      const d = Math.max(9.2, 14.2 / a);
-      camera.position.set(0, (2.4 * d) / 9.2, d);
-      camera.lookAt(0, 0.9, 0);
+      const d = Math.max(9.6, 15.6 / a);
+      camera.position.set(0.2, (2.4 * d) / 9.2, d);
+      camera.lookAt(0.2, 1.05, 0);
     };
     const ro = new ResizeObserver(resize);
     ro.observe(mount);

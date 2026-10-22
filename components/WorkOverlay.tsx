@@ -1895,9 +1895,9 @@ export default function WorkOverlay({
                   <div className="relative w-full flex flex-col md:block select-none mb-4 sm:mb-6">
                     <div
                       ref={macbookContainerRef}
-                      className="w-full opacity-0 will-change-transform h-[40vh] sm:h-[46vh] md:h-[68vh] -mt-2 sm:-mt-4 md:mt-0 flex items-center justify-center"
+                      className="w-full opacity-0 will-change-transform h-[40vh] sm:h-[46vh] md:h-[82vh] lg:h-[84vh] -mt-2 sm:-mt-4 md:-mt-6 flex items-center justify-center"
                     >
-                      <MacBookVideo videoSrc="/macbook/demo.webm" showReplay={false} scale={1.28} offsetX={0.78} active={isDeepDive} />
+                      <MacBookVideo videoSrc="/macbook/demo.webm" showReplay={false} scale={1.28} offsetX={0.7} active={isDeepDive} />
                     </div>
 
                     <div
