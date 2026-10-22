@@ -164,6 +164,16 @@ export default function WorkOverlay3({
   const [isPhonePaused, setIsPhonePaused] = useState(false);
   const isPhonePausedRef = useRef(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const openTlRef = useRef<gsap.core.Timeline | null>(null);
   const closeTlRef = useRef<gsap.core.Timeline | null>(null);
@@ -311,7 +321,7 @@ export default function WorkOverlay3({
     if (typeof window === "undefined") {
       return {
         scale: 0.91,
-        x: "-2vw",
+        x: "2vw",
         y: 80,
         contentY: 12,
         heroHeight: "53vh",
@@ -345,11 +355,11 @@ export default function WorkOverlay3({
       };
     } else {
       return {
-        scale: w < 480 ? 0.72 : 0.8,
+        scale: w < 480 ? 0.72 : 0.76,
         x: "0px",
-        y: 30 - compensate(55),
-        contentY: 4,
-        heroHeight: "55vh",
+        y: w < 480 ? -150 : -130,
+        contentY: 0,
+        heroHeight: w < 480 ? "62vh" : "60vh",
       };
     }
   };
@@ -376,6 +386,7 @@ export default function WorkOverlay3({
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
       containerRef.current.scrollTop = 0;
+      containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
       containerRef.current.focus();
     }
 
@@ -421,11 +432,13 @@ export default function WorkOverlay3({
     }
 
     if (macbookContainerRef.current) {
+      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
       gsap.killTweensOf(macbookContainerRef.current);
       gsap.to(macbookContainerRef.current, {
         scale: responsive.scale,
         x: responsive.x,
         y: responsive.y,
+        xPercent: isDesktop ? 0 : -50,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -503,9 +516,21 @@ export default function WorkOverlay3({
           ease: "power2.inOut",
           onComplete: () => {
             if (containerRef.current) {
-              containerRef.current.scrollTop = 0;
               containerRef.current.style.overflowY = "hidden";
+              containerRef.current.scrollTop = 0;
+              containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
             }
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+            }
+            setTimeout(() => {
+              if (containerRef.current) {
+                containerRef.current.scrollTop = 0;
+                containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              }
+            }, 50);
 
             setIsDeepDive(false);
             isDeepDiveRef.current = false;
@@ -518,21 +543,21 @@ export default function WorkOverlay3({
 
             if (heroSectionRef.current) {
               gsap.killTweensOf(heroSectionRef.current);
-              gsap.set(heroSectionRef.current, {
-                minHeight: "100dvh",
-                height: "100dvh",
-                maxHeight: "none",
-                paddingTop: "0rem",
-                paddingBottom: "0rem",
-              });
+              heroSectionRef.current.style.height = "";
+              heroSectionRef.current.style.minHeight = "";
+              heroSectionRef.current.style.maxHeight = "";
+              heroSectionRef.current.style.paddingTop = "";
+              heroSectionRef.current.style.paddingBottom = "";
             }
 
             if (macbookContainerRef.current) {
+              const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
               gsap.killTweensOf(macbookContainerRef.current);
               gsap.set(macbookContainerRef.current, {
                 scale: 1,
                 x: 0,
                 y: 0,
+                xPercent: isDesktop ? 0 : -50,
                 opacity: 1,
               });
             }
@@ -540,6 +565,8 @@ export default function WorkOverlay3({
             if (leftContentRef.current) {
               gsap.killTweensOf(leftContentRef.current);
               gsap.set(leftContentRef.current, { y: 0 });
+              leftContentRef.current.style.removeProperty("transform");
+              void leftContentRef.current.offsetHeight;
             }
 
             const header = document.getElementById("header-nav");
@@ -594,6 +621,7 @@ export default function WorkOverlay3({
     if (containerRef.current) {
       containerRef.current.style.overflowY = "hidden";
       containerRef.current.scrollTop = 0;
+      containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
 
     isDeepDiveRef.current = false;
@@ -631,8 +659,8 @@ export default function WorkOverlay3({
         minHeight: "100dvh",
         height: "100dvh",
         maxHeight: "none",
-        paddingTop: "0rem",
-        paddingBottom: "0rem",
+        paddingTop: "1.5rem",
+        paddingBottom: "1.5rem",
         duration: 1.15,
         ease: "power3.inOut",
         onComplete: () => {
@@ -642,8 +670,31 @@ export default function WorkOverlay3({
           setCanTakeALook(true);
           canTakeALookRef.current = true;
           if (containerRef.current) {
-            containerRef.current.scrollTop = 0;
             containerRef.current.style.overflowY = "hidden";
+            containerRef.current.scrollTop = 0;
+            containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          }
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }
+          setTimeout(() => {
+            if (containerRef.current) {
+              containerRef.current.scrollTop = 0;
+              containerRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            }
+          }, 50);
+          if (heroSectionRef.current) {
+            heroSectionRef.current.style.height = "";
+            heroSectionRef.current.style.minHeight = "";
+            heroSectionRef.current.style.maxHeight = "";
+            heroSectionRef.current.style.paddingTop = "";
+            heroSectionRef.current.style.paddingBottom = "";
+          }
+          if (leftContentRef.current) {
+            leftContentRef.current.style.removeProperty("transform");
+            void leftContentRef.current.offsetHeight;
           }
           staticCardRefs.current.forEach((el) => {
             if (el) gsap.set(el, { y: 0 });
@@ -659,11 +710,13 @@ export default function WorkOverlay3({
     }
 
     if (macbookContainerRef.current) {
+      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
       gsap.killTweensOf(macbookContainerRef.current);
       gsap.to(macbookContainerRef.current, {
         scale: 1,
         x: 0,
         y: 0,
+        xPercent: isDesktop ? 0 : -50,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -1051,6 +1104,7 @@ export default function WorkOverlay3({
     let lastFrameTime = 0;
 
     const updateStaticParallax = (scrollTop: number) => {
+      if (typeof window !== "undefined" && window.innerWidth < 768) return;
       const section = staticSectionRef.current;
       const container = containerRef.current;
       if (!section || !container) return;
@@ -1503,7 +1557,6 @@ export default function WorkOverlay3({
           className={`w-full h-full bg-white overscroll-contain select-none transform-gpu will-change-transform no-scrollbar outline-none pointer-events-auto before:absolute before:-top-[2px] before:left-0 before:right-0 before:h-[3px] before:bg-white before:content-[''] before:pointer-events-none ${isDeepDive ? "overflow-y-auto touch-pan-y" : "overflow-hidden touch-none"
             }`}
           style={{
-            WebkitOverflowScrolling: "touch",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             outline: "1px solid transparent",
@@ -1514,49 +1567,50 @@ export default function WorkOverlay3({
             className="relative w-full min-h-dvh h-dvh flex flex-col items-center justify-center p-6 text-neutral-950 overflow-hidden shrink-0 will-change-transform"
           >
             <div
-              ref={leftContentRef}
-              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] md:absolute md:top-[34%] lg:top-[35%] xl:top-[36%] md:right-[17%] lg:right-[18%] xl:right-[19%] md:left-auto flex flex-col items-center text-center z-20 max-w-2xl px-4 md:px-0 pointer-events-auto will-change-transform"
-            >
-              <h2
-                ref={titleRef}
-                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
-              >
-                AI Video and<br />Static Ads
-              </h2>
-              <p
-                ref={subtitleRef}
-                className="mt-4 sm:mt-5 text-base sm:text-lg md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-lg lg:max-w-xl will-change-transform text-center mx-auto"
-              >
-                End-to-end production of AI-driven video and static ad campaigns, blending creative strategy with high-converting motion design.
-              </p>
-              <div
-                ref={buttonWrapperRef}
-                className="mt-7 sm:mt-9 pointer-events-auto will-change-transform flex justify-center w-full"
-              >
-                <TakeALookButton
-                  id="btn-take-a-look-3"
-                  onClick={handleTakeALook}
-                  disabled={!canTakeALook || isDeepDive}
-                />
-              </div>
-            </div>
-
-            <div
               ref={macbookContainerRef}
-              className="absolute top-0 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[11%] md:right-[37%] h-dvh w-[94%] md:w-auto flex items-center justify-center pointer-events-none z-10 overflow-visible will-change-transform"
+              className="absolute top-0 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[11%] md:right-[37%] h-dvh w-full md:w-auto flex items-center justify-center pointer-events-none z-10 overflow-visible will-change-transform"
             >
-              <div className="w-full h-full relative pointer-events-none overflow-visible">
+              <div className="w-full h-full relative pointer-events-none overflow-visible flex items-center justify-center">
                 <Phone3D
                   enableOrbit={false}
                   enableGizmo={false}
                   showReplay={false}
                   showFloorShadow={false}
-                  phoneScale={1.16}
+                  phoneScale={isMobile ? 0.92 : 1.16}
+                  targetOffsetY={isMobile ? 1.35 : 0}
                   paused={!isOpen || !isTopmost || isPhonePaused}
                   onReplayTrigger={(fn) => {
                     phoneReplayRef.current = fn;
                   }}
                   className="w-full h-full pointer-events-none"
+                />
+              </div>
+            </div>
+
+            <div
+              ref={leftContentRef}
+              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] absolute top-[70%] sm:top-[65%] left-0 right-0 md:left-auto md:right-[17%] lg:right-[18%] xl:right-[19%] md:top-[34%] lg:top-[35%] xl:top-[36%] flex flex-col items-center text-center z-20 max-w-2xl px-6 md:px-0 pointer-events-auto will-change-transform"
+            >
+              <h2
+                ref={titleRef}
+                className="font-black tracking-tight text-neutral-950 text-2xl sm:text-3xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
+              >
+                AI Video and<br />Static Ads
+              </h2>
+              <p
+                ref={subtitleRef}
+                className="mt-2.5 sm:mt-3 md:mt-5 text-xs sm:text-sm md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-sm sm:max-w-md lg:max-w-xl will-change-transform text-center mx-auto"
+              >
+                End-to-end production of AI-driven video and static ad campaigns, blending creative strategy with high-converting motion design.
+              </p>
+              <div
+                ref={buttonWrapperRef}
+                className="mt-3.5 sm:mt-5 md:mt-9 pointer-events-auto will-change-transform flex justify-center w-full"
+              >
+                <TakeALookButton
+                  id="btn-take-a-look-3"
+                  onClick={handleTakeALook}
+                  disabled={!canTakeALook || isDeepDive}
                 />
               </div>
             </div>
@@ -1672,7 +1726,7 @@ export default function WorkOverlay3({
                   <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:-ml-4 xl:-ml-8">
                     <h2
                       ref={videoTitleRef}
-                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap text-center lg:text-left"
                     >
                       <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
                         <span className="video-word inline-block will-change-transform opacity-0">
@@ -1706,9 +1760,42 @@ export default function WorkOverlay3({
 
             <div
               ref={staticSectionRef}
-              className="w-full bg-[#080C18] text-white relative z-20 min-h-[110vh] sm:min-h-[118vh] xl:min-h-[125vh] pt-14 pb-4 sm:pt-16 sm:pb-6 lg:pt-20 lg:pb-8 overflow-hidden select-none"
+              className="w-full bg-[#080C18] text-white relative z-20 min-h-0 md:min-h-[110vh] xl:min-h-[125vh] py-10 md:py-0 md:pt-14 md:pb-4 lg:pt-20 lg:pb-8 overflow-hidden select-none"
             >
-              <div className="relative w-full h-[95vh] sm:h-[102vh] xl:h-[108vh] px-4 sm:px-8 lg:px-12">
+              <div className="block md:hidden w-full px-6 sm:px-8 pb-4">
+                <div className="w-full text-left">
+                  <h2 className="font-black tracking-tight text-white text-3xl leading-[1.08] select-none text-center">
+                    Static Ads
+                  </h2>
+                  <div className="mt-5 space-y-4">
+                    <p className="text-base font-sans font-normal text-neutral-300 leading-[1.65] tracking-tight select-none">
+                      Scroll-stopping static ads for affiliate marketing, Pinterest, and social media, designed around your product and your audience. Pins, feed posts, and story formats all come from the same brief, so the look stays consistent on every platform.
+                    </p>
+                    <p className="text-base font-sans font-normal text-neutral-300 leading-[1.65] tracking-tight select-none">
+                      Each design is checked against platform ad policies before delivery, covering claims, text, and visuals. Variations are easy to produce, so you can test different layouts, headlines, and images and keep the ones that perform.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 -mx-6 px-6 sm:-mx-8 sm:px-8 flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 pt-1 touch-pan-x">
+                  {STATIC_ADS.map((item) => (
+                    <div
+                      key={item.id}
+                      className="shrink-0 w-[240px] snap-center rounded-2xl overflow-hidden bg-neutral-900 border border-white/10 shadow-[0_14px_35px_rgba(0,0,0,0.6)]"
+                    >
+                      <img
+                        src={item.src}
+                        alt={item.alt}
+                        loading="lazy"
+                        draggable={false}
+                        className="w-full h-auto object-cover select-none pointer-events-none block"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="hidden md:block relative w-full h-[95vh] sm:h-[102vh] xl:h-[108vh] px-4 sm:px-8 lg:px-12">
                 <div
                   ref={staticTextRef}
                   className="absolute top-[6%] sm:top-[7%] xl:top-[8%] left-1/2 -translate-x-1/2 w-[90%] max-w-md sm:max-w-lg xl:max-w-xl text-left z-20 pointer-events-auto transform-gpu will-change-transform drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"

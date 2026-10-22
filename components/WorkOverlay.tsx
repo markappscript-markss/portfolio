@@ -405,7 +405,19 @@ export default function WorkOverlay({
 
   useEffect(() => {
     coveredRef.current = isCovered;
-  }, [isCovered]);
+    if (!isCovered && isOpen && !isDeepDiveRef.current) {
+      if (takeALookBtnWrapperRef.current) {
+        takeALookBtnWrapperRef.current.style.display = "block";
+        takeALookBtnWrapperRef.current.style.pointerEvents = "auto";
+        takeALookBtnWrapperRef.current.style.visibility = "visible";
+        gsap.set(takeALookBtnWrapperRef.current, { autoAlpha: 1, y: 0 });
+      }
+      if (rightContentRef.current) {
+        const items = rightContentRef.current.querySelectorAll(".reveal-text");
+        gsap.set(items, { opacity: 1, y: 0 });
+      }
+    }
+  }, [isCovered, isOpen]);
 
   useEffect(() => {
     isDeepDiveRef.current = isDeepDive;
@@ -1786,21 +1798,23 @@ export default function WorkOverlay({
                   Same me. Completely rebuilt.
                 </p>
 
-                <div
-                  ref={takeALookBtnWrapperRef}
-                  style={{
-                    opacity: 0,
-                    visibility: "hidden",
-                    transform: "translateY(24px)",
-                    pointerEvents: "none",
-                    display: "none",
-                  }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 pt-4 sm:pt-6 md:pt-8 whitespace-nowrap z-30"
-                >
-                  <TakeALookButton
-                    onClick={handleTakeALook}
-                    disabled={!canTakeALook || isDeepDive}
-                  />
+                <div className="relative md:absolute md:top-full md:left-0 md:right-0 flex justify-center mt-4 sm:mt-6 md:mt-0 pt-0 md:pt-8 pointer-events-none z-30 w-full">
+                  <div
+                    ref={takeALookBtnWrapperRef}
+                    style={{
+                      opacity: 0,
+                      visibility: "hidden",
+                      transform: "translateY(24px)",
+                      pointerEvents: "none",
+                      display: "none",
+                    }}
+                    className="whitespace-nowrap"
+                  >
+                    <TakeALookButton
+                      onClick={handleTakeALook}
+                      disabled={!canTakeALook || isDeepDive}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

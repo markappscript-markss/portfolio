@@ -173,6 +173,7 @@ export interface Phone3DProps {
   ambientLightColor?: string;
   showFloorShadow?: boolean;
   phoneScale?: number;
+  targetOffsetY?: number;
   paused?: boolean;
 
   enableGizmo?: boolean;
@@ -275,6 +276,7 @@ export default function Phone3D({
   ambientLightColor = "#ffffff",
   showFloorShadow = false,
   phoneScale = 1,
+  targetOffsetY = 0,
   paused = false,
 
   enableGizmo = true,
@@ -328,6 +330,7 @@ export default function Phone3D({
     ambientLightColor,
     showFloorShadow,
     phoneScale,
+    targetOffsetY,
     enableGizmo,
     gizmoMode,
     selectedPart,
@@ -364,6 +367,7 @@ export default function Phone3D({
       ambientLightColor,
       showFloorShadow,
       phoneScale,
+      targetOffsetY,
       enableGizmo,
       gizmoMode,
       selectedPart,
@@ -1173,7 +1177,8 @@ export default function Phone3D({
       const spinAngle = Math.PI * 1.1;
       const end = liveProps.current.endPosition || END;
 
-      phone.position.y = startY * (1 - e) + a * fAmp;
+      const targetOffsetY = liveProps.current.targetOffsetY ?? 0;
+      phone.position.y = (startY - targetOffsetY) * (1 - e) + targetOffsetY + a * fAmp;
       phone.rotation.set(
         end.x + b * tAmp,
         end.y - spinAngle * (1 - s) + a * (tAmp * 1.3),

@@ -20,14 +20,20 @@ interface WorkOverlay2Props {
 
 const EMPLOYEE_CARDS = [
   {
+    num: "01",
+    label: "OVERVIEW",
     src: "/images/lmsemp.webp",
     alt: "Employee View - Balances and Overview",
   },
   {
+    num: "02",
+    label: "LEAVE FILING",
     src: "/images/lmsemp2.webp",
     alt: "Employee View - Leave Filing",
   },
   {
+    num: "03",
+    label: "SCHEDULE",
     src: "/images/lmsemp3.webp",
     alt: "Employee View - Team Schedule",
   },
@@ -188,7 +194,7 @@ export default function WorkOverlay2({
       return {
         scale: 0.91,
         x: "-2vw",
-        y: 80,
+        y: 12,
         contentY: 12,
         heroHeight: "53vh",
       };
@@ -198,7 +204,7 @@ export default function WorkOverlay2({
       return {
         scale: 0.91,
         x: "-2vw",
-        y: 80,
+        y: 12,
         contentY: 12,
         heroHeight: "53vh",
       };
@@ -206,7 +212,7 @@ export default function WorkOverlay2({
       return {
         scale: 0.91,
         x: "-2vw",
-        y: 80,
+        y: 12,
         contentY: 12,
         heroHeight: "53vh",
       };
@@ -214,17 +220,17 @@ export default function WorkOverlay2({
       return {
         scale: 0.88,
         x: "-6.6vw",
-        y: 50,
+        y: 8,
         contentY: 8,
         heroHeight: "55vh",
       };
     } else {
       return {
-        scale: w < 480 ? 0.72 : 0.8,
+        scale: w < 480 ? 0.68 : 0.75,
         x: "0px",
-        y: 30,
-        contentY: 4,
-        heroHeight: "55vh",
+        y: w < 480 ? -12 : -8,
+        contentY: w < 480 ? -50 : -38,
+        heroHeight: w < 480 ? "56vh" : "54vh",
       };
     }
   };
@@ -299,11 +305,13 @@ export default function WorkOverlay2({
     }
 
     if (macbookContainerRef.current) {
+      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
       gsap.killTweensOf(macbookContainerRef.current);
       gsap.to(macbookContainerRef.current, {
         scale: responsive.scale,
         x: responsive.x,
         y: responsive.y,
+        yPercent: isDesktop ? -50 : 0,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -389,11 +397,13 @@ export default function WorkOverlay2({
             }
 
             if (macbookContainerRef.current) {
+              const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
               gsap.killTweensOf(macbookContainerRef.current);
               gsap.set(macbookContainerRef.current, {
                 scale: 1,
                 x: 0,
                 y: 0,
+                yPercent: isDesktop ? -50 : 0,
                 opacity: 1,
               });
             }
@@ -517,11 +527,13 @@ export default function WorkOverlay2({
     }
 
     if (macbookContainerRef.current) {
+      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
       gsap.killTweensOf(macbookContainerRef.current);
       gsap.to(macbookContainerRef.current, {
         scale: 1,
         x: 0,
         y: 0,
+        yPercent: isDesktop ? -50 : 0,
         duration: 1.15,
         ease: "power3.inOut",
         force3D: true,
@@ -600,10 +612,12 @@ export default function WorkOverlay2({
       resizeTimer = setTimeout(() => {
         if (!macbookContainerRef.current || !heroSectionRef.current || isTransitioningRef.current) return;
         const responsive = getResponsiveSettings();
+        const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
         gsap.to(macbookContainerRef.current, {
           scale: responsive.scale,
           x: responsive.x,
           y: responsive.y,
+          yPercent: isDesktop ? -50 : 0,
           duration: 0.35,
           ease: "power2.out",
         });
@@ -651,8 +665,13 @@ export default function WorkOverlay2({
         const paragraphs = employeeTextRef.current.querySelectorAll("p");
         gsap.set(paragraphs, { opacity: 0, y: 40 });
       }
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
       if (employeeCardsRef.current) {
-        gsap.set(employeeCardsRef.current, { opacity: 0, y: 70, scale: 0.9 });
+        gsap.set(employeeCardsRef.current, {
+          opacity: isMobile ? 1 : 0,
+          y: isMobile ? 0 : 70,
+          scale: isMobile ? 1 : 0.9,
+        });
       }
       return;
     }
@@ -660,6 +679,7 @@ export default function WorkOverlay2({
     const container = containerRef.current;
     if (!container) return;
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
     const words = employeeTitleRef.current?.querySelectorAll(".emp-word");
     if (!hasRevealedEmployeeRef.current) {
       if (words && words.length) {
@@ -670,7 +690,11 @@ export default function WorkOverlay2({
         gsap.set(paragraphs, { opacity: 0, y: 40 });
       }
       if (employeeCardsRef.current) {
-        gsap.set(employeeCardsRef.current, { opacity: 0, y: 70, scale: 0.9 });
+        gsap.set(employeeCardsRef.current, {
+          opacity: isMobile ? 1 : 0,
+          y: isMobile ? 0 : 70,
+          scale: isMobile ? 1 : 0.9,
+        });
       }
     }
 
@@ -680,12 +704,16 @@ export default function WorkOverlay2({
 
       const tl = gsap.timeline();
       if (employeeCardsRef.current) {
-        tl.fromTo(
-          employeeCardsRef.current,
-          { opacity: 0, y: 70, scale: 0.9 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: "power3.out", force3D: true },
-          0
-        );
+        if (isMobile) {
+          gsap.set(employeeCardsRef.current, { opacity: 1, y: 0, scale: 1 });
+        } else {
+          tl.fromTo(
+            employeeCardsRef.current,
+            { opacity: 0, y: 70, scale: 0.9 },
+            { opacity: 1, y: 0, scale: 1, duration: 1.05, ease: "power3.out", force3D: true },
+            0
+          );
+        }
       }
       if (words && words.length) {
         tl.fromTo(
@@ -1214,6 +1242,17 @@ export default function WorkOverlay2({
         gsap.killTweensOf(wrapperRef.current);
         gsap.set(wrapperRef.current, { display: "block", autoAlpha: 1 });
       }
+      if (macbookContainerRef.current) {
+        const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
+        gsap.killTweensOf(macbookContainerRef.current);
+        gsap.set(macbookContainerRef.current, {
+          scale: 1,
+          x: 0,
+          y: 0,
+          yPercent: isDesktop ? -50 : 0,
+          opacity: 1,
+        });
+      }
       if (curvePathRef.current) {
         gsap.killTweensOf(curvePathRef.current);
         curvePathRef.current.setAttribute("d", "M 0 100 Q 50 0 100 100 L 100 100 L 0 100 Z");
@@ -1449,42 +1488,42 @@ export default function WorkOverlay2({
         >
           <main
             ref={heroSectionRef}
-            className="relative w-full min-h-dvh h-dvh flex flex-col items-center justify-center p-6 text-neutral-950 overflow-hidden shrink-0 will-change-transform"
+            className="relative w-full min-h-dvh h-dvh flex flex-col items-center justify-center p-4 sm:p-6 md:p-6 text-neutral-950 overflow-hidden shrink-0 will-change-transform"
           >
             <div
+              ref={macbookContainerRef}
+              className="relative md:absolute w-full md:w-auto h-[40vh] sm:h-[44vh] md:h-[78vh] sm:md:h-[82vh] shrink-0 flex items-center justify-center pointer-events-none z-10 overflow-visible will-change-transform md:left-[41%] md:right-[7%] md:top-1/2 md:-translate-y-1/2 md:translate-x-0 -mt-2 sm:-mt-4 md:mt-0"
+            >
+              <div className="w-full h-full relative pointer-events-none overflow-visible flex items-center justify-center">
+                <MacBookOpening isOpen={isOpen} active={isOpen && isTopmost} />
+              </div>
+            </div>
+
+            <div
               ref={leftContentRef}
-              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] md:absolute md:top-[34%] lg:top-[35%] xl:top-[36%] md:left-[13%] lg:left-[14%] xl:left-[15%] flex flex-col items-center text-center z-20 max-w-2xl px-4 md:px-0 pointer-events-auto will-change-transform"
+              className="w-full md:w-[38%] lg:w-[37%] xl:w-[36%] relative md:absolute top-auto md:top-[34%] lg:top-[35%] xl:top-[36%] left-auto md:left-[13%] lg:left-[14%] xl:left-[15%] flex flex-col items-center text-center z-20 max-w-2xl px-4 md:px-0 pointer-events-auto will-change-transform -mt-2 sm:-mt-3 md:mt-0"
             >
               <h2
                 ref={titleRef}
-                className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
+                className="font-black tracking-tight text-neutral-950 text-2xl sm:text-3xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none will-change-transform text-center"
               >
                 Leave Management<br />System
               </h2>
               <p
                 ref={subtitleRef}
-                className="mt-4 sm:mt-5 text-base sm:text-lg md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-lg lg:max-w-xl will-change-transform text-center mx-auto"
+                className="mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm md:text-lg lg:text-xl text-neutral-600 font-sans font-medium tracking-tight leading-relaxed select-none max-w-sm sm:max-w-md lg:max-w-xl will-change-transform text-center mx-auto"
               >
                 Handles time-off filings, manager approvals, and live leave balances in a single dashboard. Built to cut out back-and-forth communication and keep workforce scheduling transparent.
               </p>
               <div
                 ref={buttonWrapperRef}
-                className="mt-7 sm:mt-9 pointer-events-auto will-change-transform flex justify-center w-full"
+                className="mt-4 sm:mt-6 md:mt-9 pointer-events-auto will-change-transform flex justify-center w-full"
               >
                 <TakeALookButton
                   id="btn-take-a-look-2"
                   onClick={handleTakeALook}
                   disabled={!canTakeALook || isDeepDive}
                 />
-              </div>
-            </div>
-
-            <div
-              ref={macbookContainerRef}
-              className="absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[41%] md:right-[7%] top-1/2 -translate-y-1/2 h-[78vh] sm:h-[82vh] w-[94%] md:w-auto flex items-center justify-center pointer-events-none z-10 overflow-visible will-change-transform"
-            >
-              <div className="w-full h-full relative pointer-events-none overflow-visible">
-                <MacBookOpening isOpen={isOpen} active={isOpen && isTopmost} />
               </div>
             </div>
 
@@ -1501,7 +1540,7 @@ export default function WorkOverlay2({
               }`}
           >
             <div className="w-full bg-neutral-950 text-white">
-              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-16 sm:pt-20 pb-28 sm:pb-36">
+              <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-12 sm:pt-16 md:pt-20 pb-12 sm:pb-20 md:pb-36">
                 <div className="flex flex-wrap items-start gap-10 sm:gap-14 md:gap-20 lg:gap-24 pb-12 border-b border-white/10 select-none">
                   <div>
                     <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-400">
@@ -1542,16 +1581,58 @@ export default function WorkOverlay2({
 
             <div
               ref={employeeSectionRef}
-              className="w-full bg-[#F4EFE6] text-neutral-950 relative z-20 min-h-screen py-24 sm:py-32 lg:py-36 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]"
+              className="w-full bg-[#F4EFE6] text-neutral-950 relative z-20 min-h-0 lg:min-h-screen py-10 sm:py-16 lg:py-36 flex items-center shadow-[0_-30px_60px_rgba(0,0,0,0.12)]"
             >
               <div className="w-full max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-12 xl:gap-14 items-center">
                   <div
                     ref={employeeCardsRef}
-                    className="lg:col-span-7 xl:col-span-7 flex flex-col items-center lg:items-start w-full will-change-transform py-6 opacity-0"
+                    className="lg:col-span-7 xl:col-span-7 flex flex-col items-center lg:items-start w-full will-change-transform pt-1 pb-0 sm:py-4 lg:py-6 opacity-100 lg:opacity-0"
                   >
+                    <div className="block lg:hidden w-full">
+                      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-neutral-950/10 border border-neutral-900/15 mb-2.5 sm:mb-4 max-w-full overflow-x-auto no-scrollbar">
+                        {EMPLOYEE_CARDS.map((card, index) => {
+                          const isSelected = activeEmpCard === index;
+                          return (
+                            <button
+                              key={card.src}
+                              type="button"
+                              onClick={() => handleCardClick(index)}
+                              className={`flex-1 min-w-0 py-2 sm:py-2.5 px-3 sm:px-4 rounded-full text-[11px] sm:text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 select-none whitespace-nowrap ${
+                                isSelected
+                                  ? "bg-neutral-950 text-white shadow-md"
+                                  : "text-neutral-700 hover:text-neutral-950 hover:bg-black/5"
+                              }`}
+                            >
+                              <span className={isSelected ? "text-white/60" : "text-neutral-500"}>
+                                {card.num}
+                              </span>
+                              <span className="truncate">{card.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-[2px] border-neutral-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                        {EMPLOYEE_CARDS.map((card, index) => (
+                          <img
+                            key={card.src}
+                            src={card.src}
+                            alt={card.alt}
+                            className={`absolute inset-0 w-full h-full object-cover object-left-top select-none pointer-events-none transition-opacity duration-300 ${
+                              activeEmpCard === index ? "opacity-100" : "opacity-0"
+                            }`}
+                            loading="lazy"
+                          />
+                        ))}
+                        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-1 rounded-full bg-neutral-950/75 backdrop-blur-md text-[10px] font-mono uppercase tracking-widest text-white/90 border border-white/10 pointer-events-none">
+                          {EMPLOYEE_CARDS[activeEmpCard].label}
+                        </div>
+                      </div>
+                    </div>
+
                     <div
-                      className="relative w-full max-w-[920px] xl:max-w-[1020px] aspect-[1901/905] select-none cursor-pointer"
+                      className="hidden lg:block relative w-full max-w-[920px] xl:max-w-[1020px] aspect-[1901/905] select-none cursor-pointer"
                       onClick={() => handleCardClick()}
                     >
                       {EMPLOYEE_CARDS.map((card, idx) => {
@@ -1591,10 +1672,10 @@ export default function WorkOverlay2({
                     </div>
                   </div>
 
-                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
+                  <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full pl-0 lg:pl-4 xl:pl-8 -mt-1 sm:mt-0">
                     <h2
                       ref={employeeTitleRef}
-                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none w-full text-center lg:text-left"
                     >
                       <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
                         <span className="emp-word inline-block will-change-transform opacity-0">
@@ -1610,7 +1691,7 @@ export default function WorkOverlay2({
 
                     <div
                       ref={employeeTextRef}
-                      className="mt-6 sm:mt-7 space-y-4 max-w-2xl"
+                      className="mt-2.5 sm:mt-4 lg:mt-7 space-y-2.5 sm:space-y-4 max-w-2xl"
                     >
                       <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
                         Gives employees a simple way to file for time off and check how many leave days they have left, without having to message HR.
@@ -1626,21 +1707,21 @@ export default function WorkOverlay2({
 
             <div
               ref={managerSectionRef}
-              className="w-full bg-[#EADFC9] text-neutral-950 relative z-20 min-h-[110vh] pt-24 sm:pt-32 lg:pt-36 xl:pt-40 pb-36 sm:pb-48 lg:pb-56 xl:pb-64 flex items-center justify-center"
+              className="w-full bg-[#EADFC9] text-neutral-950 relative z-20 min-h-0 lg:min-h-[110vh] py-10 sm:py-16 lg:pt-36 xl:pt-40 lg:pb-56 xl:pb-64 flex items-center justify-center"
             >
               <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 xl:gap-14 w-full">
-                  <div className="w-full lg:w-[32%] xl:w-[27%] shrink-0 flex flex-col justify-center text-left">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-10 xl:gap-14 w-full">
+                  <div className="w-full lg:w-[32%] xl:w-[27%] shrink-0 flex flex-col justify-center items-center lg:items-start text-center lg:text-left">
                     <h2
                       ref={managerTitleRef}
-                      className="font-black tracking-tight text-neutral-950 text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl leading-[1.02] select-none"
+                      className="font-black tracking-tight text-neutral-950 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.08] select-none w-full text-center lg:text-left"
                     >
-                      <span className="block overflow-hidden py-0.5 sm:py-1">
+                      <span className="inline-block overflow-hidden py-0.5 sm:py-1 mr-[0.28em]">
                         <span className="man-word inline-block will-change-transform opacity-0">
                           Manager
                         </span>
                       </span>
-                      <span className="block overflow-hidden py-0.5 sm:py-1">
+                      <span className="inline-block overflow-hidden py-0.5 sm:py-1">
                         <span className="man-word inline-block will-change-transform opacity-0">
                           View
                         </span>
@@ -1649,7 +1730,7 @@ export default function WorkOverlay2({
 
                     <div
                       ref={managerTextRef}
-                      className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                      className="mt-2.5 sm:mt-4 lg:mt-8 space-y-2.5 sm:space-y-4 max-w-xl"
                     >
                       <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-neutral-800 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
                         Covers everything in the employee view, plus the tools needed to run a team&apos;s day-to-day schedule and handle incoming requests.
@@ -1663,53 +1744,97 @@ export default function WorkOverlay2({
                   <div className="w-full lg:w-[68%] xl:w-[73%] flex-1 min-w-0">
                     <div
                       ref={managerAccordionRef}
-                      className="w-full flex items-stretch gap-3 sm:gap-4 lg:gap-4 h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] select-none will-change-transform opacity-0"
+                      className="w-full select-none will-change-transform opacity-0"
                     >
-                      {ACCORDION_ITEMS.map((item, index) => {
-                        const isExpanded = activeAccordion === index;
+                      <div className="block lg:hidden w-full">
+                        <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-[#141b27]/10 border border-neutral-900/15 mb-2.5 sm:mb-4 max-w-full overflow-x-auto no-scrollbar">
+                          {ACCORDION_ITEMS.map((item, index) => {
+                            const isSelected = activeAccordion === index;
+                            return (
+                              <button
+                                key={item.num}
+                                type="button"
+                                onClick={() => setActiveAccordion(index)}
+                                className={`flex-1 min-w-0 py-2 sm:py-2.5 px-3 sm:px-4 rounded-full text-[11px] sm:text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 select-none whitespace-nowrap ${
+                                  isSelected
+                                    ? "bg-[#141b27] text-white shadow-md"
+                                    : "text-neutral-700 hover:text-neutral-950 hover:bg-black/5"
+                                }`}
+                              >
+                                <span className={isSelected ? "text-white/60" : "text-neutral-500"}>
+                                  {item.num}
+                                </span>
+                                <span className="truncate">{item.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
 
-                        return (
-                          <div
-                            key={item.num}
-                            onClick={() => setActiveAccordion(index)}
-                            className={`accordion-panel relative rounded-2xl sm:rounded-3xl lg:rounded-[28px] overflow-hidden transition-[flex] duration-700 ease-[cubic-bezier(0.25,1,0.35,1)] transform-gpu border-[2px] border-neutral-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)] ${isExpanded
-                              ? "flex-[1_1_0%] cursor-default bg-white"
-                              : "flex-[0_0_64px] sm:flex-[0_0_74px] lg:flex-[0_0_84px] xl:flex-[0_0_92px] cursor-pointer bg-[#141b27] group hover:border-neutral-950"
-                              }`}
-                          >
+                        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-[2px] border-neutral-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                          {ACCORDION_ITEMS.map((item, index) => (
                             <img
+                              key={item.num}
                               src={item.src}
                               alt={item.alt}
-                              className={`absolute top-0 left-0 h-full min-w-[1200px] w-full max-w-none object-cover object-left-top select-none pointer-events-none transition-opacity duration-500 ease-out transform-gpu rounded-[22px] sm:rounded-[26px] ${isExpanded
-                                ? "opacity-100"
-                                : "opacity-15"
-                                }`}
+                              className={`absolute inset-0 w-full h-full object-cover object-left-top select-none pointer-events-none transition-opacity duration-300 ${
+                                activeAccordion === index ? "opacity-100" : "opacity-0"
+                              }`}
                               loading="lazy"
                             />
+                          ))}
+                          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-1 rounded-full bg-neutral-950/75 backdrop-blur-md text-[10px] font-mono uppercase tracking-widest text-white/90 border border-white/10 pointer-events-none">
+                            {ACCORDION_ITEMS[activeAccordion].label}
+                          </div>
+                        </div>
+                      </div>
 
+                      <div className="hidden lg:flex items-stretch gap-3 sm:gap-4 lg:gap-4 h-[640px] xl:h-[690px] 2xl:h-[720px] select-none">
+                        {ACCORDION_ITEMS.map((item, index) => {
+                          const isExpanded = activeAccordion === index;
+
+                          return (
                             <div
-                              className={`absolute inset-0 z-10 w-full h-full flex flex-col items-center justify-between py-6 sm:py-8 px-1 transition-opacity duration-500 ease-out ${isExpanded
-                                ? "opacity-0 pointer-events-none"
-                                : "opacity-100 bg-[#131924]/92"
+                              key={item.num}
+                              onClick={() => setActiveAccordion(index)}
+                              className={`accordion-panel relative rounded-2xl sm:rounded-3xl lg:rounded-[28px] overflow-hidden transition-[flex] duration-700 ease-[cubic-bezier(0.25,1,0.35,1)] transform-gpu border-[2px] border-neutral-900/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)] ${isExpanded
+                                ? "flex-[1_1_0%] cursor-default bg-white"
+                                : "flex-[0_0_84px] xl:flex-[0_0_92px] cursor-pointer bg-[#141b27] group hover:border-neutral-950"
                                 }`}
                             >
-                              <span className="text-xs sm:text-sm font-mono font-semibold text-white/50 group-hover:text-white/80 transition-colors">
-                                {item.num}
-                              </span>
+                              <img
+                                src={item.src}
+                                alt={item.alt}
+                                className={`absolute top-0 left-0 h-full min-w-[1200px] w-full max-w-none object-cover object-left-top select-none pointer-events-none transition-opacity duration-500 ease-out transform-gpu rounded-[22px] sm:rounded-[26px] ${isExpanded
+                                  ? "opacity-100"
+                                  : "opacity-15"
+                                  }`}
+                                loading="lazy"
+                              />
 
-                              <div className="flex-1 flex items-center justify-center my-4 overflow-hidden">
-                                <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/80 group-hover:text-white whitespace-nowrap [writing-mode:vertical-rl] rotate-180 select-none transition-colors">
-                                  {item.label}
+                              <div
+                                className={`absolute inset-0 z-10 w-full h-full flex flex-col items-center justify-between py-6 sm:py-8 px-1 transition-opacity duration-500 ease-out ${isExpanded
+                                  ? "opacity-0 pointer-events-none"
+                                  : "opacity-100 bg-[#131924]/92"
+                                  }`}
+                              >
+                                <span className="text-xs sm:text-sm font-mono font-semibold text-white/50 group-hover:text-white/80 transition-colors">
+                                  {item.num}
                                 </span>
-                              </div>
 
-                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/25 bg-white/5 flex items-center justify-center text-white/70 group-hover:border-white/60 group-hover:bg-white/20 group-hover:text-white group-hover:scale-110 transition-transform duration-300">
-                                <span className="text-base sm:text-lg font-light leading-none -translate-y-[0.5px]">+</span>
+                                <div className="flex-1 flex items-center justify-center my-4 overflow-hidden">
+                                  <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/80 group-hover:text-white whitespace-nowrap [writing-mode:vertical-rl] rotate-180 select-none transition-colors">
+                                    {item.label}
+                                  </span>
+                                </div>
+
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/25 bg-white/5 flex items-center justify-center text-white/70 group-hover:border-white/60 group-hover:bg-white/20 group-hover:text-white group-hover:scale-110 transition-transform duration-300">
+                                  <span className="text-base sm:text-lg font-light leading-none -translate-y-[0.5px]">+</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1719,16 +1844,16 @@ export default function WorkOverlay2({
             <div className="relative w-full bg-[#1c1c1f]">
               <div
                 ref={tabletSectionRef}
-                className="w-full bg-[#0f172a] text-white relative z-20 min-h-screen flex items-center justify-center py-16 sm:py-20 lg:py-24"
+                className="w-full bg-[#0f172a] text-white relative z-20 min-h-0 lg:min-h-screen flex items-center justify-center pt-10 sm:pt-14 lg:pt-24 pb-32 sm:pb-36 lg:pb-28"
                 style={{ backgroundColor: "#0f172a" }}
               >
                 <div className="w-full max-w-[1840px] mx-auto px-6 sm:px-10 lg:px-14 xl:px-16">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6 lg:gap-10 xl:gap-14 items-center">
                     <div
                       ref={tabletWrapperRef}
                       className="lg:col-span-7 xl:col-span-7 w-full flex items-center justify-center pointer-events-none select-none opacity-0 will-change-transform"
                     >
-                      <div className="w-full h-[480px] sm:h-[540px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
+                      <div className="w-full h-[280px] sm:h-[380px] md:h-[600px] lg:h-[640px] xl:h-[690px] 2xl:h-[720px] relative pointer-events-none select-none">
                         <TabletOutline3D
                           videoSrc="/videos/lmsadm.webm"
                           active={isOpen && isDeepDive && isTopmost}
@@ -1741,10 +1866,10 @@ export default function WorkOverlay2({
                       </div>
                     </div>
 
-                    <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-left w-full pl-0 lg:pl-4 xl:pl-8">
+                    <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full pl-0 lg:pl-4 xl:pl-8 -mt-2 sm:mt-0">
                       <h2
                         ref={adminTitleRef}
-                        className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none whitespace-nowrap"
+                        className="font-black tracking-tight text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.08] select-none w-full text-center lg:text-left"
                       >
                         <span className="inline-block overflow-hidden py-1 mr-[0.28em]">
                           <span className="admin-word inline-block will-change-transform opacity-0">
@@ -1760,7 +1885,7 @@ export default function WorkOverlay2({
 
                       <div
                         ref={adminTextRef}
-                        className="mt-6 sm:mt-8 space-y-4 max-w-xl"
+                        className="mt-2.5 sm:mt-4 lg:mt-8 space-y-2.5 sm:space-y-4 max-w-xl"
                       >
                         <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
                           Built around role-based access control (RBAC), giving HR and operations top-level access to oversee requests across every department, manage company-wide rules, and file their own leave.
@@ -1768,7 +1893,7 @@ export default function WorkOverlay2({
                         <p className="text-base sm:text-lg md:text-xl lg:text-[19px] xl:text-[20px] font-sans font-normal text-white/90 leading-[1.65] tracking-tight select-none opacity-0 will-change-transform">
                           Admins control exactly who can view, request, or approve time off by structuring departments and assigning user roles. They can also track leave usage by team, configure policies and activity logs, and get automatic alerts whenever a request sits unapproved for more than two days.
                         </p>
-                        <div className="admin-cta pt-3 sm:pt-4 flex justify-start opacity-0 will-change-transform">
+                        <div className="admin-cta pt-4 sm:pt-6 flex justify-center lg:justify-start opacity-0 will-change-transform">
                           <TakeALookButton
                             id="btn-view-demo-admin"
                             label="VIEW DEMO"
