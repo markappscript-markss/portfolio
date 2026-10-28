@@ -53,6 +53,7 @@ export default function LoadingScreen() {
     let isIntroFinished = false;
     let isAssetsFinished = false;
     let hasExited = false;
+    const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       const tryExit = () => {
@@ -81,7 +82,7 @@ export default function LoadingScreen() {
           exitTl.to(
             col,
             {
-              yPercent: -100,
+              [isMobile ? "xPercent" : "yPercent"]: -100,
               duration: 1.0,
               ease: "power4.inOut",
               onStart: () => {
@@ -183,7 +184,7 @@ export default function LoadingScreen() {
       } else {
         window.addEventListener("load", updateProgress, { once: true });
       }
-    }, containerRef);
+    }, containerRef.current || undefined);
 
     return () => {
       ctx.revert();
@@ -198,7 +199,7 @@ export default function LoadingScreen() {
       ref={containerRef}
       className="fixed inset-0 z-[9999] w-screen h-screen overflow-hidden select-none pointer-events-auto"
     >
-      <div className="absolute inset-0 w-full h-full grid grid-cols-4 grid-rows-1 gap-0">
+      <div className="absolute inset-0 w-full h-full grid grid-cols-1 grid-rows-4 md:grid-cols-4 md:grid-rows-1 gap-0">
         {IMAGES.map((src, index) => (
           <div
             key={src}
@@ -212,10 +213,18 @@ export default function LoadingScreen() {
             }}
           >
             <div
-              className="absolute top-0 h-full flex items-center justify-center pointer-events-none select-none z-0"
+              className={`absolute flex items-center justify-center pointer-events-none select-none z-0 ${
+                index === 0
+                  ? "top-0 left-0"
+                  : index === 1
+                  ? "-top-[25vh] md:top-0 left-0 md:-left-[25vw]"
+                  : index === 2
+                  ? "-top-[50vh] md:top-0 left-0 md:-left-[50vw]"
+                  : "-top-[75vh] md:top-0 left-0 md:-left-[75vw]"
+              }`}
               style={{
                 width: "100vw",
-                left: `-${index * 25}vw`,
+                height: "100vh",
               }}
             >
               <span
