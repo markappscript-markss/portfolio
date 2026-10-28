@@ -447,10 +447,10 @@ export default function WorkArchive({
           outline: "1px solid transparent",
         }}
       >
-        <div className="w-full pt-24 sm:pt-28 lg:pt-32 px-6 sm:px-10 lg:px-16 pointer-events-auto shrink-0 flex justify-center text-center">
+        <div className="w-full pt-16 sm:pt-28 lg:pt-32 px-6 sm:px-10 lg:px-16 pointer-events-auto shrink-0 flex justify-center text-center">
           <h2
             ref={titleRef}
-            className="text-[clamp(3.5rem,6vw,5.5rem)] font-black tracking-tight text-neutral-950 select-none leading-none will-change-transform opacity-0 text-center"
+            className="text-[clamp(2.25rem,5.5vw,5.5rem)] font-black tracking-tight text-neutral-950 select-none leading-none will-change-transform opacity-0 text-center"
           >
             All Works
           </h2>
@@ -458,18 +458,18 @@ export default function WorkArchive({
 
         <div
           ref={projectsRef}
-          className="w-full flex-1 min-h-0 mt-14 sm:mt-16 md:mt-20 px-6 sm:px-10 lg:px-16 opacity-0 will-change-transform pointer-events-auto flex flex-col"
+          className="w-full flex-1 min-h-0 mt-6 sm:mt-16 md:mt-20 px-6 sm:px-10 lg:px-16 opacity-0 will-change-transform pointer-events-auto flex flex-col"
         >
-          <div className="w-full h-full grid grid-rows-3 flex-1 min-h-0">
+          <div className="w-full flex-1 min-h-0 flex flex-col justify-around sm:h-full sm:grid sm:grid-rows-3">
             {ARCHIVE_PROJECTS.map((project) => (
               <div
                 key={project.id}
-                className="w-full border-t border-neutral-950/20 flex flex-col justify-center py-2 sm:py-3 lg:py-4 min-h-0"
+                className="w-full border-t border-neutral-950/20 flex flex-col justify-center py-3.5 sm:py-3 lg:py-4 min-h-0"
               >
                 <div className="flex flex-col gap-2 sm:gap-2.5 lg:gap-3">
-                  <div className="flex items-center justify-between gap-4 sm:gap-6">
-                    <h2 className="text-[clamp(2.25rem,4vw,3.75rem)] font-black tracking-tight text-neutral-950 select-none leading-none flex items-baseline sm:items-center">
-                      <span className="font-mono text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-400 font-bold mr-3 sm:mr-4 select-none shrink-0">
+                  <div className="flex items-center justify-between gap-3 sm:gap-6">
+                    <h2 className="text-[clamp(1.35rem,3.2vw,3.75rem)] font-black tracking-tight text-neutral-950 select-none leading-tight sm:leading-none flex items-baseline sm:items-center">
+                      <span className="font-mono text-sm sm:text-lg md:text-xl lg:text-2xl text-neutral-400 font-bold mr-2 sm:mr-4 select-none shrink-0">
                         {project.index} —
                       </span>
                       <span className="transition-colors duration-200 hover:text-red-600">
@@ -490,8 +490,8 @@ export default function WorkArchive({
                       }}
                     />
                   </div>
-                  <div className="flex flex-wrap items-start gap-y-3 gap-x-6 sm:gap-x-10 md:gap-x-14 select-none">
-                    <div className="w-[170px] sm:w-[210px] md:w-[240px] shrink-0">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-start gap-y-2.5 gap-x-4 sm:gap-x-10 md:gap-x-14 select-none">
+                    <div className="col-span-1 sm:w-[210px] md:w-[240px] sm:shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Site Status
                       </span>
@@ -499,7 +499,7 @@ export default function WorkArchive({
                         {project.status}
                       </p>
                     </div>
-                    <div className="w-[170px] sm:w-[210px] md:w-[240px] shrink-0">
+                    <div className="col-span-1 sm:w-[210px] md:w-[240px] sm:shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Role
                       </span>
@@ -507,7 +507,7 @@ export default function WorkArchive({
                         {project.role}
                       </p>
                     </div>
-                    <div className="shrink-0">
+                    <div className="col-span-2 sm:col-span-1 sm:shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Stack
                       </span>
