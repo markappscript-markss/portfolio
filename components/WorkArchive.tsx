@@ -16,6 +16,15 @@ const ARCHIVE_PROJECTS = [
     stack: "Barba.js, GSAP",
     link: "https://v2.markappscript.dev",
   },
+  {
+    id: "sunyue-blooms-and-designs",
+    index: "02",
+    title: "SunYue Blooms and Designs",
+    status: "In-development",
+    role: "Front and Backend",
+    stack: "Next.JS, GSAP",
+    link: "https://sunyue.markappscript.dev",
+  },
 ];
 
 export interface WorkArchiveProps {
@@ -481,8 +490,8 @@ export default function WorkArchive({
                       }}
                     />
                   </div>
-                  <div className="flex flex-wrap items-start gap-8 sm:gap-12 md:gap-16 lg:gap-24 select-none">
-                    <div>
+                  <div className="flex flex-wrap items-start gap-y-3 gap-x-6 sm:gap-x-10 md:gap-x-14 select-none">
+                    <div className="w-[170px] sm:w-[210px] md:w-[240px] shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Site Status
                       </span>
@@ -490,7 +499,7 @@ export default function WorkArchive({
                         {project.status}
                       </p>
                     </div>
-                    <div>
+                    <div className="w-[170px] sm:w-[210px] md:w-[240px] shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Role
                       </span>
@@ -498,7 +507,7 @@ export default function WorkArchive({
                         {project.role}
                       </p>
                     </div>
-                    <div>
+                    <div className="shrink-0">
                       <span className="block text-[10px] sm:text-xs font-mono uppercase tracking-widest text-neutral-600 font-semibold">
                         Stack
                       </span>

@@ -1730,17 +1730,22 @@ export default function HeroScene3D() {
       }, 90);
     };
 
-    if (typeof window !== "undefined" && ((window as any).__paperTearComplete || (window as any).__paperTearReveal)) {
+    if (typeof window !== "undefined" && (window as any).__paperTearComplete) {
       playStaggerReveal();
     } else {
-      window.addEventListener("paper-tear-reveal", onPaperTearReveal);
       window.addEventListener("paper-tear-complete", playStaggerReveal);
     }
     window.addEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
     window.addEventListener("portfolio-view-about", onPortfolioViewAbout);
     window.addEventListener("portfolio-explore-work", onPortfolioViewWork);
     window.addEventListener("portfolio-view-work", onPortfolioViewWork);
-    const fallbackTimer = setTimeout(playStaggerReveal, 2500);
+    const fallbackTimer = setTimeout(() => {
+      if (typeof window !== "undefined" && !(window as any).__paperTearComplete) {
+        if (!document.getElementById("preloader-main")) {
+          playStaggerReveal();
+        }
+      }
+    }, 15000);
 
     renderer.compile(scene, camera);
     renderer.render(scene, camera);
@@ -1750,7 +1755,6 @@ export default function HeroScene3D() {
       clearTimeout(fallbackTimer);
       clearTimeout(resumeTimer);
       revealTimeouts.forEach(clearTimeout);
-      window.removeEventListener("paper-tear-reveal", onPaperTearReveal);
       window.removeEventListener("paper-tear-complete", playStaggerReveal);
       window.removeEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
       window.removeEventListener("portfolio-view-about", onPortfolioViewAbout);

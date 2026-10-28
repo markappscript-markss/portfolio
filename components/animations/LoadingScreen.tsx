@@ -1,313 +1,283 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 
-const tearPoints: [number, number][] = [
-  [48.4, 0],
-  [49.18, 1.23],
-  [47.53, 2.95],
-  [46.32, 5.4],
-  [47.43, 6.98],
-  [48.01, 7.34],
-  [47.82, 8.04],
-  [48.07, 9.38],
-  [50.32, 11.71],
-  [55.09, 12.44],
-  [54.55, 13.2],
-  [52.66, 14.81],
-  [53.82, 15.87],
-  [53.56, 16.64],
-  [52.53, 18.9],
-  [52.65, 20.03],
-  [51.01, 21.29],
-  [50.93, 24.04],
-  [55.2, 24.64],
-  [49.12, 26.44],
-  [43.51, 27.19],
-  [47.09, 27.89],
-  [45.42, 29.17],
-  [45.58, 31.24],
-  [44.62, 33.04],
-  [42.37, 34.7],
-  [43.95, 36.56],
-  [42.7, 37.98],
-  [43.07, 38.46],
-  [43.13, 38.93],
-  [43.17, 40.72],
-  [43.92, 43.38],
-  [46.28, 46.25],
-  [46.39, 47.32],
-  [46.74, 48.96],
-  [48.77, 50.43],
-  [48.21, 51.09],
-  [49.13, 52.51],
-  [49.63, 53.05],
-  [50.41, 54.58],
-  [50.98, 56.74],
-  [55.56, 57.47],
-  [51.48, 57.85],
-  [51.35, 59.24],
-  [54.22, 61.09],
-  [55.12, 63.61],
-  [55.8, 64.2],
-  [56.36, 65.81],
-  [60.21, 66.36],
-  [56.4, 68.37],
-  [56.8, 71.16],
-  [56.2, 73.3],
-  [55.3, 73.97],
-  [54.27, 75.04],
-  [53.19, 76.7],
-  [53.05, 78.51],
-  [52.05, 80.13],
-  [45.63, 81.2],
-  [48.63, 82.98],
-  [47.47, 84.78],
-  [48.11, 86.48],
-  [47.64, 87.09],
-  [51.98, 87.93],
-  [48.07, 88.29],
-  [49.39, 88.86],
-  [49.69, 91.28],
-  [49.23, 92.3],
-  [48.87, 94],
-  [49.33, 94.74],
-  [49.05, 96.51],
-  [47.92, 97.87],
-  [48.74, 99.23],
-  [48.7, 100],
+const IMAGES = [
+  "/images/01-build.webp",
+  "/images/02-design.webp",
+  "/images/03-render.webp",
+  "/images/04-deploy.webp",
 ];
 
-const leftClipPath = `polygon(0% 0%, ${tearPoints
-  .map(([x, y]) => `${x}% ${y}%`)
-  .join(", ")}, 0% 100%)`;
-
-const rightClipPath = `polygon(100% 0%, 100% 100%, ${[...tearPoints]
-  .reverse()
-  .map(([x, y]) => `${x}% ${y}%`)
-  .join(", ")})`;
-
-const polylinePoints = tearPoints.map(([x, y]) => `${x},${y}`).join(" ");
+const ASSETS_TO_PRELOAD = [
+  "/images/01-build.webp",
+  "/images/02-design.webp",
+  "/images/03-render.webp",
+  "/images/04-deploy.webp",
+  "/images/Hero-avatar1.webp",
+  "/images/Hero-avatar2.webp",
+  "/images/Hero-avatar3.webp",
+  "/images/Hero-avatar4.webp",
+];
 
 export default function LoadingScreen() {
   const [isVisible, setIsVisible] = useState(true);
-  const [isTorn, setIsTorn] = useState(false);
-  const [freezeFrame, setFreezeFrame] = useState<string | null>(null);
-
-  const finishedRef = useRef(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const startTear = useCallback(() => {
-    if (finishedRef.current) return;
-    finishedRef.current = true;
-
-    const video = videoRef.current;
-    if (video) {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || window.innerWidth;
-        canvas.height = video.videoHeight || window.innerHeight;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          setFreezeFrame(canvas.toDataURL("image/jpeg", 0.92));
-        }
-      } catch {
-      }
-    }
-
-    setIsTorn(true);
-    window.dispatchEvent(new Event("loading-complete"));
-    (window as any).__loadingComplete = true;
-
-    setTimeout(() => {
-      window.dispatchEvent(new Event("paper-tear-reveal"));
-    }, 350);
-  }, []);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const columnsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const clipWrappersRef = useRef<(HTMLDivElement | null)[]>([]);
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const countdownWrapRef = useRef<HTMLDivElement>(null);
+  const countdownNumberRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const preloader = containerRef.current;
+    const columns = columnsRef.current.filter(Boolean);
+    const clipWrappers = clipWrappersRef.current.filter(Boolean);
+    const imgs = imagesRef.current.filter(Boolean);
+    const countdownWrap = countdownWrapRef.current;
+    const countdownNum = countdownNumberRef.current;
 
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.currentTime = 0;
-
-    const handleTimeUpdate = () => {
-      if (video.duration && video.currentTime > 0.5 && video.currentTime >= video.duration - 0.15) {
-        startTear();
-      }
-    };
-
-    video.addEventListener("timeupdate", handleTimeUpdate);
-
-    const tryPlay = () => {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          if (err && err.name === "AbortError") {
-            return;
-          }
-          startTear();
-        });
-      }
-    };
-
-    if (video.readyState >= 2) {
-      tryPlay();
-    } else {
-      video.addEventListener("canplay", tryPlay, { once: true });
-      video.addEventListener("loadeddata", tryPlay, { once: true });
+    if (
+      !preloader ||
+      !countdownWrap ||
+      !countdownNum ||
+      columns.length === 0 ||
+      clipWrappers.length === 0 ||
+      imgs.length === 0
+    ) {
+      return;
     }
 
-    const fallbackTimer = setTimeout(() => {
-      startTear();
-    }, 4000);
+    const countData = { value: 0 };
+    let isIntroFinished = false;
+    let isAssetsFinished = false;
+    let hasExited = false;
+
+    const ctx = gsap.context(() => {
+      const tryExit = () => {
+        if (!isIntroFinished || !isAssetsFinished || hasExited) return;
+        hasExited = true;
+
+        const exitTl = gsap.timeline({
+          delay: 0.35,
+          onComplete: () => {
+            setIsVisible(false);
+            if (!(window as any).__paperTearComplete) {
+              window.dispatchEvent(new Event("paper-tear-complete"));
+              (window as any).__paperTearComplete = true;
+            }
+          },
+        });
+
+        exitTl.to(countdownWrap, {
+          opacity: 0,
+          y: 20,
+          duration: 0.35,
+          ease: "power2.in",
+        });
+
+        columns.forEach((col, idx) => {
+          exitTl.to(
+            col,
+            {
+              yPercent: -100,
+              duration: 1.0,
+              ease: "power4.inOut",
+              onStart: () => {
+                if (idx === 2) {
+                  window.dispatchEvent(new Event("paper-tear-complete"));
+                  (window as any).__paperTearComplete = true;
+                }
+              },
+            },
+            idx === 0 ? "-=0.15" : "<0.12"
+          );
+        });
+      };
+
+      const introTl = gsap.timeline({
+        paused: true,
+        defaults: { ease: "power3.out" },
+        onComplete: () => {
+          isIntroFinished = true;
+          tryExit();
+        },
+      });
+
+      introTl.to(countdownWrap, { opacity: 1, duration: 0.4 }, 0);
+
+      introTl.to(
+        clipWrappers,
+        {
+          clipPath: "inset(0% 0% 0% 0%)",
+          duration: 1.4,
+          stagger: { each: 0.12, from: "start" },
+          ease: "power4.inOut",
+        },
+        0
+      );
+
+      introTl.to(
+        imgs,
+        {
+          filter: "brightness(0.75) contrast(1.1) saturate(1.15) blur(0px)",
+          scale: 1,
+          duration: 1.8,
+          stagger: 0.12,
+          ease: "power3.out",
+        },
+        0.2
+      );
+
+      Promise.all(imgs.map((img) => img.decode().catch(() => {}))).then(() => {
+        setTimeout(() => {
+          introTl.play();
+        }, 120);
+      });
+
+      const totalItems = ASSETS_TO_PRELOAD.length + 2;
+      let loadedItems = 0;
+
+      const updateProgress = () => {
+        loadedItems++;
+        const targetPercent = Math.min(100, Math.round((loadedItems / totalItems) * 100));
+
+        gsap.to(countData, {
+          value: targetPercent,
+          duration: 0.35,
+          ease: "power1.out",
+          overwrite: "auto",
+          onUpdate: () => {
+            if (countdownNum) {
+              countdownNum.textContent = String(Math.floor(countData.value));
+            }
+          },
+          onComplete: () => {
+            if (targetPercent >= 100) {
+              if (countdownNum) {
+                countdownNum.textContent = "100";
+              }
+              isAssetsFinished = true;
+              tryExit();
+            }
+          },
+        });
+      };
+
+      ASSETS_TO_PRELOAD.forEach((src) => {
+        const image = new Image();
+        image.onload = updateProgress;
+        image.onerror = updateProgress;
+        image.src = src;
+      });
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updateProgress).catch(updateProgress);
+      } else {
+        updateProgress();
+      }
+
+      if (document.readyState === "complete") {
+        updateProgress();
+      } else {
+        window.addEventListener("load", updateProgress, { once: true });
+      }
+    }, containerRef);
 
     return () => {
-      clearTimeout(fallbackTimer);
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("canplay", tryPlay);
-      video.removeEventListener("loadeddata", tryPlay);
+      ctx.revert();
     };
-  }, [startTear]);
+  }, []);
 
   if (!isVisible) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] pointer-events-none select-none overflow-hidden">
-        {isTorn ? (
-          <>
-            <motion.div
-              initial={{ x: "0%", rotate: 0 }}
-              animate={{
-                x: ["0%", "-1.5%", "-115%"],
-                rotate: [0, -0.6, -4],
-                y: ["0%", "0.4%", "1.5%"],
-              }}
-              transition={{
-                duration: 1.3,
-                times: [0, 0.1, 1],
-                ease: [0.7, 0, 0.25, 1],
-              }}
+    <main
+      id="preloader-main"
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] w-screen h-screen overflow-hidden select-none pointer-events-auto"
+    >
+      <div className="absolute inset-0 w-full h-full grid grid-cols-4 grid-rows-1 gap-0">
+        {IMAGES.map((src, index) => (
+          <div
+            key={src}
+            ref={(el) => {
+              columnsRef.current[index] = el;
+            }}
+            className="w-full h-full overflow-hidden relative bg-[#050505]"
+            style={{
+              willChange: "transform",
+              transform: "translate3d(0, 0, 0)",
+            }}
+          >
+            <div
+              className="absolute top-0 h-full flex items-center justify-center pointer-events-none select-none z-0"
               style={{
-                clipPath: leftClipPath,
-                filter: "drop-shadow(10px 0 25px rgba(0,0,0,0.65))",
-              }}
-              className="absolute inset-0 w-full h-full bg-neutral-950 will-change-transform"
-              onAnimationComplete={() => {
-                setIsVisible(false);
-                window.dispatchEvent(new Event("paper-tear-complete"));
-                (window as any).__paperTearComplete = true;
+                width: "100vw",
+                left: `-${index * 25}vw`,
               }}
             >
-              {freezeFrame ? (
-                <img
-                  src={freezeFrame}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-neutral-950" />
-              )}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 100"
+              <span
+                className="font-bold text-white tracking-tight whitespace-nowrap"
+                style={{
+                  fontSize: "clamp(1.75rem, 5.5vw, 4.5rem)",
+                  letterSpacing: "0.04em",
+                }}
               >
-                <polyline
-                  points={polylinePoints}
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth="0.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <polyline
-                  points={polylinePoints}
-                  fill="none"
-                  stroke="#ffffff"
-                  strokeWidth="0.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.95"
-                />
-              </svg>
-            </motion.div>
+                markappscript
+              </span>
+            </div>
 
-            <motion.div
-              initial={{ x: "0%", rotate: 0 }}
-              animate={{
-                x: ["0%", "1.5%", "115%"],
-                rotate: [0, 0.6, 4],
-                y: ["0%", "-0.4%", "-1.5%"],
+            <div
+              ref={(el) => {
+                clipWrappersRef.current[index] = el;
               }}
-              transition={{
-                duration: 1.3,
-                times: [0, 0.1, 1],
-                ease: [0.7, 0, 0.25, 1],
-              }}
+              className="w-full h-full overflow-hidden relative z-10"
               style={{
-                clipPath: rightClipPath,
-                filter: "drop-shadow(-10px 0 25px rgba(0,0,0,0.65))",
+                clipPath: "inset(0% 100% 0% 0%)",
+                willChange: "clip-path",
+                transform: "translate3d(0, 0, 0)",
               }}
-              className="absolute inset-0 w-full h-full bg-neutral-950 will-change-transform"
             >
-              {freezeFrame ? (
-                <img
-                  src={freezeFrame}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-neutral-950" />
-              )}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 100"
-              >
-                <polyline
-                  points={polylinePoints}
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth="0.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <polyline
-                  points={polylinePoints}
-                  fill="none"
-                  stroke="#ffffff"
-                  strokeWidth="0.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.95"
-                />
-              </svg>
-            </motion.div>
-          </>
-        ) : (
-          <div className="absolute inset-0 w-full h-full bg-neutral-950">
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={startTear}
-              onError={startTear}
-              className="w-full h-full object-cover"
-            >
-              <source src="/videos/match-cut.mp4" type="video/mp4" />
-              <source src="/videos/match-cut.webm" type="video/webm" />
-            </video>
+              <img
+                ref={(el) => {
+                  imagesRef.current[index] = el;
+                }}
+                src={src}
+                alt=""
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                style={{
+                  filter: "brightness(0.75) contrast(1.1) saturate(1.15) blur(14px)",
+                  transform: "scale(1.1) translate3d(0, 0, 0)",
+                  willChange: "transform, filter",
+                }}
+              />
+            </div>
           </div>
-        )}
+        ))}
       </div>
-    </AnimatePresence>
+
+      <div
+        ref={countdownWrapRef}
+        className="absolute bottom-8 right-8 sm:bottom-[50px] sm:right-[50px] z-20 flex flex-col items-end gap-2 opacity-0"
+      >
+        <div
+          ref={countdownNumberRef}
+          className="font-extrabold tabular-nums leading-none text-black"
+          style={{
+            fontSize: "clamp(3.5rem, 7vw, 6rem)",
+            color: "#000000",
+          }}
+        >
+          0
+        </div>
+        <div className="text-[0.75rem] tracking-[0.2em] text-white/50 uppercase font-semibold">
+          Loading
+        </div>
+      </div>
+    </main>
   );
 }
