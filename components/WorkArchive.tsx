@@ -23,7 +23,7 @@ const ARCHIVE_PROJECTS = [
     status: "In-development",
     role: "Front and Backend",
     stack: "Next.JS, GSAP",
-    link: "https://sunyue.markappscript.dev",
+    link: "https://sunyue.vercel.app",
   },
 ];
 
@@ -534,11 +534,10 @@ export default function WorkArchive({
                 setCurrentPage((p) => Math.max(1, p - 1));
               }}
               disabled={currentPage === 1}
-              className={`transition-opacity ${
-                currentPage === 1
+              className={`transition-opacity ${currentPage === 1
                   ? "opacity-30 cursor-default"
                   : "opacity-80 hover:opacity-100 cursor-pointer"
-              }`}
+                }`}
               aria-label="Previous page"
             >
               ←
@@ -553,11 +552,10 @@ export default function WorkArchive({
                 setCurrentPage((p) => Math.min(totalPages, p + 1));
               }}
               disabled={currentPage === totalPages}
-              className={`transition-opacity ${
-                currentPage === totalPages
+              className={`transition-opacity ${currentPage === totalPages
                   ? "opacity-30 cursor-default"
                   : "opacity-80 hover:opacity-100 cursor-pointer"
-              }`}
+                }`}
               aria-label="Next page"
             >
               →
