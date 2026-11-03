@@ -12,6 +12,7 @@ import WorkOverlay3 from "@/components/WorkOverlay3";
 import WorkArchive from "@/components/WorkArchive";
 import FinalOverlay from "@/components/FinalOverlay";
 import WorkOverlayBackButton from "@/components/WorkOverlayBackButton";
+import PrivacyOverlay from "@/components/PrivacyOverlay";
 
 export default function Home() {
   const [activeView, setActiveView] = useState<"main" | "about" | "work">("main");
@@ -21,6 +22,7 @@ export default function Home() {
   const [isFinalSectionOpen, setIsFinalSectionOpen] = useState(false);
   const [isDarkHeader, setIsDarkHeader] = useState(false);
   const [isDeepDive, setIsDeepDive] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const isDeepDiveRef = useRef(false);
   const backBtnContainerRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +86,10 @@ export default function Home() {
   const handleCloseFinal = useCallback(() => {
     setIsFinalSectionOpen(false);
     setIsDarkHeader(false);
+  }, []);
+
+  const handleClosePrivacy = useCallback(() => {
+    setIsPrivacyOpen(false);
   }, []);
 
   const handleToMainFromFinal = useCallback(() => {
@@ -182,6 +188,21 @@ export default function Home() {
       setIsDeepDive(false);
     };
 
+    const handleOpenPrivacy = () => {
+      setIsPrivacyOpen(true);
+    };
+
+    const handleClosePrivacyEvent = () => {
+      setIsPrivacyOpen(false);
+    };
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("privacy") === "true") {
+        setIsPrivacyOpen(true);
+      }
+    }
+
     window.addEventListener("portfolio-explore-work", handleExploreWork);
     window.addEventListener("portfolio-view-work", handleExploreWork);
     window.addEventListener("portfolio-view-about", handleViewAbout);
@@ -192,6 +213,8 @@ export default function Home() {
     window.addEventListener("portfolio-view-final", handleViewFinal);
     window.addEventListener("portfolio-deepdive-enter", handleDeepDiveEnter);
     window.addEventListener("portfolio-deepdive-exit", handleDeepDiveExit);
+    window.addEventListener("portfolio-open-privacy", handleOpenPrivacy);
+    window.addEventListener("portfolio-close-privacy", handleClosePrivacyEvent);
 
     return () => {
       window.removeEventListener("portfolio-explore-work", handleExploreWork);
@@ -204,6 +227,8 @@ export default function Home() {
       window.removeEventListener("portfolio-view-final", handleViewFinal);
       window.removeEventListener("portfolio-deepdive-enter", handleDeepDiveEnter);
       window.removeEventListener("portfolio-deepdive-exit", handleDeepDiveExit);
+      window.removeEventListener("portfolio-open-privacy", handleOpenPrivacy);
+      window.removeEventListener("portfolio-close-privacy", handleClosePrivacyEvent);
     };
   }, []);
 
@@ -306,6 +331,10 @@ export default function Home() {
         onToMain={handleToMainFromFinal}
         onReachTop={handleReachTop}
         onLeaveTop={handleLeaveTop}
+      />
+      <PrivacyOverlay
+        isOpen={isPrivacyOpen}
+        onClose={handleClosePrivacy}
       />
     </>
   );

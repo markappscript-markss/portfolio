@@ -330,8 +330,8 @@ export default function FinalOverlay({
                 </div>
               </div>
 
-              <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 text-xs sm:text-sm font-mono tracking-wider">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-1.5 sm:gap-x-2">
+              <div className="w-full grid grid-cols-1 md:grid-cols-3 items-center justify-between gap-4 pt-6 text-xs sm:text-sm font-mono tracking-wider">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-1.5 sm:gap-x-2">
                   <span className="text-white/80 transition-colors duration-200 hover:text-[#ff2222] cursor-default">
                     Tech Stack:
                   </span>
@@ -363,7 +363,23 @@ export default function FinalOverlay({
                   </a>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-1.5 sm:gap-x-2">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/50 text-center">
+                  <span>© 2026 Mark Poticar. All rights reserved.</span>
+                  <span className="text-white/30">|</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.dispatchEvent(new CustomEvent("portfolio-open-privacy"));
+                      }
+                    }}
+                    className="text-white/70 hover:text-[#ff2222] transition-colors duration-200 underline underline-offset-4 cursor-pointer"
+                  >
+                    Privacy Policy
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-1.5 sm:gap-x-2">
                   <span className="text-white/80 transition-colors duration-200 hover:text-[#ff2222] cursor-default">
                     Socials:
                   </span>

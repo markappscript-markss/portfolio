@@ -1705,8 +1705,80 @@ export default function HeroScene3D() {
       setTimeout(playStaggerReveal, 80);
     };
 
+    const prepareResetHiddenState = () => {
+      revealTimeouts.forEach(clearTimeout);
+      revealTimeouts.length = 0;
+
+      builtThemes.forEach((th, idx) => {
+        if (idx !== 0) {
+          th.layers.forEach((l) => {
+            l.target = -18;
+            l.off = -18;
+            l.group.position.y = -18;
+          });
+          th.group.visible = false;
+        }
+      });
+
+      builtThemes[0].group.visible = true;
+      builtThemes[0].layers.forEach((l) => {
+        l.off = -18;
+        l.target = -18;
+        l.group.position.y = -18;
+      });
+
+      currentAvatar = "dark";
+      setActiveAvatar("dark");
+
+      targetBg.set(THEMES[0].bg);
+      targetFloor.set(THEMES[0].floor);
+      if (scene.background instanceof THREE.Color) {
+        scene.background.set(THEMES[0].bg);
+      }
+      floorMat.color.set(THEMES[0].floor);
+
+      glitchUniforms.map.value = textureDark;
+      glitchUniforms.uGlitch.value = 0.85;
+      avatarMesh.scale.set(1.0, 1.0, 1.0);
+
+      gsap.killTweensOf([
+        textMesh.position,
+        textMat,
+        webAppsMesh.position,
+        webAppsMat,
+        aiVideoAdsMesh.position,
+        aiVideoMat,
+        ".hero-nav-header",
+        ".hero-nav-item",
+      ]);
+
+      textMesh.position.y = 3 - cylinderCenterY - 1.2;
+      textMat.opacity = 0;
+      webAppsMesh.position.x = 1.8;
+      webAppsMat.opacity = 0;
+      aiVideoAdsMesh.position.x = -1.8;
+      aiVideoMat.opacity = 0;
+      gsap.set([".hero-nav-header", ".hero-nav-item"], { opacity: 0, y: 16 });
+
+      wordIdx = 0;
+      charIdx = 0;
+      isDeleting = false;
+      pauseUntil = 0;
+      lastStepTime = 0;
+      currentStartX = -1;
+      lastDrawnKey = "";
+      canStartTypewriter = false;
+
+      renderer.render(scene, camera);
+    };
+
+    let aboutPrepareTimer: ReturnType<typeof setTimeout> | undefined;
     const onPortfolioViewAbout = () => {
       isOverlayOpen = true;
+      clearTimeout(aboutPrepareTimer);
+      aboutPrepareTimer = setTimeout(() => {
+        prepareResetHiddenState();
+      }, 100);
     };
 
     const onPortfolioViewWork = () => {
@@ -1716,18 +1788,16 @@ export default function HeroScene3D() {
     let resumeTimer: ReturnType<typeof setTimeout> | undefined;
     const onPortfolioTriggerMain = () => {
       clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (isOverlayOpen) {
-            isOverlayOpen = false;
-            lastTime = performance.now();
-            if (isRunning) {
-              animate();
-            }
-          }
-          resetToDarkWithStagger();
-        });
-      }, 90);
+      clearTimeout(aboutPrepareTimer);
+      if (isOverlayOpen) {
+        isOverlayOpen = false;
+        lastTime = performance.now();
+        if (isRunning) {
+          animate();
+        }
+      }
+      resetToDarkWithStagger();
+      renderer.render(scene, camera);
     };
 
     if (typeof window !== "undefined" && (window as any).__paperTearComplete) {
@@ -1754,6 +1824,7 @@ export default function HeroScene3D() {
       isRunning = false;
       clearTimeout(fallbackTimer);
       clearTimeout(resumeTimer);
+      clearTimeout(aboutPrepareTimer);
       revealTimeouts.forEach(clearTimeout);
       window.removeEventListener("paper-tear-complete", playStaggerReveal);
       window.removeEventListener("portfolio-trigger-main", onPortfolioTriggerMain);
