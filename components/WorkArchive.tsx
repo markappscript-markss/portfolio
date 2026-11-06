@@ -25,6 +25,15 @@ const ARCHIVE_PROJECTS = [
     stack: "Next.JS, GSAP",
     link: "https://sunyue.vercel.app",
   },
+  {
+    id: "agent-productivity-saas",
+    index: "03",
+    title: "Agent Productivity SAAS",
+    status: "Live",
+    role: "Front and Backend",
+    stack: "Next.js, Typescript, Python (AI Automation), Custom Agentic Skills",
+    link: "https://productivity-ad-demo.vercel.app/",
+  },
 ];
 
 export interface WorkArchiveProps {
