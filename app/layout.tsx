@@ -11,8 +11,26 @@ const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Mark Poticar",
+  alternateName: "Mark Portfolio",
   url: "https://markappscript.dev",
-  jobTitle: "Creative Technologist & Full Stack Developer",
+  jobTitle: [
+    "AI Assisted Developer",
+    "AI Developer",
+    "AI Web Designer",
+    "Web Designer",
+    "Creative Technologist"
+  ],
+  description: "Mark Poticar's portfolio — AI assisted and AI powered web developer & designer creating high-performance web applications, 3D interactive experiences, and AI video ads.",
+  knowsAbout: [
+    "AI assisted",
+    "AI powered",
+    "AI developer",
+    "AI assisted developer",
+    "AI video ads",
+    "AI Web designer",
+    "Web designer",
+    "Mark Portfolio"
+  ],
   sameAs: [
     "https://github.com/markappscript-markss",
     "https://www.linkedin.com/in/mark-poticar/",
@@ -22,24 +40,35 @@ const personSchema = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://markappscript.dev"),
   title: {
-    default: "MARK | Portfolio",
-    template: "%s | MARK",
+    default: "Mark Portfolio — AI Assisted Developer & AI Web Designer",
+    template: "%s | Mark Portfolio",
   },
-  description: "Build, Design, Render, Deploy.",
+  description: "Mark Poticar's portfolio — AI assisted and AI powered web developer & designer creating high-performance web applications, 3D interactive experiences, and AI video ads.",
+  keywords: [
+    "AI assisted",
+    "AI powered",
+    "AI developer",
+    "AI assisted developer",
+    "AI video ads",
+    "AI Web designer",
+    "Web designer",
+    "Mark Portfolio",
+    "Mark Poticar"
+  ],
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "MARK | Portfolio",
-    description: "Build, Design, Render, Deploy.",
+    title: "Mark Portfolio — AI Assisted Developer & AI Web Designer",
+    description: "Mark Poticar's portfolio — AI assisted and AI powered web developer & designer creating high-performance web applications, 3D interactive experiences, and AI video ads.",
     url: "https://markappscript.dev",
-    siteName: "MARK | Portfolio",
+    siteName: "Mark Portfolio",
     images: [
       {
         url: "/hero.png",
         width: 1200,
         height: 630,
-        alt: "MARK | Portfolio",
+        alt: "Mark Portfolio — AI Assisted Developer & AI Web Designer",
       },
     ],
     locale: "en_US",
@@ -47,8 +76,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MARK | Portfolio",
-    description: "Build, Design, Render, Deploy.",
+    title: "Mark Portfolio — AI Assisted Developer & AI Web Designer",
+    description: "Mark Poticar's portfolio — AI assisted and AI powered web developer & designer creating high-performance web applications, 3D interactive experiences, and AI video ads.",
     images: ["/hero.png"],
   },
   icons: {

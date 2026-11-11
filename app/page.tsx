@@ -295,7 +295,10 @@ export default function Home() {
       </div>
 
       <main id="home" className="h-[100dvh] w-full bg-white relative overflow-hidden flex items-center justify-center">
-        <h1 className="sr-only">Mark Poticar — Portfolio</h1>
+        <h1 className="sr-only">Mark Portfolio — Mark Poticar | AI Assisted Developer &amp; AI Web Designer</h1>
+        <p className="sr-only">
+          Mark Poticar&apos;s portfolio: AI assisted and AI powered web developer and web designer specializing in full stack applications, interactive 3D WebGL experiences, and AI video ads.
+        </p>
         <HeroScene3D />
       </main>
       <AboutOverlay isOpen={activeView === "about"} />
